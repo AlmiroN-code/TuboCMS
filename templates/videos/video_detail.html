@@ -1,0 +1,592 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ video.title }} - Video Portal{% endblock %}
+{% block description %}{{ video.description|truncatewords:20 }}{% endblock %}
+
+{% block content %}
+    <div class="video-detail">
+        <!-- Video Player -->
+        <div class="video-player-container">
+            {% if video.video_file %}
+                <video 
+                    controls 
+                    preload="metadata"
+                    poster="{% if video.poster %}{{ video.poster.url }}{% else %}{% static 'img/default-poster.jpg' %}{% endif %}"
+                    class="video-player"
+                >
+                    <source src="{{ video.video_file.url }}" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            {% else %}
+                <div class="video-placeholder">
+                    <div class="placeholder-content">
+                        <i class="fas fa-video-slash"></i>
+                        <h3>Видеофайл не загружен</h3>
+                        <p>Это видео еще не готово к просмотру.</p>
+                        {% if video.poster %}
+                            <img src="{{ video.poster.url }}" alt="{{ video.title }}" class="placeholder-poster">
+                        {% else %}
+                            <img src="{% static 'img/default-poster.jpg' %}" alt="{{ video.title }}" class="placeholder-poster">
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Video Info -->
+        <div class="video-info-section">
+            <h1 class="video-title">{{ video.title }}</h1>
+            
+            <div class="video-meta-info">
+                <div class="video-stats">
+                    <span class="view-count">
+                        <i class="fas fa-eye"></i> {{ video.view_count }} просмотров
+                    </span>
+                    <span class="video-date">
+                        <i class="fas fa-calendar"></i> {{ video.created_at|date:"d.m.Y" }}
+                    </span>
+                    <span class="video-duration">
+                        <i class="fas fa-clock"></i> {{ video.duration_formatted }}
+                    </span>
+                </div>
+                
+                <!-- Rating System -->
+                <div class="video-rating-container" id="rating-container">
+                    {% include 'videos/partials/video_rating.html' %}
+                </div>
+            </div>
+            
+            <!-- Video Description -->
+            {% if video.description %}
+                <div class="video-description">
+                    <h3>Описание</h3>
+                    <p>{{ video.description|linebreaks }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Tags -->
+            {% if video.tags.exists %}
+                <div class="video-tags">
+                    <h4>Теги:</h4>
+                    {% for tag in video.tags.all %}
+                        {% if tag.slug %}
+                            <a href="{% url 'videos:tag_videos' tag.slug %}" class="tag-link">{{ tag.name }}</a>
+                        {% else %}
+                            <span class="tag-link">{{ tag.name }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Actors -->
+            {% if video.actors.exists %}
+                <div class="video-actors">
+                    <h4>Актеры:</h4>
+                    {% for actor in video.actors.all %}
+                        {% if actor.slug %}
+                            <a href="{% url 'videos:actor_videos' actor.slug %}" class="actor-link">
+                        {% else %}
+                            <span class="actor-link">
+                        {% endif %}
+                            <i class="fas fa-user-tie"></i> {{ actor.name }}
+                        {% if actor.slug %}</a>{% else %}</span>{% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h3>Комментарии ({{ video.comments.count }})</h3>
+            
+            {% if user.is_authenticated %}
+                <!-- Comment Form -->
+                <div class="comment-form-container">
+                    <form class="comment-form" method="post" action="{% url 'comments:add_comment' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="video_id" value="{{ video.id }}">
+                        <textarea 
+                            name="content" 
+                            placeholder="Добавить комментарий..." 
+                            class="comment-textarea"
+                            rows="3"
+                            maxlength="1000"
+                            required
+                        ></textarea>
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </form>
+                </div>
+            {% else %}
+                <p class="login-prompt">
+                    <a href="{% url 'accounts:login' %}">Войдите</a> чтобы оставить комментарий.
+                </p>
+            {% endif %}
+            
+            <!-- Comments List -->
+            <div class="comments-list">
+                {% for comment in comments %}
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">
+                                {% if comment.user.profile.avatar %}
+                                    <img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}" class="comment-avatar">
+                                {% else %}
+                                    <div class="comment-avatar default-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="author-name">{{ comment.user.username }}</span>
+                                <span class="comment-date">{{ comment.created_at|timesince }} назад</span>
+                            </div>
+                            
+                            {% if user.is_authenticated %}
+                                <div class="comment-actions">
+                                    <button class="comment-like-btn" data-comment-id="{{ comment.id }}">
+                                        <i class="fas fa-thumbs-up"></i> {{ comment.like_count }}
+                                    </button>
+                                    <button class="comment-reply-btn" data-comment-id="{{ comment.id }}">
+                                        <i class="fas fa-reply"></i> Ответить
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="comment-content">
+                            {{ comment.content|linebreaks }}
+                        </div>
+                        
+                        <!-- Replies -->
+                        {% if comment.replies.exists %}
+                            <div class="comment-replies">
+                                {% for reply in comment.replies.all %}
+                                    <div class="comment-item reply">
+                                        <div class="comment-header">
+                                            <div class="comment-author">
+                                                {% if reply.user.profile.avatar %}
+                                                    <img src="{{ reply.user.profile.avatar.url }}" alt="{{ reply.user.username }}" class="comment-avatar">
+                                                {% else %}
+                                                    <div class="comment-avatar default-avatar">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="author-name">{{ reply.user.username }}</span>
+                                                <span class="comment-date">{{ reply.created_at|timesince }} назад</span>
+                                            </div>
+                                        </div>
+                                        <div class="comment-content">
+                                            {{ reply.content|linebreaks }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="no-comments">
+                        <i class="fas fa-comments"></i>
+                        <p>Пока нет комментариев. Будьте первым!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Related Videos -->
+        {% if related_videos %}
+            <div class="related-videos">
+                <h3>Похожие видео</h3>
+                <div class="video-grid">
+                    {% for related_video in related_videos %}
+                        {% include 'partials/video_card.html' with video=related_video %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .video-detail {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .video-player-container {
+        margin-bottom: 30px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .video-player {
+        width: 100%;
+        height: auto;
+        min-height: 400px;
+        background: #000;
+    }
+    
+    .video-info-section {
+        margin-bottom: 40px;
+    }
+    
+    .video-title {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: var(--text-primary);
+    }
+    
+    .video-meta-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .video-stats {
+        display: flex;
+        gap: 20px;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+    
+    .video-stats span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .video-description {
+        margin-bottom: 20px;
+    }
+    
+    .video-description h3 {
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    
+    .video-description p {
+        line-height: 1.6;
+        color: var(--text-secondary);
+    }
+    
+    .video-tags, .video-actors {
+        margin-bottom: 15px;
+    }
+    
+    .video-tags h4, .video-actors h4 {
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+    
+    .tag-link, .actor-link {
+        display: inline-block;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .tag-link:hover, .actor-link:hover {
+        background: var(--accent-color);
+        color: #fff;
+    }
+    
+    .comments-section {
+        margin-bottom: 40px;
+    }
+    
+    .comments-section h3 {
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+    
+    .comment-form-container {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .comment-textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-form);
+        color: var(--text-primary);
+        font-family: inherit;
+        resize: vertical;
+        margin-bottom: 15px;
+    }
+    
+    .comment-textarea:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(138, 163, 152, 0.2);
+    }
+    
+    .login-prompt {
+        text-align: center;
+        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        color: var(--text-secondary);
+    }
+    
+    .comments-list {
+        space-y: 20px;
+    }
+    
+    .comment-item {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .comment-item.reply {
+        margin-left: 30px;
+        background: var(--bg-secondary);
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .comment-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .comment-avatar.default-avatar {
+        background: var(--accent-color);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    
+    .author-name {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    
+    .comment-date {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+    
+    .comment-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .comment-like-btn, .comment-reply-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+    }
+    
+    .comment-like-btn:hover, .comment-reply-btn:hover {
+        background: var(--bg-secondary);
+        color: var(--accent-color);
+    }
+    
+    .comment-content {
+        color: var(--text-primary);
+        line-height: 1.5;
+    }
+    
+    .comment-replies {
+        margin-top: 15px;
+        border-left: 2px solid var(--border-color);
+        padding-left: 15px;
+    }
+    
+    .no-comments {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-secondary);
+    }
+    
+    .no-comments i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+    
+    .related-videos {
+        margin-bottom: 40px;
+    }
+    
+    .related-videos h3 {
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+    
+    @media (max-width: 768px) {
+        .video-meta-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .video-stats {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .video-title {
+            font-size: 1.5rem;
+        }
+        
+        .comment-item.reply {
+            margin-left: 15px;
+        }
+    }
+
+    /* Video Placeholder Styles */
+    .video-placeholder {
+        width: 100%;
+        min-height: 400px;
+        background: linear-gradient(135deg, #252B30, #2D343A);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .placeholder-content {
+        text-align: center;
+        color: var(--text-secondary);
+        z-index: 2;
+        position: relative;
+    }
+
+    .placeholder-content i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.6;
+        color: var(--accent-color);
+    }
+
+    .placeholder-content h3 {
+        color: var(--text-primary);
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+    }
+
+    .placeholder-content p {
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+
+    .placeholder-poster {
+        width: 200px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        opacity: 0.7;
+        filter: grayscale(0.3);
+    }
+
+    .placeholder-poster:hover {
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Video rating functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const ratingContainer = document.getElementById('rating-container');
+        
+        // Handle like/dislike buttons
+        ratingContainer.addEventListener('click', function(e) {
+            if (e.target.closest('.rating-btn')) {
+                e.preventDefault();
+                const button = e.target.closest('.rating-btn');
+                const action = button.dataset.action;
+                const videoId = button.dataset.videoId;
+                
+                if (!videoId || !action) return;
+                
+                // Disable button during request
+                button.disabled = true;
+                button.classList.add('loading');
+                
+                // Make HTMX request
+                htmx.ajax('POST', `{% url 'videos:like_video' 0 %}`.replace('0', videoId), {
+                    values: { action: action },
+                    target: '#rating-container',
+                    swap: 'innerHTML'
+                }).then(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                }).catch(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                    showNotification('Произошла ошибка при оценке видео', 'error');
+                });
+            }
+        });
+        
+        // Comment functionality
+        const commentForm = document.querySelector('.comment-form');
+        if (commentForm) {
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const textarea = this.querySelector('.comment-textarea');
+                const content = textarea.value.trim();
+                
+                if (!content) return;
+                
+                // Make HTMX request
+                htmx.ajax('POST', this.action, {
+                    values: { content: content },
+                    target: '.comments-list',
+                    swap: 'beforeend'
+                }).then(() => {
+                    textarea.value = '';
+                    showNotification('Комментарий добавлен', 'success');
+                }).catch(() => {
+                    showNotification('Ошибка при добавлении комментария', 'error');
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Настройки приватности - {{ site_settings.site_name }}{% endblock %}
+{% block description %}Настройки приватности пользователя{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-shield-alt"></i> Настройки приватности</h1>
+    <div class="breadcrumbs">
+        <a href="{% url 'accounts:profile' %}">Профиль</a> / Приватность
+    </div>
+</div>
+
+<div class="privacy-settings-container">
+    <div class="privacy-settings-form">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3><i class="fas fa-globe"></i> Видимость профиля</h3>
+                <p class="form-description">Настройте, кто может видеть ваш профиль и информацию.</p>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        {{ form.is_public }}
+                        <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
+                            {{ form.is_public.label }}
+                        </label>
+                        <small class="form-text">Разрешить другим пользователям просматривать ваш профиль</small>
+                    </div>
+                    {% if form.is_public.errors %}
+                        <div class="form-errors">
+                            {% for error in form.is_public.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3><i class="fas fa-info-circle"></i> Отображение информации</h3>
+                <p class="form-description">Выберите, какую информацию показывать в профиле.</p>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        {{ form.show_email }}
+                        <label class="form-check-label" for="{{ form.show_email.id_for_label }}">
+                            {{ form.show_email.label }}
+                        </label>
+                        <small class="form-text">Показывать email адрес в профиле</small>
+                    </div>
+                    {% if form.show_email.errors %}
+                        <div class="form-errors">
+                            {% for error in form.show_email.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        {{ form.show_location }}
+                        <label class="form-check-label" for="{{ form.show_location.id_for_label }}">
+                            {{ form.show_location.label }}
+                        </label>
+                        <small class="form-text">Показывать местоположение в профиле</small>
+                    </div>
+                    {% if form.show_location.errors %}
+                        <div class="form-errors">
+                            {% for error in form.show_location.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="privacy-info">
+                <h4><i class="fas fa-info-circle"></i> Информация о приватности</h4>
+                <ul>
+                    <li>Публичный профиль позволяет другим пользователям находить и просматривать ваш профиль</li>
+                    <li>Приватный профиль скрывает вашу информацию от других пользователей</li>
+                    <li>Вы всегда можете изменить эти настройки в любое время</li>
+                    <li>Администраторы сайта могут просматривать профили независимо от настроек приватности</li>
+                </ul>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Сохранить настройки
+                </button>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

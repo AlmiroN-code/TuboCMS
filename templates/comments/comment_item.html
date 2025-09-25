@@ -1,0 +1,189 @@
+{% load static %}
+
+<div class="comment-item" data-comment-id="{{ comment.id }}">
+    <div class="comment-header">
+        <div class="comment-author">
+            {% if comment.user.profile.avatar %}
+                <img src="{{ comment.user.profile.avatar.url }}" alt="{{ comment.user.username }}" class="comment-avatar">
+            {% else %}
+                <div class="comment-avatar-default">
+                    <i class="fas fa-user"></i>
+                </div>
+            {% endif %}
+            <div class="comment-author-info">
+                <span class="author-name">{{ comment.user.username }}</span>
+                <span class="comment-date">{{ comment.created_at|timesince }} назад</span>
+            </div>
+        </div>
+        
+        {% if comment.is_pinned %}
+            <div class="comment-pinned">
+                <i class="fas fa-thumbtack"></i> Закреплен
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="comment-content">
+        {{ comment.content|linebreaks }}
+    </div>
+    
+    <div class="comment-actions">
+        {% if user.is_authenticated %}
+            <button 
+                class="comment-action-btn like-btn {% if user_comment_like %}active{% endif %}" 
+                data-action="like" 
+                data-comment-id="{{ comment.id }}"
+                {% if user_comment_dislike %}disabled{% endif %}
+            >
+                <i class="fas fa-thumbs-up"></i>
+                <span class="count">{{ comment.like_count }}</span>
+            </button>
+            
+            <button 
+                class="comment-action-btn dislike-btn {% if user_comment_dislike %}active{% endif %}" 
+                data-action="dislike" 
+                data-comment-id="{{ comment.id }}"
+                {% if user_comment_like %}disabled{% endif %}
+            >
+                <i class="fas fa-thumbs-down"></i>
+                <span class="count">{{ comment.dislike_count }}</span>
+            </button>
+            
+            <button class="comment-action-btn reply-btn" data-comment-id="{{ comment.id }}">
+                <i class="fas fa-reply"></i> Ответить
+            </button>
+        {% else %}
+            <button class="comment-action-btn inactive" disabled>
+                <i class="fas fa-thumbs-up"></i>
+                <span class="count">{{ comment.like_count }}</span>
+            </button>
+            
+            <button class="comment-action-btn inactive" disabled>
+                <i class="fas fa-thumbs-down"></i>
+                <span class="count">{{ comment.dislike_count }}</span>
+            </button>
+        {% endif %}
+    </div>
+    
+    <!-- Replies will be inserted here -->
+    <div class="comment-replies" id="replies-{{ comment.id }}">
+        {% for reply in comment.replies.all %}
+            <div class="comment-reply">
+                {% include 'comments/comment_item.html' with comment=reply %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.comment-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-avatar-default {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.comment-author-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.comment-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.comment-pinned {
+    color: var(--accent-color);
+    font-size: 12px;
+}
+
+.comment-content {
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.comment-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.comment-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.comment-action-btn:hover:not(:disabled) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.comment-action-btn.active {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.comment-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.comment-replies {
+    margin-top: 15px;
+    padding-left: 20px;
+    border-left: 2px solid var(--border-color);
+}
+
+.comment-reply {
+    margin-bottom: 10px;
+}
+</style>

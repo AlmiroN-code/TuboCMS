@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная - {{ site_settings.site_name }}{% endblock %}
+{% block description %}Популярные и новые видео на {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+    <!-- Popular Videos Section -->
+    <section class="video-section">
+        <h2 class="section-title">
+            <i class="fas fa-fire"></i> Популярные видео
+        </h2>
+        <div class="video-grid">
+            {% for video in popular_videos %}
+                {% include 'partials/video_card.html' with video=video %}
+            {% empty %}
+                <div class="no-content">
+                    <i class="fas fa-video"></i>
+                    <h3>Пока нет популярных видео</h3>
+                    <p>Загрузите первое видео!</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Recent Videos Section -->
+    <section class="video-section">
+        <h2 class="section-title">
+            <i class="fas fa-clock"></i> Новые видео
+        </h2>
+        <div class="video-grid">
+            {% for video in recent_videos %}
+                {% include 'partials/video_card.html' with video=video %}
+            {% empty %}
+                <div class="no-content">
+                    <i class="fas fa-video"></i>
+                    <h3>Пока нет новых видео</h3>
+                    <p>Загрузите первое видео!</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Trending Videos Section -->
+    <section class="video-section">
+        <h2 class="section-title">
+            <i class="fas fa-trending-up"></i> Трендовые видео
+        </h2>
+        <div class="video-grid">
+            {% for video in trending_videos %}
+                {% include 'partials/video_card.html' with video=video %}
+            {% empty %}
+                <div class="no-content">
+                    <i class="fas fa-video"></i>
+                    <h3>Пока нет трендовых видео</h3>
+                    <p>Загрузите первое видео!</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}
+
+{% comment %}
+Infinite scroll is now handled by htmx-handlers.js and is disabled on home page
+to respect the fixed video counts set in admin settings.
+{% endcomment %}

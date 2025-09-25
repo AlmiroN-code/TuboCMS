@@ -1,0 +1,74 @@
+{% load static %}
+
+{% if videos or tags or actors %}
+    <div class="search-suggestions">
+        {% if videos %}
+            <div class="suggestion-section">
+                <div class="suggestion-header">
+                    <i class="fas fa-video"></i> Видео
+                </div>
+                {% for video in videos %}
+                    <div class="search-suggestion" data-url="{% url 'videos:video_detail' video.slug %}">
+                        <div class="suggestion-thumbnail">
+                            {% if video.poster %}
+                                <img src="{{ video.poster.url }}" alt="{{ video.title }}" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'img/default-poster.jpg' %}" alt="{{ video.title }}" loading="lazy">
+                            {% endif %}
+                        </div>
+                        <div class="suggestion-content">
+                            <div class="suggestion-title">{{ video.title }}</div>
+                            <div class="suggestion-meta">
+                                {% if video.category %}{{ video.category.name }}{% else %}Без категории{% endif %}
+                                • {{ video.duration_formatted }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% if tags %}
+            <div class="suggestion-section">
+                <div class="suggestion-header">
+                    <i class="fas fa-tags"></i> Теги
+                </div>
+                {% for tag in tags %}
+                    <div class="search-suggestion" data-url="{% url 'videos:tag_videos' tag.slug %}">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="suggestion-content">
+                            <div class="suggestion-title">#{{ tag.name }}</div>
+                            <div class="suggestion-meta">{{ tag.video_count }} видео</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% if actors %}
+            <div class="suggestion-section">
+                <div class="suggestion-header">
+                    <i class="fas fa-users"></i> Актеры
+                </div>
+                {% for actor in actors %}
+                    <div class="search-suggestion" data-url="{% url 'videos:actor_videos' actor.slug %}">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="suggestion-content">
+                            <div class="suggestion-title">{{ actor.name }}</div>
+                            <div class="suggestion-meta">{{ actor.video_count }} видео</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="no-suggestions">
+        <i class="fas fa-search"></i>
+        <p>Ничего не найдено для "{{ query }}"</p>
+    </div>
+{% endif %}

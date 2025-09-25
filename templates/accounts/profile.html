@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль - {{ site_settings.site_name }}{% endblock %}
+{% block description %}Профиль пользователя {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-user"></i> Профиль пользователя</h1>
+</div>
+
+<div class="profile-container">
+    <div class="profile-sidebar">
+        <div class="profile-avatar">
+            <i class="fas fa-user-circle fa-5x"></i>
+        </div>
+        <div class="profile-info">
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
+            {% if user.first_name or user.last_name %}
+                <p>{{ user.first_name }} {{ user.last_name }}</p>
+            {% endif %}
+            <p>Зарегистрирован: {{ user.date_joined|date:"d.m.Y" }}</p>
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ video_count }}</h3>
+                    <p>Видео</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ playlist_count }}</h3>
+                    <p>Плейлистов</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ watch_later_count }}</h3>
+                    <p>Watch Later</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-sections">
+            <div class="profile-section">
+                <h3><i class="fas fa-video"></i> Последние видео</h3>
+                {% if recent_videos %}
+                    <div class="video-grid">
+                        {% for video in recent_videos %}
+                            {% include 'partials/video_card.html' with video=video %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>Нет загруженных видео</p>
+                {% endif %}
+            </div>
+            
+            <div class="profile-section">
+                <h3><i class="fas fa-cog"></i> Настройки</h3>
+                <div class="settings-list">
+                    <a href="{% url 'accounts:profile_edit' %}" class="setting-item">
+                        <i class="fas fa-edit"></i> Редактировать профиль
+                    </a>
+                    <a href="{% url 'accounts:password_change' %}" class="setting-item">
+                        <i class="fas fa-key"></i> Изменить пароль
+                    </a>
+                    <a href="{% url 'accounts:notification_settings' %}" class="setting-item">
+                        <i class="fas fa-bell"></i> Уведомления
+                    </a>
+                    <a href="{% url 'accounts:privacy_settings' %}" class="setting-item">
+                        <i class="fas fa-shield-alt"></i> Приватность
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

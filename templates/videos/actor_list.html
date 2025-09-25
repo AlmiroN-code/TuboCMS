@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Актеры - Video Portal{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <h2 class="section-title"> Актеры</h2>
+    <div class="section-desc">Познакомьтесь с нашими талантливыми актерами</div>
+    <!-- main content output -->
+    <div class="section-block">
+        {% for actor in actors %}
+        <div class="video-grid" id="shortVideos">
+                {% if actor.slug %}
+                    <a href="{% url 'videos:actor_videos' actor.slug %}">
+                {% else %}
+                    <a href="{% url 'videos:actor_list' %}">
+                {% endif %}
+                    <div class="actor-avatar">
+                        <div class="actor-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <div class="actor-info">
+                        <h3 class="actor-name">{{ actor.name }}</h3>
+                        {% if actor.bio %}
+                            <p class="actor-bio">{{ actor.bio|truncatewords:20 }}</p>
+                        {% endif %}
+                        <div class="actor-stats">
+                            <span class="video-count">{{ actor.video_count }} видео</span>
+                            <span class="subscriber-count">0 подписчиков</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="actor-actions">
+                    <button class="btn-subscribe" data-actor-id="{{ actor.id }}">
+                        <i class="fas fa-plus"></i> Подписаться
+                    </button>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-actors">
+                <i class="fas fa-user-slash"></i>
+                <h3>Актеры не найдены</h3>
+                <p>Пока что нет зарегистрированных актеров.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--accent-color);
+        text-align: center;
+    }
+
+    .page-header h1 {
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .page-header p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .actors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .actor-card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .actor-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    }
+
+    .actor-card a {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .actor-avatar {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--accent-color), #6a8276);
+    }
+
+    .actor-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .actor-card:hover .actor-avatar img {
+        transform: scale(1.1);
+    }
+
+    .actor-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: linear-gradient(135deg, var(--accent-color), #6a8276);
+    }
+
+    .actor-placeholder i {
+        font-size: 4rem;
+        color: rgba(255,255,255,0.8);
+    }
+
+    .actor-info {
+        padding: 20px;
+    }
+
+    .actor-name {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+
+    .actor-bio {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .actor-stats {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .video-count,
+    .subscriber-count {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .actor-actions {
+        padding: 0 20px 20px;
+    }
+
+    .btn-subscribe {
+        width: 100%;
+        background-color: var(--accent-color);
+        color: #fff;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-subscribe:hover {
+        background-color: #6a8276;
+    }
+
+    .btn-subscribe.subscribed {
+        background-color: #28a745;
+    }
+
+    .btn-subscribe.subscribed:hover {
+        background-color: #218838;
+    }
+
+    .no-actors {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-secondary);
+        grid-column: 1 / -1;
+    }
+
+    .no-actors i {
+        font-size: 5rem;
+        margin-bottom: 25px;
+        opacity: 0.5;
+    }
+
+    .no-actors h3 {
+        color: var(--text-primary);
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+
+    .no-actors p {
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        .actors-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .actor-avatar {
+            height: 180px;
+        }
+
+        .actor-info {
+            padding: 15px;
+        }
+
+        .actor-name {
+            font-size: 1.3rem;
+        }
+
+        .actor-stats {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .page-header p {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .actors-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .actor-avatar {
+            height: 160px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle subscription buttons
+    const subscribeButtons = document.querySelectorAll('.btn-subscribe');
+    
+    subscribeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const actorId = this.dataset.actorId;
+            
+            // Here you would typically make an HTMX request to subscribe/unsubscribe
+            // For now, just toggle the button state
+            if (this.classList.contains('subscribed')) {
+                this.classList.remove('subscribed');
+                this.innerHTML = '<i class="fas fa-plus"></i> Подписаться';
+            } else {
+                this.classList.add('subscribed');
+                this.innerHTML = '<i class="fas fa-check"></i> Подписан';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

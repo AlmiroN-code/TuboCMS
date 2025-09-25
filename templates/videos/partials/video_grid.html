@@ -1,0 +1,6 @@
+{% load static %}
+<div class="video-grid">
+    {% for video in videos %}
+        {% include 'partials/video_card.html' with video=video %}
+    {% endfor %}
+</div>

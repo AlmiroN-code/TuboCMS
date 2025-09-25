@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Categories - Video Portal{% endblock %}
+
+{% block content %}
+<h2 class="section-title"><i class="fas fa-folder"></i> All Categories</h2>
+        <p class="section-desc">Select the category you are interested in to view videos</p>
+
+    <div class="categories-grid">
+        {% for category in categories %}
+        {% if category.slug %}
+                    <a href="{% url 'videos:category_videos' category.slug %}" class="category-card">
+                {% else %}
+                    <a href="{% url 'videos:category_list' %}" class="category-card">
+                {% endif %}
+            <div class="category-thumbnail">
+                <div class="placeholder-thumbnail"><i class="fas fa-folder"></i> 
+                    <div class="category-overlay">
+                          <span class="video-count">{{ category.video_count }} videos</span>
+                    </div>
+                </div>
+            </div>
+            <h3 class="category-name">{{ category.name }} </h3>
+            {% if category.description %}
+            <p class="category-desc">{{ category.description|truncatewords:15 }}</p>
+            {% endif %}
+        </a>
+
+            
+        {% empty %}
+            <div class="no-categories">
+                <i class="fas fa-folder-open"></i>
+                <h3>Categories not found</h3>
+                <p>No categories found.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        padding: 20px 15px 15px;
+    }
+
+    .video-count {
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        background-color: rgba(0,0,0,0.6);
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    .no-categories {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-secondary);
+        grid-column: 1 / -1;
+    }
+
+    .no-categories i {
+        font-size: 5rem;
+        margin-bottom: 25px;
+        opacity: 0.5;
+    }
+
+    .no-categories h3 {
+        color: var(--text-primary);
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+
+    .no-categories p {
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}

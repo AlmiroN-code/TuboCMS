@@ -1,0 +1,36 @@
+{% load static %}
+
+<div class="video-rating" data-video-id="{{ video.id }}">
+    <div class="rating-buttons">
+        <button class="rating-btn like-btn {% if user_like %}active{% endif %}" 
+                hx-post="{% url 'videos:like_video' video.id %}" 
+                hx-target=".video-rating[data-video-id='{{ video.id }}']" 
+                hx-swap="outerHTML"
+                data-action="like">
+            <i class="fas fa-thumbs-up"></i>
+            <span class="rating-count">{{ video.like_count }}</span>
+        </button>
+        
+        <button class="rating-btn dislike-btn {% if user_dislike %}active{% endif %}" 
+                hx-post="{% url 'videos:like_video' video.id %}" 
+                hx-target=".video-rating[data-video-id='{{ video.id }}']" 
+                hx-swap="outerHTML"
+                data-action="dislike">
+            <i class="fas fa-thumbs-down"></i>
+            <span class="rating-count">{{ video.dislike_count }}</span>
+        </button>
+    </div>
+    
+    <div class="rating-stats">
+        <div class="rating-percentage">{{ video.rating_percentage|floatformat:0 }}%</div>
+        <div class="rating-emoji">
+            {% if video.rating_percentage >= 80 %}
+                😊
+            {% elif video.rating_percentage >= 40 %}
+                😐
+            {% else %}
+                😞
+            {% endif %}
+        </div>
+    </div>
+</div>

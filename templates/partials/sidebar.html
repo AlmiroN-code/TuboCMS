@@ -1,0 +1,83 @@
+{% load static %}
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <a href="{% url 'videos:home' %}">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </div>
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'video_list' and not request.GET.sort %}active{% endif %}">
+        <a href="{% url 'videos:video_list' %}">
+            <i class="fas fa-play-circle"></i> New videos
+        </a>
+    </div>
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'video_list' and request.GET.sort == 'popular' %}active{% endif %}">
+        <a href="{% url 'videos:video_list' %}?sort=popular">
+            <i class="fas fa-play-circle"></i> Top videos
+        </a>
+    </div>
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'watch_later' %}active{% endif %}">
+        <a href="{% url 'videos:watch_later' %}">
+            <i class="fas fa-heart"></i> Watch Later
+        </a>
+    </div>
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'playlist_list' %}active{% endif %}">
+        <a href="{% url 'videos:playlist_list' %}">
+            <i class="fas fa-list"></i> Playlists
+        </a>
+    </div>
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'posts' %}active{% endif %}">
+        <a href="/posts/">
+            <i class="fas fa-newspaper"></i> Posts
+        </a>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <div class="sidebar-category {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">
+        <a href="{% url 'videos:category_list' %}">All categories</a>
+    </div>
+    
+    <div class="category-list">
+        {% for category in categories %}
+            <div class="sidebar-category {% if forloop.counter > 13 %}hidden{% endif %} {% if request.resolver_match.url_name == 'category_videos' and request.resolver_match.kwargs.category_slug == category.slug %}active{% endif %}">
+                {% if category.slug %}
+                    <a href="{% url 'videos:category_videos' category.slug %}">
+                        {{ category.name }}
+                    </a>
+                {% else %}
+                    <span>{{ category.name }}</span>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="sidebar-category">
+                <span>Нет категорий</span>
+            </div>
+        {% endfor %}
+        
+        {% if categories|length > 13 %}
+            <button class="toggle-button">Expand</button>
+        {% endif %}
+    </div>
+    
+    <div class="separator"></div>
+    
+    <!--LiveInternet counter-->
+    <a href="https://www.liveinternet.ru/click" target="_blank">
+        <img id="licntD4D6" width="88" height="31" class="counter-image" 
+             title="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
+             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7"
+             alt=""/>
+    </a>
+    <script>
+        (function(d,s){
+            d.getElementById("licntD4D6").src=
+            "https://counter.yadro.ru/hit?t18.12;r"+escape(d.referrer)+
+            ((typeof(s)=="undefined")?"":";s"+s.width+"*"+s.height+"*"+
+            (s.colorDepth?s.colorDepth:s.pixelDepth))+";u"+escape(d.URL)+
+            ";h"+escape(d.title.substring(0,150))+";"+Math.random()
+        })(document,screen)
+    </script>
+    <!--/LiveInternet-->
+
+    
+</aside>

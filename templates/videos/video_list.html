@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if category %}Видео в категории "{{ category.name }}"{% elif actor %}Видео актера "{{ actor.name }}"{% elif tag %}Видео с тегом "{{ tag.name }}"{% else %}Все видео{% endif %} - Video Portal
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h2 class="section-title">
+            {% if category %}
+                <i class="fas fa-folder"></i> {{ category.name }}
+            {% elif actor %}
+                <i class="fas fa-user"></i> {{ actor.name }}
+            {% elif tag %}
+                <i class="fas fa-tag"></i> {{ tag.name }}
+            {% else %}
+                <i class="fas fa-video"></i> Videos
+            {% endif %}
+        </h2>
+        <div class="section-desc">
+            {% if category %}
+                {{ category.description|default:"Видео в этой категории" }}
+            {% elif actor %}
+                Видео от актера {{ actor.name }}
+            {% elif tag %}
+                Видео с тегом {{ tag.name }}
+            {% else %}
+                The entire list of the best porn videos in good quality you will find in this section.
+            {% endif %}
+        </div>
+        
+        <!-- main content output -->
+        <div class="section-block">
+            <div class="section-info">Total videos: {{ videos|length }}</div>
+            <div class="video-grid" id="shortVideos">
+                {% for video in videos %}
+                    {% include 'partials/video_card.html' with video=video %}
+                {% empty %}
+                    <div class="no-videos">
+                        <i class="fas fa-video-slash"></i>
+                        <h3>Видео не найдены</h3>
+                        <p>Пока что нет видео{% if category %} в этой категории{% elif actor %} от этого актера{% elif tag %} с этим тегом{% endif %}.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if is_paginated %}
+            <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="page-link">« Первая</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="page-link">‹ Предыдущая</a>
+            {% endif %}
+
+            <span class="current-page">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="page-link">Следующая ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Последняя »</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+

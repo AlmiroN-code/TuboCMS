@@ -1,0 +1,99 @@
+{% load static %}
+<div class="video-card" data-video-id="{{ video.id }}">
+    {% if video.slug %}
+        <a href="{% url 'videos:video_detail' video.slug %}">
+    {% else %}
+        <span>
+    {% endif %}
+                <div class="thumbnail" data-preview-id="{{ video.id }}">
+                    {% if video.is_processing %}
+                        <div class="video-processing-placeholder">
+                            <div class="processing-icon">
+                                <i class="fas fa-cog fa-spin"></i>
+                            </div>
+                            <div class="processing-text">Обработка видео</div>
+                            <div class="processing-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-progress="{{ video.processing_progress|default:0 }}" style="width: 0%;"></div>
+                                </div>
+                                <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const progressFill = document.querySelector('.progress-fill[data-progress]');
+                                    if (progressFill) {
+                                        const progress = progressFill.getAttribute('data-progress');
+                                        progressFill.style.width = progress + '%';
+                                    }
+                                });
+                                </script>
+                                <div class="progress-text">{{ video.processing_progress|default:0 }}%</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% if video.poster %}
+                            <img class="video-poster lazy-loaded" loading="lazy" alt="{{ video.title }}" src="{{ video.poster.url }}" style="opacity: 1;">
+                        {% else %}
+                            <img class="video-poster lazy-loaded" loading="lazy" alt="{{ video.title }}" src="{% static 'img/default-poster.jpg' %}" style="opacity: 1;">
+                        {% endif %}
+                        {% if video.preview_video %}
+                            <video class="video-preview" preload="none" muted loop style="display: none;">
+                                <source src="{{ video.preview_video.url }}" type="video/mp4">
+                            </video>
+                        {% endif %}
+                    {% endif %}
+                    <div class="duration">{{ video.duration_formatted }}</div>
+                <!-- Процент на постере -->
+                <div class="card-rating-overlay" data-video-id="{{ video.id }}">
+                    <span class="card-rating-percentage">
+                        {{ video.rating_percentage|floatformat:0 }}%
+                        <span class="rating-emoji {% if video.rating_percentage >= 80 %}positive{% elif video.rating_percentage >= 40 %}neutral{% else %}negative{% endif %}">
+                            {{ video.get_rating_emoji }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <!-- Прогресс бар под постером -->
+            <div class="card-progress-bar" data-video-id="{{ video.id }}">
+                <div class="card-progress-fill" data-percentage="{{ video.rating_percentage|floatformat:0 }}"></div>
+            </div>
+    {% if video.slug %}</a>{% else %}</span>{% endif %}
+    <div class="video-info">
+        {% if video.slug %}
+            <a href="{% url 'videos:video_detail' video.slug %}">
+        {% else %}
+            <span>
+        {% endif %}
+                <div class="video-title">{{ video.title }}</div>
+        {% if video.slug %}</a>{% else %}</span>{% endif %}
+        <div class="video-meta">
+            <span>{{ video.created_at|timesince }} ago</span>
+            <span>Views: {{ video.view_count }}</span>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="video-actions">
+            <button class="action-btn watch-later-btn" 
+                    hx-post="{% url 'videos:toggle_watch_later' video.id %}"
+                    hx-target="this"
+                    hx-swap="outerHTML"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    title="Add to Watch Later"
+                    data-status="removed">
+                <i class="far fa-heart"></i>
+            </button>
+            <div class="playlist-dropdown">
+                <button class="action-btn playlist-btn" onclick="togglePlaylistDropdown(this)" title="Add to Playlist">
+                    <i class="fas fa-list"></i>
+                </button>
+                <div class="playlist-menu">
+                    <div class="playlist-menu-header">Add to Playlist</div>
+                    <div class="playlist-list">
+                        <div class="playlist-item" onclick="loadPlaylists(this)">
+                            <i class="fas fa-sync-alt"></i> Загрузить плейлисты
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

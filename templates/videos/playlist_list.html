@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мои плейлисты - {{ site_settings.site_name }}{% endblock %}
+{% block description %}Ваши плейлисты с видео{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-list"></i> Мои плейлисты</h1>
+    <p>Управляйте своими плейлистами</p>
+    <button class="btn btn-primary" onclick="showCreatePlaylistModal()">
+        <i class="fas fa-plus"></i> Создать плейлист
+    </button>
+</div>
+
+{% if playlists %}
+    <div class="playlist-grid">
+        {% for playlist in playlists %}
+            <div class="playlist-card">
+                <div class="playlist-header">
+                    <h3><a href="{% url 'videos:playlist_detail' playlist.pk %}">{{ playlist.name }}</a></h3>
+                    <div class="playlist-meta">
+                        <span class="playlist-count">{{ playlist.playlistvideo_set.count }} видео</span>
+                        {% if playlist.is_public %}
+                            <span class="playlist-public"><i class="fas fa-globe"></i> Публичный</span>
+                        {% else %}
+                            <span class="playlist-private"><i class="fas fa-lock"></i> Приватный</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if playlist.description %}
+                    <p class="playlist-description">{{ playlist.description }}</p>
+                {% endif %}
+                <div class="playlist-footer">
+                    <small>Создан {{ playlist.created_at|date:"d.m.Y" }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-light">← Предыдущая</a>
+            {% endif %}
+            
+            <span class="pagination-info">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-light">Следующая →</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% else %}
+    <div class="empty-state">
+        <i class="fas fa-list fa-3x"></i>
+        <h2>Нет плейлистов</h2>
+        <p>Создайте свой первый плейлист</p>
+        <button class="btn btn-primary" onclick="showCreatePlaylistModal()">
+            <i class="fas fa-plus"></i> Создать плейлист
+        </button>
+    </div>
+{% endif %}
+
+<!-- Create Playlist Modal -->
+<div id="createPlaylistModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Создать плейлист</h3>
+            <span class="close" onclick="hideCreatePlaylistModal()">&times;</span>
+        </div>
+        <form id="createPlaylistForm" hx-post="{% url 'videos:create_playlist' %}" hx-target="#modal-result" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+            <div class="form-group">
+                <label for="playlistName">Название плейлиста</label>
+                <input type="text" id="playlistName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="playlistDescription">Описание (необязательно)</label>
+                <textarea id="playlistDescription" name="description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_public" value="true">
+                    Публичный плейлист
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" onclick="hideCreatePlaylistModal()">Отмена</button>
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </div>
+        </form>
+        <div id="modal-result"></div>
+    </div>
+</div>
+
+<script>
+function showCreatePlaylistModal() {
+    document.getElementById('createPlaylistModal').style.display = 'block';
+}
+
+function hideCreatePlaylistModal() {
+    document.getElementById('createPlaylistModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('createPlaylistModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

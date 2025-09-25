@@ -1,0 +1,497 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Загрузка видео - Video Portal{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="upload-header">
+        <h1 class="upload-title">
+            <i class="fas fa-upload"></i> Загрузка видео
+        </h1>
+        <p class="upload-description">
+            Загрузите ваше видео и оно будет автоматически обработано для создания постера и превью
+        </p>
+    </div>
+    
+    <div class="upload-form-container">
+        <form method="post" enctype="multipart/form-data" class="upload-form" id="upload-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="form-label">
+                    <i class="fas fa-heading"></i> Название видео *
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="form-errors">
+                        {% for error in form.title.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                    <i class="fas fa-align-left"></i> Описание
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="form-errors">
+                        {% for error in form.description.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.video_file.id_for_label }}" class="form-label">
+                    <i class="fas fa-video"></i> Видео файл *
+                </label>
+                <div class="file-upload-area" id="file-upload-area">
+                    <div class="file-upload-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Перетащите видео файл сюда или <span class="file-link">выберите файл</span></p>
+                        <p class="file-info">Поддерживаемые форматы: MP4, AVI, MOV, WMV, FLV, WebM</p>
+                        <p class="file-info">Максимальный размер: 500MB</p>
+                    </div>
+                    {{ form.video_file }}
+                </div>
+                {% if form.video_file.errors %}
+                    <div class="form-errors">
+                        {% for error in form.video_file.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.category.id_for_label }}" class="form-label">
+                    <i class="fas fa-folder"></i> Категория *
+                </label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <div class="form-errors">
+                        {% for error in form.category.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.tags.id_for_label }}" class="form-label">
+                        <i class="fas fa-tags"></i> Теги
+                    </label>
+                    {{ form.tags }}
+                    {% if form.tags.errors %}
+                        <div class="form-errors">
+                            {% for error in form.tags.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.actors.id_for_label }}" class="form-label">
+                        <i class="fas fa-users"></i> Актеры
+                    </label>
+                    {{ form.actors }}
+                    {% if form.actors.errors %}
+                        <div class="form-errors">
+                            {% for error in form.actors.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large" id="submit-btn">
+                    <i class="fas fa-upload"></i> Загрузить видео
+                </button>
+                <a href="{% url 'videos:video_list' %}" class="btn btn-dark btn-large">
+                    <i class="fas fa-arrow-left"></i> Отмена
+                </a>
+            </div>
+        </form>
+        
+        <!-- Processing Status -->
+        <div class="processing-status" id="processing-status" style="display: none;">
+            <div class="processing-content">
+                <div class="processing-spinner">
+                    <i class="fas fa-cog fa-spin"></i>
+                </div>
+                <h3>Обработка видео</h3>
+                <p>Пожалуйста, подождите. Ваше видео обрабатывается...</p>
+                <div class="processing-steps">
+                    <div class="step active" id="step-upload">
+                        <i class="fas fa-upload"></i>
+                        <span>Загрузка файла</span>
+                    </div>
+                    <div class="step" id="step-extract">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Извлечение информации</span>
+                    </div>
+                    <div class="step" id="step-poster">
+                        <i class="fas fa-image"></i>
+                        <span>Создание постера</span>
+                    </div>
+                    <div class="step" id="step-preview">
+                        <i class="fas fa-play"></i>
+                        <span>Создание превью</span>
+                    </div>
+                    <div class="step" id="step-complete">
+                        <i class="fas fa-check"></i>
+                        <span>Завершено</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.upload-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.upload-title {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.upload-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.upload-form-container {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: var(--card-shadow);
+}
+
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-label i {
+    color: var(--accent-color);
+}
+
+.input-field {
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-form);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(138, 163, 152, 0.2);
+}
+
+.file-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-upload-area:hover {
+    border-color: var(--accent-color);
+    background: rgba(138, 163, 152, 0.05);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--accent-color);
+    background: rgba(138, 163, 152, 0.1);
+}
+
+.file-upload-content i {
+    font-size: 3rem;
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+.file-upload-content p {
+    margin: 8px 0;
+    color: var(--text-primary);
+}
+
+.file-info {
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem;
+}
+
+.file-link {
+    color: var(--accent-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.file-upload-area input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.form-errors {
+    margin-top: 5px;
+}
+
+.error {
+    color: #F44336;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+}
+
+.processing-status {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.processing-content {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+}
+
+.processing-spinner {
+    margin-bottom: 20px;
+}
+
+.processing-spinner i {
+    font-size: 3rem;
+    color: var(--accent-color);
+}
+
+.processing-content h3 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.processing-content p {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+.processing-steps {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    opacity: 1;
+    color: var(--accent-color);
+}
+
+.step.completed {
+    opacity: 1;
+    color: #4CAF50;
+}
+
+.step i {
+    font-size: 1.5rem;
+}
+
+.step span {
+    font-size: 0.8rem;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileUploadArea = document.getElementById('file-upload-area');
+    const fileInput = fileUploadArea.querySelector('input[type="file"]');
+    const uploadForm = document.getElementById('upload-form');
+    const processingStatus = document.getElementById('processing-status');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // File upload area interactions
+    fileUploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const file = this.files[0];
+            updateFileUploadArea(file);
+        }
+    });
+    
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileUploadArea(files[0]);
+        }
+    });
+    
+    function updateFileUploadArea(file) {
+        const content = fileUploadArea.querySelector('.file-upload-content');
+        content.innerHTML = `
+            <i class="fas fa-file-video"></i>
+            <p><strong>${file.name}</strong></p>
+            <p class="file-info">Размер: ${formatFileSize(file.size)}</p>
+            <p class="file-link">Нажмите для выбора другого файла</p>
+        `;
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form submission
+    uploadForm.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+        
+        // Show processing status
+        processingStatus.style.display = 'flex';
+        
+        // Simulate processing steps (in real implementation, this would be handled by Celery)
+        simulateProcessing();
+    });
+    
+    function simulateProcessing() {
+        const steps = ['step-upload', 'step-extract', 'step-poster', 'step-preview', 'step-complete'];
+        let currentStep = 0;
+        
+        function nextStep() {
+            if (currentStep > 0) {
+                document.getElementById(steps[currentStep - 1]).classList.remove('active');
+                document.getElementById(steps[currentStep - 1]).classList.add('completed');
+            }
+            
+            if (currentStep < steps.length) {
+                document.getElementById(steps[currentStep]).classList.add('active');
+                currentStep++;
+                
+                setTimeout(nextStep, 2000);
+            } else {
+                // Redirect to video list after completion
+                setTimeout(() => {
+                    window.location.href = '{% url "videos:video_list" %}';
+                }, 2000);
+            }
+        }
+        
+        nextStep();
+    }
+});
+</script>
+{% endblock %}
