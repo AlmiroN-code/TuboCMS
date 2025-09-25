@@ -1,0 +1,26 @@
+# Production requirements
+# Дополнительные зависимости для продакшена
+
+# WSGI Server
+gunicorn>=21.2.0
+
+# Database
+psycopg2-binary>=2.9.7
+
+# Monitoring
+sentry-sdk[django]>=1.32.0
+
+# Security
+django-security>=0.1.0
+
+# Performance
+django-cachalot>=2.6.1
+
+# Environment variables
+python-decouple>=3.8
+
+# Static files
+whitenoise>=6.5.0
+
+# Logging
+structlog>=23.1.0

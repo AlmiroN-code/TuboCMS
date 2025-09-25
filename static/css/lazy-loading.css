@@ -1,0 +1,224 @@
+/**
+ * Lazy Loading CSS Styles
+ * Стили для системы ленивой загрузки изображений
+ */
+
+/* Базовые стили для lazy loading изображений */
+.lazy-loading {
+    opacity: 0.3;
+    transition: opacity 0.3s ease-in-out;
+    background-color: #383535;
+    background-image: 
+        linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%),
+        linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+    background-size: 200% 100%, 100% 100%;
+    animation: lazy-loading-shimmer 1.5s infinite;
+}
+
+.lazy-loaded {
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-error {
+    opacity: 0.5;
+    background-color: #f8f8f8;
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(0,0,0,0.1) 10px,
+            rgba(0,0,0,0.1) 20px
+        );
+}
+
+/* Анимация shimmer эффекта для загружающихся изображений */
+@keyframes lazy-loading-shimmer {
+    0% {
+        background-position: -200% 0, 0 0;
+    }
+    100% {
+        background-position: 200% 0, 0 0;
+    }
+}
+
+/* Специальные стили для видео карточек */
+.video-card .thumbnail img {
+    transition: all 0.3s ease-in-out;
+}
+
+.video-card .thumbnail img.lazy-loading {
+    filter: blur(2px);
+    transform: scale(1.02);
+}
+
+.video-card .thumbnail img.lazy-loaded {
+    filter: none;
+    transform: scale(1);
+}
+
+/* Стили для аватаров */
+.avatar-mini.lazy-loading,
+.actor-avatar.lazy-loading {
+    border-radius: 50%;
+    background-color: #e0e0e0;
+}
+
+.avatar-mini.lazy-loaded,
+.actor-avatar.lazy-loaded {
+    border-radius: 50%;
+}
+
+/* Стили для постеров видео */
+.video-poster.lazy-loading {
+    background-color: #c41952;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-poster.lazy-loaded {
+    background-color: transparent;
+}
+
+/* Стили для логотипов */
+.logo img.lazy-loading {
+    background-color: #ffffff;
+    border-radius: 4px;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .lazy-loading {
+        animation-duration: 2s; /* Медленнее на мобильных устройствах */
+    }
+    
+    .video-card .thumbnail img.lazy-loading {
+        filter: blur(1px); /* Меньше размытия на мобильных */
+    }
+}
+
+/* Стили для темной темы */
+@media (prefers-color-scheme: dark) {
+    .lazy-loading {
+        background-color: #2a2a2a;
+        background-image: 
+            linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%),
+            linear-gradient(90deg, #333 0%, #2a2a2a 50%, #333 100%);
+    }
+    
+    .lazy-error {
+        background-color: #2a2a2a;
+        background-image: 
+            repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+    }
+    
+    .avatar-mini.lazy-loading,
+    .actor-avatar.lazy-loading {
+        background-color: #333;
+    }
+    
+    .video-poster.lazy-loading {
+        background-color: #2a2a2a!important;
+    }
+    
+    .logo img.lazy-loading {
+        background-color: #1a1a1a;
+    }
+}
+
+/* Стили для принудительной загрузки */
+.lazy-force-load {
+    animation: lazy-force-load 0.5s ease-in-out;
+}
+
+@keyframes lazy-force-load {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Стили для индикатора загрузки */
+.lazy-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: lazy-spin 1s linear infinite;
+    z-index: 10;
+}
+
+@keyframes lazy-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Стили для прогрессивной загрузки */
+.lazy-progressive {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.lazy-progressive.lazy-loading {
+    filter: blur(5px);
+    transform: scale(1.1);
+}
+
+.lazy-progressive.lazy-loaded {
+    filter: blur(0);
+    transform: scale(1);
+}
+
+/* Утилитарные классы */
+.lazy-hidden {
+    visibility: hidden;
+}
+
+.lazy-visible {
+    visibility: visible;
+}
+
+.lazy-no-transition {
+    transition: none !important;
+}
+
+/* Стили для отладки */
+.lazy-debug {
+    outline: 2px solid red;
+    outline-offset: 2px;
+}
+
+.lazy-debug.lazy-loading {
+    outline-color: orange;
+}
+
+.lazy-debug.lazy-loaded {
+    outline-color: green;
+}
+
+.lazy-debug.lazy-error {
+    outline-color: red;
+}

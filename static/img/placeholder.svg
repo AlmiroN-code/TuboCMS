@@ -1,0 +1,6 @@
+<svg width="320" height="180" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="180" fill="#f0f0f0"/>
+  <text x="160" y="90" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#999">
+    Video Thumbnail
+  </text>
+</svg>

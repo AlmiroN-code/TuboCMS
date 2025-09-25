@@ -1,0 +1,7 @@
+cd /var/www/rextube.online
+sudo -u django bash -c "
+    source venv/bin/activate
+    pip uninstall django-security -y
+    python manage.py migrate
+    python manage.py collectstatic --noinput
+"
