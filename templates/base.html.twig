@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
+    <title>{% block title %} - {{ setting('site_description') }} - {{ site_name() }}{% endblock %}</title>
+    
+    <meta name="description" content="{% block meta_description %}{{ setting('site_description') }}{% endblock %}">
+    <meta name="keywords" content="{{ setting('site_keywords') }}">
+    
+    {% if site_favicon() %}
+        <link rel="icon" type="image/x-icon" href="{{ site_favicon() }}">
+        <link rel="shortcut icon" type="image/x-icon" href="{{ site_favicon() }}">
+    {% endif %}
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Prevent flash on theme load */
+        html { visibility: hidden; }
+        html.theme-loaded { visibility: visible; }
+    </style>
+    
+    <script>
+        // Apply theme before CSS loads to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = savedTheme || systemTheme;
+            
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Show page after theme is applied
+            document.documentElement.classList.add('theme-loaded');
+        })();
+    </script>
+    
+    {% block stylesheets %}{% endblock %}
+    {{ encore_entry_link_tags('app') }}
+    
+    {# Meta tag for dark theme support in browsers #}
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+    
+    {{ encore_entry_script_tags('app') }}
+</head>
+<body class="bg-gray-50 text-gray-900">
+    {% include 'partials/_header.html.twig' ignore missing %}
+    
+    <main class="min-h-screen">
+        {% block body %}{% endblock %}
+    </main>
+    
+    {% include 'partials/_footer.html.twig' ignore missing %}
+    
+    {% block javascripts %}{% endblock %}
+    
+    <script>
+        // Global function to toggle comment reply form
+        function toggleReplyForm(commentId) {
+            const form = document.getElementById('reply-form-' + commentId);
+            if (form) {
+                form.classList.toggle('hidden');
+            }
+        }
+        
+        // Hide search suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            const searchInput = document.getElementById('search-input');
+            const searchSuggestions = document.getElementById('search-suggestions');
+            
+            if (searchInput && searchSuggestions) {
+                if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                    searchSuggestions.innerHTML = '';
+                }
+            }
+        });
+        
+        // Clear search suggestions on form submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.querySelector('form[action*="video_search"]');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function() {
+                    const searchSuggestions = document.getElementById('search-suggestions');
+                    if (searchSuggestions) {
+                        searchSuggestions.innerHTML = '';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

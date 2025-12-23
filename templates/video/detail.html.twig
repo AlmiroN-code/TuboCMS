@@ -1,0 +1,188 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ video.title }} - RexTube{% endblock %}
+{% block meta_description %}{{ video.metaDescription ?? video.description|slice(0, 160) }}{% endblock %}
+
+{% block body %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 p-4 gap-2">
+        <div class="lg:col-span-2">
+            <div class="bg-black rounded-lg overflow-hidden mb-4">
+                {% if video.encodedFiles|length > 0 %}
+                    <video id="videoPlayer" controls class="w-full" poster="{{ video.poster ? '/media/' ~ video.poster : '' }}">
+                        {% for encodedFile in video.encodedFiles %}
+                            <source src="/media/{{ encodedFile.file }}" type="video/mp4" data-quality="{{ encodedFile.profile.name }}">
+                        {% endfor %}
+                        Your browser does not support video.
+                    </video>
+                    
+                    {# Quality Selector #}
+                    {% if video.encodedFiles|length > 1 %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="text-sm text-gray-600">Quality:</span>
+                            <select id="qualitySelector" class="text-sm border border-gray-300 rounded px-2 py-1">
+                                {% for encodedFile in video.encodedFiles %}
+                                    <option value="{{ encodedFile.file }}" {{ encodedFile.primary ? 'selected' : '' }}>
+                                        {{ encodedFile.profile.name }} ({{ encodedFile.profile.resolution }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+                {% elseif video.tempVideoFile %}
+                    <video controls class="w-full" poster="{{ video.poster ? '/media/' ~ video.poster : '' }}">
+                        <source src="/media/{{ video.tempVideoFile }}" type="video/mp4">
+                        Your browser does not support video.
+                    </video>
+                {% else %}
+                    <div class="aspect-video flex items-center justify-center bg-gray-800">
+                        <div class="text-center">
+                            {% if video.processingStatus == 'processing' %}
+                                <svg class="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                <p class="text-white mb-2">Video is processing...</p>
+                                {% if video.processingProgress > 0 %}
+                                    <div class="w-64 bg-gray-700 rounded-full h-2 mx-auto">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ video.processingProgress }}%"></div>
+                                    </div>
+                                    <p class="text-gray-300 text-sm mt-2">{{ video.processingProgress }}%</p>
+                                {% endif %}
+                            {% elseif video.processingStatus == 'error' %}
+                                <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-white">Video processing error</p>
+                                {% if video.processingError %}
+                                    <p class="text-gray-300 text-sm mt-2">{{ video.processingError }}</p>
+                                {% endif %}
+                            {% else %}
+                                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-white">Video is waiting for processing...</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ video.title }}</h1>
+
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span>{{ video.viewsCount }} views</span>
+                    <span>{{ video.createdAt|date('d.m.Y') }}</span>
+                </div>
+                
+                {# Like Buttons #}
+                {% include 'video/_like_buttons.html.twig' with {'video': video, 'user_like': user_like|default(null)} %}
+            </div>
+
+            {% if video.createdBy %}
+                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-4">
+                        <a href="{{ path('app_member_profile', {username: video.createdBy.username}) }}">
+                            {% if video.createdBy.avatar %}
+                                <img src="{{ asset('media/avatars/' ~ video.createdBy.avatar) }}" alt="{{ video.createdBy.username }}" class="w-12 h-12 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                                    {{ video.createdBy.username|slice(0, 1)|upper }}
+                                </div>
+                            {% endif %}
+                        </a>
+                        <div>
+                            <a href="{{ path('app_member_profile', {username: video.createdBy.username}) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400">{{ video.createdBy.username }}</a>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ video.createdBy.subscribersCount }} subscribers</p>
+                        </div>
+                    </div>
+                    {% include 'partials/_subscribe_button.html.twig' with {'channel': video.createdBy, 'is_subscribed': is_subscribed|default(false)} %}
+                </div>
+            {% endif %}
+
+            {% if video.description %}
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <p class="text-gray-700 whitespace-pre-line">{{ video.description }}</p>
+                </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <div id="comments-container"
+                     hx-get="{{ path('comment_list', {id: video.id}) }}"
+                     hx-trigger="load"
+                     hx-swap="innerHTML">
+                    <div class="flex items-center justify-center py-8">
+                        <svg class="animate-spin h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-2 text-gray-500 dark:text-gray-400">Loading comments...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1">
+            {% if related_videos|length > 0 %}
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Related Videos</h2>
+                <div class="space-y-4">
+                    {% for related in related_videos %}
+                        {% if related.id != video.id %}
+                            <a href="{{ path('video_detail', {slug: related.slug}) }}" class="flex gap-3 hover:bg-gray-50 rounded-lg p-2 transition">
+                                <div class="flex-shrink-0">
+                                    {% if related.poster %}
+                                        <img src="/media/{{ related.poster }}" alt="{{ related.title }}" class="w-40 h-24 object-cover rounded">
+                                    {% else %}
+                                        <div class="w-40 h-24 bg-gray-200 rounded flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-medium text-gray-900 line-clamp-2 text-sm">{{ related.title }}</h3>
+                                    <p class="text-xs text-gray-500 mt-1">{{ related.viewsCount }} views</p>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const qualitySelector = document.getElementById('qualitySelector');
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    if (qualitySelector && videoPlayer) {
+        qualitySelector.addEventListener('change', function() {
+            const currentTime = videoPlayer.currentTime;
+            const wasPlaying = !videoPlayer.paused;
+            
+            // Change video source
+            const sources = videoPlayer.querySelectorAll('source');
+            sources.forEach(source => source.remove());
+            
+            const newSource = document.createElement('source');
+            newSource.src = '/media/' + this.value;
+            newSource.type = 'video/mp4';
+            videoPlayer.appendChild(newSource);
+            
+            // Reload video and restore position
+            videoPlayer.load();
+            videoPlayer.addEventListener('loadedmetadata', function() {
+                videoPlayer.currentTime = currentTime;
+                if (wasPlaying) {
+                    videoPlayer.play();
+                }
+            }, { once: true });
+        });
+    }
+});
+</script>
+{% endblock %}

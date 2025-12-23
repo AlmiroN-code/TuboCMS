@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title|default('All Videos') }} - {{ site_name() }} {% endblock %}
+
+{% block body %}
+    <div class="flex gap-2">
+        {% include 'partials/_sidebar.html.twig' %}
+        
+        <div class="flex-1 p-3">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl text-gray-900 dark:text-gray-100">{{ title|default('All Videos') }}</h1>
+                
+                <form action="{{ path('video_search') }}" method="get" class="flex gap-2">
+                    <input type="text" name="q" placeholder="Search videos..." 
+                           class="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            {% if videos|length > 0 %}
+                <div id="video-grid" class="video-grid">
+                    {% for video in videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                    
+                    {# Load More Button #}
+                    {% if videos|length == 24 %}
+                    <div id="load-more-container" class="col-span-full flex justify-center mt-4">
+                        <button 
+                            hx-get="{{ path('app_videos_load_more', {sort: sort|default('newest'), page: page + 1}) }}"
+                            hx-target="#video-grid"
+                            hx-swap="beforeend"
+                            hx-on::after-request="this.parentElement.remove()"
+                            class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition flex items-center gap-2">
+                            <span>Load more</span>
+                            <svg class="w-5 h-5 htmx-indicator animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# Classic Pagination #}
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if page > 1 %}
+                        <a href="?page={{ page - 1 }}" 
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            ← Previous
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-primary-600 text-white rounded-lg">
+                        Page {{ page }}
+                    </span>
+                    
+                    {% if videos|length == 24 %}
+                        <a href="?page={{ page + 1 }}" 
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            Next →
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <p class="text-gray-500 dark:text-gray-400 text-lg">No videos found</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

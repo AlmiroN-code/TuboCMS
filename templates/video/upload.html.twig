@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Upload Video - {{ site_name() }} {% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Upload Video</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="bg-white rounded-lg shadow p-6">
+        {{ form_start(uploadForm, {'attr': {'class': 'space-y-6'}}) }}
+            
+            <div>
+                {{ form_label(uploadForm.title, 'Video Title', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                {{ form_widget(uploadForm.title, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500'}}) }}
+                {{ form_errors(uploadForm.title) }}
+            </div>
+
+            <div>
+                {{ form_label(uploadForm.description, 'Description', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                {{ form_widget(uploadForm.description, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500', 'rows': 5}}) }}
+                {{ form_errors(uploadForm.description) }}
+            </div>
+
+            <div>
+                {{ form_label(uploadForm.category, 'Category', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                {{ form_widget(uploadForm.category, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500'}}) }}
+                {{ form_errors(uploadForm.category) }}
+            </div>
+
+            <div>
+                {{ form_label(uploadForm.videoFile, 'Video File', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                {{ form_widget(uploadForm.videoFile, {'attr': {'class': 'w-full'}}) }}
+                {{ form_errors(uploadForm.videoFile) }}
+                <p class="mt-2 text-sm text-gray-500">Supported formats: MP4, AVI, MOV. Maximum size: 2GB</p>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ path('app_home') }}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                    Upload Video
+                </button>
+            </div>
+
+        {{ form_end(uploadForm) }}
+    </div>
+
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 class="font-semibold text-blue-900 mb-2">Upload Information</h3>
+        <ul class="text-sm text-blue-800 space-y-1">
+            <li>• After upload, the video will be processed and converted</li>
+            <li>• Processing may take several minutes</li>
+            <li>• You will be notified when the video is ready</li>
+            <li>• Make sure you have the rights to the uploaded content</li>
+        </ul>
+    </div>
+{% endblock %}

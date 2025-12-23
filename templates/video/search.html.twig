@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search: {{ query }} - {{ site_name() }} {% endblock %}
+
+{% block body %}
+    <div class="flex gap-8">
+        {% include 'partials/_sidebar.html.twig' %}
+        
+        <div class="flex-1">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">
+                    {% if query %}
+                        Search results: "{{ query }}"
+                    {% else %}
+                        Search videos
+                    {% endif %}
+                </h1>
+                
+                <form action="{{ path('video_search') }}" method="get" class="flex gap-2">
+                    <input type="text" name="q" placeholder="Search videos..." 
+                           value="{{ query }}"
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            {% if videos|length > 0 %}
+                <div class="video-grid">
+                    {% for video in videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if page > 1 %}
+                        <a href="{{ path('video_search', {q: query, page: page - 1}) }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            ← Previous
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-primary-600 text-white rounded-lg">
+                        Page {{ page }}
+                    </span>
+                    
+                    {% if videos|length == 24 %}
+                        <a href="{{ path('video_search', {q: query, page: page + 1}) }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Next →
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    {% if query %}
+                        <p class="text-gray-500 text-lg">No videos found for "{{ query }}"</p>
+                    {% else %}
+                        <p class="text-gray-500 text-lg">Enter a search query</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

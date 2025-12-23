@@ -1,0 +1,32 @@
+</div>
+<footer class="bg-white border-t">
+    <div class="wrap mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">RexTube</h3>
+                <p class="text-gray-600 text-sm">
+                    The best video hosting for uploading and watching video content.
+                </p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Navigation</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{{ path('app_home') }}" class="text-gray-600 hover:text-gray-900">Home</a></li>
+                    <li><a href="{{ path('app_videos') }}" class="text-gray-600 hover:text-gray-900">Videos</a></li>
+                    <li><a href="{{ path('app_categories') }}" class="text-gray-600 hover:text-gray-900">Categories</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Information</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900">About Us</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900">Terms</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-8 border-t pt-8 text-center text-sm text-gray-500">
+            <p>&copy; {{ 'now'|date('Y') }} RexTube. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,17 @@
+<div id="subscribe-btn-{{ channel.id }}">
+    {% if app.user %}
+        {% if app.user.id != channel.id %}
+            <button 
+                hx-post="{{ path('subscription_toggle', {id: channel.id}) }}"
+                hx-target="#subscribe-btn-{{ channel.id }}"
+                hx-swap="outerHTML"
+                class="px-4 py-2 rounded-lg font-medium transition {{ is_subscribed ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' : 'bg-primary-600 text-white hover:bg-primary-700' }}">
+                {{ is_subscribed ? 'Unsubscribe' : 'Subscribe' }}
+            </button>
+        {% endif %}
+    {% else %}
+        <a href="{{ path('app_login') }}" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+            Subscribe
+        </a>
+    {% endif %}
+</div>

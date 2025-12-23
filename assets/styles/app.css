@@ -1,0 +1,575 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS переменные для тем */
+:root {
+	--wrap-width: 1460px;
+	--accent-color: #E45257;
+	--sidebar-width: 220px;
+	
+	/* Светлая тема (по умолчанию) */
+	--bg-primary: #ffffff;
+	--bg-secondary: #f8fafc;
+	--bg-tertiary: #f1f5f9;
+	--text-primary: #1e293b;
+	--text-secondary: #64748b;
+	--text-muted: #94a3b8;
+	--border-color: #e2e8f0;
+	--shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Темная тема */
+.dark {
+	--bg-primary: #252B30;
+	--bg-secondary: #1e293b;
+	--bg-tertiary: #334155;
+	--text-primary: #f8fafc;
+	--text-secondary: #cbd5e1;
+	--text-muted: #94a3b8;
+	--border-color: #334155;
+	--shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
+/* Custom styles */
+[x-cloak] { 
+    display: none !important; 
+}
+
+/* Базовые стили с поддержкой тем */
+
+.logo {
+    height: 48px;
+    object-fit: contain;
+    width: auto;
+    display: flex;
+    text-decoration: none;
+}
+
+.wrap {
+    max-width: var(--wrap-width);
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+}
+
+/* Переключатель тем */
+.theme-switcher {
+    @apply relative inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+}
+
+.theme-switcher:hover {
+    @apply transform scale-105;
+    background-color: var(--bg-primary);
+}
+
+.theme-switcher svg {
+    @apply w-5 h-5 transition-all duration-200;
+    color: var(--text-secondary);
+}
+
+.theme-switcher:hover svg {
+    color: var(--text-primary);
+}
+
+/* Анимация переключения темы */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Обновленные стили для карточек */
+.bg-white {
+    background-color: var(--bg-primary) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--bg-secondary) !important;
+}
+
+.bg-gray-100 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+.text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.text-gray-800 {
+    color: var(--text-primary) !important;
+}
+
+.text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+.text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.text-gray-500 {
+    color: var(--text-muted) !important;
+}
+
+.text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
+.border-gray-200 {
+    border-color: var(--border-color) !important;
+}
+
+.shadow, .shadow-sm {
+    box-shadow: var(--shadow) !important;
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Видео сетка */
+.video-grid {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.video-card {
+    overflow: hidden;
+}
+
+.video-card .thumbnail {
+    background: var(--bg-tertiary);
+    padding-top: 58.25%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.video-card .thumbnail video {
+    pointer-events: none;
+}
+
+.video-card .thumbnail img,
+.video-card .thumbnail video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.video-card .preview-video {
+    border-radius: 3px;
+    height: 100%;
+    left: 0;
+    object-fit: cover;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transition: opacity 0.3s ease;
+    width: 100%;
+    z-index: 1;
+}
+
+.video-card:hover .poster-image {
+    opacity: 0;
+}
+
+.video-card:hover .preview-video {
+    opacity: 1;
+}
+
+.video-card .poster-placeholder {
+    align-items: center;
+    background: linear-gradient(45deg, var(--accent-color), #ff8c00);
+    color: #fff;
+    display: flex;
+    font-weight: 700;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+}
+
+.duration {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 2px;
+    bottom: 6px;
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 6px;
+    position: absolute;
+    right: 6px;
+    z-index: 999999 !important;
+}
+
+.video-info {
+    align-items: center;
+    color: var(--text-secondary);
+    display: flex;
+    font-size: 14px;
+    gap: 15px;
+    padding: 0 8px 8px;
+}
+
+.video-details {
+    flex: 1;
+}
+
+.video-title,
+.video-title a {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--text-primary);
+    display: -webkit-box;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.video-title a:hover {
+    color: var(--accent-color);
+}
+
+.video-meta {
+    align-items: center;
+    color: var(--text-secondary);
+    display: flex;
+    font-size: 13px;
+    justify-content: space-between;
+}
+@media (max-width:1600px) {
+.video-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:1300px) {
+.video-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:1024px) {
+.video-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:768px) {
+.video-grid{grid-template-columns:repeat(1,1fr)}
+}
+
+
+
+/* Lazy Loading Styles */
+.lazy-image {
+    transition: opacity 0.3s ease-in-out;
+    background-color: #f3f4f6;
+    background-image: linear-gradient(45deg, #f9fafb 25%, transparent 25%), 
+                      linear-gradient(-45deg, #f9fafb 25%, transparent 25%), 
+                      linear-gradient(45deg, transparent 75%, #f9fafb 75%), 
+                      linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    animation: loading-shimmer 1.5s infinite linear;
+}
+
+.lazy-image.loaded {
+    background: none;
+    animation: none;
+}
+
+.lazy-image.error {
+    background: #fee2e2;
+    background-image: none;
+    animation: none;
+    position: relative;
+}
+
+.lazy-image.error::after {
+    content: '🖼️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    opacity: 0.5;
+}
+
+.lazy-avatar {
+    border-radius: 50%;
+}
+
+/* Lazy Video Styles */
+.lazy-video {
+    background-color: #1f2937;
+    background-image: linear-gradient(45deg, #374151 25%, transparent 25%), 
+                      linear-gradient(-45deg, #374151 25%, transparent 25%), 
+                      linear-gradient(45deg, transparent 75%, #374151 75%), 
+                      linear-gradient(-45deg, transparent 75%, #374151 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    animation: loading-shimmer 1.5s infinite linear;
+}
+
+.lazy-video.loaded {
+    background: none;
+    animation: none;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    100% {
+        background-position: 20px 20px, 20px 30px, 30px 10px, 10px 20px;
+    }
+}
+
+/* Темные стили для админки */
+.dark .bg-gray-800 {
+    background-color: var(--bg-secondary) !important;
+}
+
+.dark .bg-gray-900 {
+    background-color: var(--bg-primary) !important;
+}
+
+.dark .text-white {
+    color: var(--text-primary) !important;
+}
+
+.dark .text-gray-300 {
+    color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
+.dark .border-gray-800 {
+    border-color: var(--border-color) !important;
+}
+
+/* Универсальные стили для всех форм - работают в обеих темах */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    background-color: var(--bg-primary) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+    outline: none !important;
+}
+
+/* Стили для файловых полей */
+input[type="file"] {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 2px dashed var(--border-color) !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+}
+
+input[type="file"]:hover {
+    border-color: #3b82f6 !important;
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Стили для чекбоксов и радиокнопок */
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: #3b82f6 !important;
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Стили для множественного выбора */
+select[multiple] {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+select[multiple] option {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    padding: 4px 8px;
+}
+
+select[multiple] option:checked {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
+/* Стили для скрытых полей и токенов */
+input[type="hidden"] {
+    /* Скрытые поля не нуждаются в стилизации */
+}
+
+/* Стили для кнопок в формах */
+button[type="submit"] {
+    transition: all 0.2s ease;
+}
+
+/* Стили для inline форм */
+form.inline {
+    display: inline-block;
+}
+
+/* Стили для лейблов */
+label {
+    color: var(--text-primary) !important;
+}
+
+/* Стили для контейнеров форм */
+.bg-white {
+    background-color: var(--bg-primary) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Стили для кнопок отмены */
+.border-gray-300 {
+    border-color: var(--border-color) !important;
+}
+
+.text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+.hover\:bg-gray-50:hover {
+    background-color: var(--bg-tertiary) !important;
+}
+
+/* Стили для информационных блоков */
+.bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.border-blue-200 {
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.text-blue-900 {
+    color: var(--text-primary) !important;
+}
+
+.text-blue-800 {
+    color: var(--text-secondary) !important;
+}
+
+/* Стили для уведомлений */
+.bg-green-50 {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+}
+
+.border-green-200 {
+    border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+.text-green-700 {
+    color: #15803d !important;
+}
+
+.bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.border-red-200 {
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.text-red-700 {
+    color: #dc2626 !important;
+}
+
+/* Стили для пагинации */
+.bg-white {
+    background-color: var(--bg-primary) !important;
+}
+
+/* Стили для формы поиска в header - для обеих тем */
+header input[type="text"] {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+header input[type="text"]::placeholder {
+    color: var(--text-muted) !important;
+}
+
+header input[type="text"]:focus {
+    background-color: var(--bg-primary) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Кнопка поиска */
+header button[type="submit"] {
+    color: var(--text-muted) !important;
+}
+
+header button[type="submit"]:hover {
+    color: var(--text-secondary) !important;
+}
+
+/* Кнопки в темной теме */
+.dark .bg-blue-600 {
+    background-color: #3b82f6 !important;
+}
+
+.dark .bg-blue-600:hover {
+    background-color: #2563eb !important;
+}
+
+.dark .bg-red-600 {
+    background-color: #dc2626 !important;
+}
+
+.dark .bg-red-600:hover {
+    background-color: #b91c1c !important;
+}
+
+/* Таблицы в темной теме */
+.dark table {
+    background-color: var(--bg-primary) !important;
+}
+
+.dark th {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark td {
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark tr:hover {
+    background-color: var(--bg-tertiary) !important;
+}

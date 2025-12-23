@@ -1,0 +1,107 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ video.id ? 'Edit Video' : 'New Video' }}{% endblock %}
+{% block page_title %}{{ video.id ? 'Edit Video' : 'New Video' }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <form method="post" enctype="multipart/form-data">
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <input type="text" name="title" value="{{ video.title }}" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description" rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">{{ video.description }}</textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">No category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {{ video.category and video.category.id == category.id ? 'selected' : '' }}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                <select name="tags[]" multiple class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" size="5">
+                    {% for tag in tags %}
+                        <option value="{{ tag.id }}" {{ video.tags.contains(tag) ? 'selected' : '' }}>
+                            {{ tag.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-sm text-gray-500">Hold Ctrl to select multiple</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="draft" {{ video.status == 'draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="processing" {{ video.status == 'processing' ? 'selected' : '' }}>Processing</option>
+                    <option value="published" {{ video.status == 'published' ? 'selected' : '' }}>Published</option>
+                    <option value="private" {{ video.status == 'private' ? 'selected' : '' }}>Private</option>
+                    <option value="rejected" {{ video.status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video file</label>
+                <input type="file" name="video_file" accept="video/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                
+                {% if video.encodedFiles|length > 0 %}
+                    <div class="mt-2">
+                        <p class="text-sm font-medium text-gray-700 mb-1">Encoded files:</p>
+                        {% for encodedFile in video.encodedFiles %}
+                            <div class="text-sm text-gray-600 flex items-center gap-2">
+                                <span class="px-2 py-1 bg-gray-100 rounded text-xs">{{ encodedFile.profile.name }}</span>
+                                <span>{{ encodedFile.file }}</span>
+                                {% if encodedFile.primary %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Primary</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elseif video.tempVideoFile %}
+                    <p class="mt-1 text-sm text-gray-500">Temporary file: {{ video.tempVideoFile }}</p>
+                {% endif %}
+                
+                {% if video.processingStatus %}
+                    <div class="mt-2">
+                        <span class="text-sm font-medium text-gray-700">Processing status:</span>
+                        <span class="ml-2 px-2 py-1 text-xs rounded
+                            {% if video.processingStatus == 'completed' %}bg-green-100 text-green-800
+                            {% elseif video.processingStatus == 'processing' %}bg-blue-100 text-blue-800
+                            {% elseif video.processingStatus == 'error' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ video.processingStatus }}
+                        </span>
+                        {% if video.processingProgress > 0 %}
+                            <span class="ml-2 text-sm text-gray-600">({{ video.processingProgress }}%)</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+                    Save
+                </button>
+                <a href="{{ path('admin_videos') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
