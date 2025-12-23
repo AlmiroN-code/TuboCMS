@@ -217,6 +217,35 @@ class AdminSettingsController extends AbstractController
         ]);
     }
 
+    #[Route('/seo', name: 'admin_seo_settings')]
+    public function seoSettings(Request $request): Response
+    {
+        $settingsRepo = $this->em->getRepository(\App\Entity\SiteSetting::class);
+        
+        if ($request->isMethod('POST')) {
+            $settingsRepo->setValue('seo_home_title', $request->request->get('seo_home_title'), 'string', 'Заголовок главной страницы');
+            $settingsRepo->setValue('seo_home_description', $request->request->get('seo_home_description'), 'string', 'Описание для главной страницы');
+            $settingsRepo->setValue('seo_home_keywords', $request->request->get('seo_home_keywords'), 'string', 'Ключевые слова для главной');
+            $settingsRepo->setValue('seo_home_only', $request->request->get('seo_home_only') === '1', 'boolean', 'Использовать SEO только для главной');
+            
+            $this->settingsService->clearCache();
+            
+            $this->addFlash('success', 'SEO настройки сохранены');
+            return $this->redirectToRoute('admin_seo_settings');
+        }
+        
+        $settings = [
+            'seo_home_title' => $settingsRepo->getValue('seo_home_title', ''),
+            'seo_home_description' => $settingsRepo->getValue('seo_home_description', ''),
+            'seo_home_keywords' => $settingsRepo->getValue('seo_home_keywords', ''),
+            'seo_home_only' => $settingsRepo->getValue('seo_home_only', false),
+        ];
+        
+        return $this->render('admin/settings/seo.html.twig', [
+            'settings' => $settings,
+        ]);
+    }
+
     private function handleProfileSave(Request $request, VideoEncodingProfile $profile): Response
     {
         $width = (int) $request->request->get('width');

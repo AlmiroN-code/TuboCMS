@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
-    <title>{% block title %}{% endblock %}{% if setting('append_site_name_to_title') %} - {{ site_name() }}{% endif %}</title>
+    <title>{% block title %}{% endblock %}{% if setting('append_site_name_to_title') %} on {{ site_name() }}{% endif %}</title>
     
-    <meta name="description" content="{% block meta_description %}{{ setting('site_description') }}{% endblock %}">
-    <meta name="keywords" content="{{ setting('site_keywords') }}">
+    {% set seo_home_only = setting('seo_home_only', false) %}
+    {% set is_home = app.request.attributes.get('_route') == 'home' %}
+    {% set use_seo_settings = is_home or not seo_home_only %}
+    
+    <meta name="description" content="{% block meta_description %}{% if use_seo_settings and setting('seo_home_description') %}{{ setting('seo_home_description') }}{% else %}{{ setting('site_description') }}{% endif %}{% endblock %}">
+    <meta name="keywords" content="{% if use_seo_settings and setting('seo_home_keywords') %}{{ setting('seo_home_keywords') }}{% else %}{{ setting('site_keywords') }}{% endif %}">
     
     {% if site_favicon() %}
         <link rel="icon" type="image/x-icon" href="{{ site_favicon() }}">
