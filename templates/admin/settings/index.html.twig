@@ -46,6 +46,15 @@
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 </div>
                 
+                <div class="flex items-center">
+                    <input type="checkbox" name="append_site_name_to_title" value="1" id="append_site_name_to_title"
+                           {{ settings.append_site_name_to_title ? 'checked' : '' }}
+                           class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                    <label for="append_site_name_to_title" class="ml-2 text-sm font-medium text-gray-700">
+                        Добавлять в тег title страниц название сайта
+                    </label>
+                </div>
+                
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Описание сайта</label>
                     <textarea name="site_description" rows="3"

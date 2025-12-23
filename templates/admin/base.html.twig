@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
-    <title>{% block title %}Admin Panel{% endblock %} - {{ site_name() }}</title>
+    <title>{% block title %}Admin Panel{% endblock %}{% if setting('append_site_name_to_title') %} - {{ site_name() }}{% endif %}</title>
     
     {% if site_favicon() %}
         <link rel="icon" type="image/x-icon" href="{{ site_favicon() }}">

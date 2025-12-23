@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ video.title }} - RexTube{% endblock %}
+{% block title %}{{ video.title }}{% endblock %}
 {% block meta_description %}{{ video.metaDescription ?? video.description|slice(0, 160) }}{% endblock %}
 
 {% block body %}

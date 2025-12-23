@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
-    <title>{% block title %} - {{ setting('site_description') }} - {{ site_name() }}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}{% if setting('append_site_name_to_title') %} - {{ site_name() }}{% endif %}</title>
     
     <meta name="description" content="{% block meta_description %}{{ setting('site_description') }}{% endblock %}">
     <meta name="keywords" content="{{ setting('site_keywords') }}">

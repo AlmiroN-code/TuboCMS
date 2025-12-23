@@ -47,6 +47,7 @@ class AdminSettingsController extends AbstractController
             
             // Общие настройки
             $settingsRepo->setValue('site_name', $request->request->get('site_name'), 'string', 'Название сайта');
+            $settingsRepo->setValue('append_site_name_to_title', $request->request->get('append_site_name_to_title') === '1', 'boolean', 'Добавлять название сайта в title');
             $settingsRepo->setValue('site_description', $request->request->get('site_description'), 'string', 'Описание сайта');
             $settingsRepo->setValue('site_keywords', $request->request->get('site_keywords'), 'string', 'Ключевые слова');
             $settingsRepo->setValue('contact_email', $request->request->get('contact_email'), 'string', 'Email для связи');
@@ -75,6 +76,7 @@ class AdminSettingsController extends AbstractController
             'site_logo' => $settingsRepo->getValue('site_logo', null),
             'site_favicon' => $settingsRepo->getValue('site_favicon', null),
             'site_name' => $settingsRepo->getValue('site_name', 'RexTube'),
+            'append_site_name_to_title' => $settingsRepo->getValue('append_site_name_to_title', true),
             'site_description' => $settingsRepo->getValue('site_description', 'Видео хостинг'),
             'site_keywords' => $settingsRepo->getValue('site_keywords', 'видео, хостинг, онлайн'),
             'contact_email' => $settingsRepo->getValue('contact_email', 'admin@rextube.test'),
