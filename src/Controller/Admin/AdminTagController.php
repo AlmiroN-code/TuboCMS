@@ -64,6 +64,48 @@ class AdminTagController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
+    #[Route('/create-ajax', name: 'admin_tags_create_ajax', methods: ['POST'])]
+    public function createAjax(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $tagName = trim($data['name'] ?? '');
+        
+        if (empty($tagName)) {
+            return $this->json(['success' => false, 'error' => 'Название тега не может быть пустым']);
+        }
+        
+        // Проверяем, существует ли уже такой тег
+        $existingTag = $this->tagRepository->findOneBy(['name' => $tagName]);
+        if ($existingTag) {
+            return $this->json([
+                'success' => true,
+                'tag' => [
+                    'id' => $existingTag->getId(),
+                    'name' => $existingTag->getName()
+                ]
+            ]);
+        }
+        
+        // Создаем новый тег
+        $tag = new Tag();
+        $tag->setName($tagName);
+        
+        $slugger = new AsciiSlugger();
+        $slug = $slugger->slug($tagName)->lower();
+        $tag->setSlug($slug);
+        
+        $this->em->persist($tag);
+        $this->em->flush();
+        
+        return $this->json([
+            'success' => true,
+            'tag' => [
+                'id' => $tag->getId(),
+                'name' => $tag->getName()
+            ]
+        ]);
+    }
+
     private function handleSave(Request $request, Tag $tag): Response
     {
         $tag->setName($request->request->get('name'));

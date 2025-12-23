@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="bg-white rounded-lg shadow p-6">
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="video-form">
         <div class="space-y-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
@@ -40,7 +40,7 @@
                         </option>
                     {% endfor %}
                 </select>
-                <p class="mt-1 text-sm text-gray-500">Hold Ctrl to select multiple</p>
+                <p class="mt-1 text-sm text-gray-500">Ctrl+Click для выбора нескольких</p>
             </div>
 
             <div>
