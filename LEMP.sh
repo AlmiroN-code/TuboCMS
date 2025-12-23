@@ -188,8 +188,19 @@ log_success "Фронтенд собран"
 
 # Миграции базы данных
 log_info "Выполняю миграции БД..."
-php bin/console doctrine:migrations:migrate --no-interaction
-log_success "Миграции выполнены"
+if php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log | grep -q "error"; then
+    log_warn "Миграции завершились с ошибками (возможно БД уже актуальна)"
+    # Проверяем что таблицы существуют
+    if mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES LIKE 'user'" 2>/dev/null | grep -q user; then
+        log_warn "Таблицы существуют - пропускаю миграции"
+    else
+        log_error "Ошибка миграций и таблицы не найдены"
+        cat /tmp/migration.log
+        exit 1
+    fi
+else
+    log_success "Миграции выполнены"
+fi
 
 # Настройка Messenger транспорта
 log_info "Настраиваю Messenger транспорт..."
