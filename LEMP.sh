@@ -119,6 +119,25 @@ log_info "Устанавливаю дополнительные утилиты..
 apt install -y git unzip htop fail2ban ufw
 log_success "Утилиты установлены"
 
+# === 8.1. Установка Composer ===
+if ! command -v composer &> /dev/null; then
+    log_info "Устанавливаю Composer..."
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    log_success "Composer установлен"
+else
+    log_warn "Composer уже установлен"
+fi
+
+# === 8.2. Установка Node.js ===
+if ! command -v node &> /dev/null; then
+    log_info "Устанавливаю Node.js 20 LTS..."
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    apt install -y nodejs
+    log_success "Node.js установлен"
+else
+    log_warn "Node.js уже установлен"
+fi
+
 # === 9. Настройка БД для rextube ===
 log_info "Создаю базу данных $DB_NAME..."
 if [ "$ROOT_DB_PASS" != "(существующий пароль)" ]; then
@@ -422,27 +441,12 @@ systemctl restart nginx
 systemctl restart mariadb
 log_success "Сервисы перезапущены"
 
-# === 18. Composer ===
-if ! command -v composer &> /dev/null; then
-    log_info "Устанавливаю Composer..."
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-    log_success "Composer установлен"
-fi
-
-# === 19. Node.js ===
-if ! command -v node &> /dev/null; then
-    log_info "Устанавливаю Node.js 20 LTS..."
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-    apt install -y nodejs
-    log_success "Node.js установлен"
-fi
-
-# === 20. Certbot ===
+# === 18. Certbot ===
 log_info "Устанавливаю Certbot..."
 apt install -y certbot python3-certbot-nginx
 log_success "Certbot установлен"
 
-# === 21. Systemd сервис для Messenger Worker ===
+# === 19. Systemd сервис для Messenger Worker ===
 log_info "Создаю systemd сервис для Messenger..."
 
 cat > /etc/systemd/system/rextube-messenger.service << 'SVCEOF'
@@ -468,7 +472,7 @@ systemctl enable rextube-messenger
 systemctl start rextube-messenger
 log_success "Messenger Worker запущен"
 
-# === 22. Сохранение учётных данных ===
+# === 20. Сохранение учётных данных ===
 CREDENTIALS_FILE="/root/.server_credentials"
 
 cat > "$CREDENTIALS_FILE" << CREDEOF
