@@ -271,12 +271,22 @@ class AdminVideoController extends AbstractController
         $this->em->persist($video);
         $this->em->flush();
         
-        if ($videoFile && $videoFile->isValid()) {
-            // Отправляем в очередь для асинхронной обработки
+        // Автоматически отправляем в очередь если есть видео файл для обработки
+        if ($video->getTempVideoFile()) {
+            // Устанавливаем статус pending если ещё не обработано
+            if ($video->getProcessingStatus() !== 'completed') {
+                $video->setProcessingStatus('pending');
+                $video->setProcessingProgress(0);
+                $this->em->flush();
+            }
+            
+            // Отправляем в очередь
             $this->messageBus->dispatch(new ProcessVideoEncodingMessage($video->getId()));
+            $this->addFlash('success', ($isNew ? 'Видео создано' : 'Видео обновлено') . ' и отправлено на обработку');
+        } else {
+            $this->addFlash('success', $isNew ? 'Видео создано' : 'Видео обновлено');
         }
         
-        $this->addFlash('success', $isNew ? 'Видео создано' : 'Видео обновлено');
         return $this->redirectToRoute('admin_videos');
     }
 

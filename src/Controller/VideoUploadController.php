@@ -116,7 +116,13 @@ class VideoUploadController extends AbstractController
             $em->flush();
 
             // Отправляем сообщение в очередь для асинхронной обработки
+            $logger->info('DISPATCHING VIDEO MESSAGE', [
+                'video_id' => $video->getId(),
+                'title' => $video->getTitle(),
+                'status' => $video->getStatus()
+            ]);
             $messageBus->dispatch(new ProcessVideoEncodingMessage($video->getId()));
+            $logger->info('MESSAGE DISPATCHED', ['video_id' => $video->getId()]);
 
             $this->addFlash('success', 'Видео успешно загружено! Обработка началась автоматически.');
             return $this->redirectToRoute('video_detail', ['slug' => $video->getSlug()]);

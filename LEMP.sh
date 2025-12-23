@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # =============================================================================
-# LEMP Stack Setup Script
-# Hostname сервера: control.gmnode.ru (93.183.71.104)
-# Сайт: rextube.online
+# LEMP Stack Setup Script for Symfony 8 + RexTube
+# Hostname: control.gmnode.ru (93.183.71.104)
+# Site: rextube.online
 # phpMyAdmin: control.gmnode.ru/phpmyadmin
 # =============================================================================
 set -e
@@ -11,21 +11,22 @@ set -e
 # === КОНФИГУРАЦИЯ ===
 HOSTNAME="control.gmnode.ru"
 SERVER_IP="93.183.71.104"
-
 DOMAIN="rextube.online"
 SITE_ROOT="/var/www/$DOMAIN"
 
-# БД уже существует с этими данными
 DB_NAME="rextube"
 DB_USER="almiron"
 DB_PASS="Mtn999Un86@"
 
+ADMIN_EMAIL="admin@rextube.online"
+ADMIN_USERNAME="admin"
+ADMIN_PASSWORD="admin123"
+
 REPO_URL="https://github.com/AlmiroN-code/TuboCMS.git"
 
-# Разрешить Composer работать от root
 export COMPOSER_ALLOW_SUPERUSER=1
 
-# Цвета для вывода
+# Цвета
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -39,7 +40,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 echo ""
 echo "=============================================="
-echo "  LEMP Stack Setup"
+echo "  LEMP Stack для Symfony 8"
 echo "  Server: $HOSTNAME ($SERVER_IP)"
 echo "  Site: $DOMAIN"
 echo "=============================================="
@@ -47,11 +48,11 @@ echo ""
 
 # === 1. Проверка root ===
 if [[ $EUID -ne 0 ]]; then
-   log_error "Скрипт должен запускаться от root (sudo)"
+   log_error "Скрипт должен запускаться от root"
    exit 1
 fi
 
-# === 2. Установка hostname ===
+# === 2. Hostname ===
 log_info "Устанавливаю hostname: $HOSTNAME"
 hostnamectl set-hostname "$HOSTNAME"
 grep -q "$HOSTNAME" /etc/hosts || echo "$SERVER_IP $HOSTNAME" >> /etc/hosts
@@ -60,10 +61,11 @@ log_success "Hostname установлен"
 # === 3. Обновление системы ===
 log_info "Обновляю систему..."
 apt update && apt upgrade -y
-apt install -y curl wget gnupg2 software-properties-common ca-certificates lsb-release apt-transport-https
+apt install -y curl wget gnupg2 software-properties-common ca-certificates \
+    lsb-release apt-transport-https git unzip htop fail2ban ufw
 log_success "Система обновлена"
 
-# === 4. Установка Nginx ===
+# === 4. Nginx ===
 if ! command -v nginx &> /dev/null; then
     log_info "Устанавливаю Nginx..."
     apt install -y nginx
@@ -73,7 +75,7 @@ else
     log_warn "Nginx уже установлен"
 fi
 
-# === 5. Установка MariaDB ===
+# === 5. MariaDB ===
 if ! command -v mariadb &> /dev/null; then
     log_info "Устанавливаю MariaDB..."
     apt install -y mariadb-server mariadb-client
@@ -83,17 +85,38 @@ else
     log_warn "MariaDB уже установлен"
 fi
 
-# === 6. Установка PHP 8.4 ===
-if ! command -v php &> /dev/null || ! php -v | grep -q "8.4"; then
+# === 6. PHP 8.4 + все расширения для Symfony 8 ===
+if ! command -v php8.4 &> /dev/null; then
     log_info "Добавляю репозиторий PHP 8.4..."
     add-apt-repository -y ppa:ondrej/php
     apt update
 
-    log_info "Устанавливаю PHP 8.4 и расширения..."
-    apt install -y php8.4-fpm php8.4-mysql php8.4-cli php8.4-common \
-        php8.4-curl php8.4-gd php8.4-mbstring php8.4-xml php8.4-zip \
-        php8.4-bcmath php8.4-intl php8.4-soap php8.4-opcache php8.4-redis \
-        php8.4-imagick php8.4-readline
+    log_info "Устанавливаю PHP 8.4 и все расширения..."
+    apt install -y \
+        php8.4-fpm \
+        php8.4-cli \
+        php8.4-common \
+        php8.4-mysql \
+        php8.4-pgsql \
+        php8.4-sqlite3 \
+        php8.4-curl \
+        php8.4-gd \
+        php8.4-mbstring \
+        php8.4-xml \
+        php8.4-zip \
+        php8.4-bcmath \
+        php8.4-intl \
+        php8.4-soap \
+        php8.4-opcache \
+        php8.4-redis \
+        php8.4-memcached \
+        php8.4-imagick \
+        php8.4-readline \
+        php8.4-xsl \
+        php8.4-apcu \
+        php8.4-igbinary \
+        php8.4-msgpack \
+        php8.4-yaml
     
     systemctl enable --now php8.4-fpm
     log_success "PHP 8.4 установлен"
@@ -101,7 +124,7 @@ else
     log_warn "PHP 8.4 уже установлен"
 fi
 
-# === 7. Установка FFmpeg ===
+# === 7. FFmpeg для конвертации видео ===
 if ! command -v ffmpeg &> /dev/null; then
     log_info "Устанавливаю FFmpeg..."
     apt install -y ffmpeg
@@ -110,12 +133,27 @@ else
     log_warn "FFmpeg уже установлен"
 fi
 
-# === 8. Установка утилит ===
-log_info "Устанавливаю дополнительные утилиты..."
-apt install -y git unzip htop fail2ban ufw
-log_success "Утилиты установлены"
+# === 8. Redis ===
+if ! command -v redis-server &> /dev/null; then
+    log_info "Устанавливаю Redis..."
+    apt install -y redis-server
+    systemctl enable --now redis-server
+    log_success "Redis установлен"
+else
+    log_warn "Redis уже установлен"
+fi
 
-# === 8.1. Установка Composer ===
+# === 9. Memcached ===
+if ! command -v memcached &> /dev/null; then
+    log_info "Устанавливаю Memcached..."
+    apt install -y memcached libmemcached-tools
+    systemctl enable --now memcached
+    log_success "Memcached установлен"
+else
+    log_warn "Memcached уже установлен"
+fi
+
+# === 10. Composer ===
 if ! command -v composer &> /dev/null; then
     log_info "Устанавливаю Composer..."
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -124,7 +162,7 @@ else
     log_warn "Composer уже установлен"
 fi
 
-# === 8.2. Установка Node.js ===
+# === 11. Node.js 20 LTS ===
 if ! command -v node &> /dev/null; then
     log_info "Устанавливаю Node.js 20 LTS..."
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
@@ -134,26 +172,26 @@ else
     log_warn "Node.js уже установлен"
 fi
 
-# === 8.3. Переключение PHP CLI на 8.4 ===
-log_info "Переключаю PHP CLI на версию 8.4..."
+# === 12. Переключение PHP CLI на 8.4 ===
+log_info "Переключаю PHP CLI на 8.4..."
 update-alternatives --set php /usr/bin/php8.4 2>/dev/null || true
-log_success "PHP CLI настроен на 8.4"
+log_success "PHP CLI = 8.4"
 
-# === 9. Настройка БД ===
-# Проверяем подключение к БД с существующими данными
-if mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME" 2>/dev/null; then
-    log_warn "БД $DB_NAME и пользователь $DB_USER уже существуют - пропускаю"
+# === 13. Настройка БД ===
+if ! mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME" 2>/dev/null; then
+    log_info "Создаю БД $DB_NAME..."
+    sudo mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    sudo mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';"
+    sudo mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
+    sudo mysql -e "FLUSH PRIVILEGES;"
+    log_success "БД создана"
 else
-    log_info "Создаю базу данных $DB_NAME и пользователя $DB_USER..."
-    sudo mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null || true
-    sudo mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';" 2>/dev/null || true
-    sudo mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';" 2>/dev/null || true
-    sudo mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
-    log_success "База данных создана"
+    log_warn "БД уже существует"
 fi
 
-# === 10. Клонирование и развёртывание TuboCMS ===
-log_info "Клонирую TuboCMS из GitHub..."
+
+# === 14. Клонирование TuboCMS ===
+log_info "Клонирую TuboCMS..."
 if [ -d "$SITE_ROOT" ]; then
     rm -rf "$SITE_ROOT"
 fi
@@ -162,8 +200,8 @@ git clone "$REPO_URL" "$SITE_ROOT"
 cd "$SITE_ROOT"
 log_success "Репозиторий склонирован"
 
-# Создание .env файла
-log_info "Создаю .env.local файл..."
+# === 15. Конфигурация .env ===
+log_info "Создаю .env.local..."
 cat > "$SITE_ROOT/.env.local" << ENVEOF
 APP_ENV=prod
 APP_SECRET=$(openssl rand -hex 16)
@@ -173,98 +211,103 @@ DATABASE_URL="mysql://$DB_USER:$DB_PASS@127.0.0.1:3306/$DB_NAME?serverVersion=10
 
 MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
 
+REDIS_URL=redis://localhost:6379
+CACHE_ADAPTER=cache.adapter.redis
+
 MAILER_DSN=null://null
 ENVEOF
 log_success ".env.local создан"
 
-# Установка PHP зависимостей
+# === 16. Composer зависимости ===
 log_info "Устанавливаю Composer зависимости..."
 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-log_success "Composer зависимости установлены"
+log_success "Composer установлен"
 
-# Установка Node.js зависимостей и сборка фронтенда
+# === 17. NPM зависимости ===
 log_info "Устанавливаю npm зависимости..."
 npm ci
-log_success "npm зависимости установлены"
+log_success "npm установлен"
 
-log_info "Собираю фронтенд (production)..."
+log_info "Собираю фронтенд..."
 npm run build
 log_success "Фронтенд собран"
 
-# Миграции базы данных
-log_info "Выполняю миграции БД..."
+# === 18. Миграции БД ===
+log_info "Выполняю миграции..."
 php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log || true
 
-# Пропускаем проблемные миграции если есть
 if grep -q "error" /tmp/migration.log; then
-    log_warn "Обнаружены ошибки миграций - пропускаю проблемные"
+    log_warn "Пропускаю проблемные миграции..."
     php bin/console doctrine:migrations:version DoctrineMigrations\\Version20251215235351 --add --no-interaction 2>/dev/null || true
     php bin/console doctrine:migrations:migrate --no-interaction 2>/dev/null || true
 fi
 
-# Добавляем недостающие колонки если нужно
-log_info "Проверяю структуру БД..."
+# Добавляем недостающие колонки
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT NULL;" 2>/dev/null || true
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
 log_success "Миграции выполнены"
 
-# Настройка Messenger транспорта
-log_info "Настраиваю Messenger транспорт..."
+# === 19. Создание админа ===
+log_info "Создаю супер админа..."
+ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$defaulthash')
+
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << SQLEOF
+INSERT INTO user (email, username, roles, password, is_verified, is_premium, processing_priority, subscribers_count, videos_count, total_views, created_at, updated_at)
+VALUES (
+    '$ADMIN_EMAIL',
+    '$ADMIN_USERNAME',
+    '["ROLE_ADMIN","ROLE_USER"]',
+    '$ADMIN_HASH',
+    1,
+    1,
+    10,
+    0,
+    0,
+    0,
+    NOW(),
+    NOW()
+) ON DUPLICATE KEY UPDATE password='$ADMIN_HASH', roles='["ROLE_ADMIN","ROLE_USER"]';
+SQLEOF
+
+log_success "Админ создан: $ADMIN_EMAIL / $ADMIN_PASSWORD"
+
+# === 20. Messenger ===
+log_info "Настраиваю Messenger..."
 php bin/console messenger:setup-transports 2>/dev/null || true
 log_success "Messenger настроен"
 
-# Очистка кэша Doctrine
-log_info "Очищаю кэш Doctrine..."
+# === 21. Кэш ===
+log_info "Прогреваю кэш..."
 php bin/console doctrine:cache:clear-metadata 2>/dev/null || true
 php bin/console doctrine:cache:clear-query 2>/dev/null || true
-
-# Очистка и прогрев кэша приложения
-log_info "Очищаю и прогреваю кэш..."
 rm -rf var/cache/*
 mkdir -p var/cache/prod
 chown -R www-data:www-data var/
 sudo -u www-data php bin/console cache:warmup --env=prod
 log_success "Кэш прогрет"
 
-# Создание директорий для медиа
-log_info "Создаю директории для медиа..."
+# === 22. Права ===
+log_info "Настраиваю права..."
 mkdir -p "$SITE_ROOT/public/media/videos"
 mkdir -p "$SITE_ROOT/public/media/posters"
 mkdir -p "$SITE_ROOT/public/media/previews"
 mkdir -p "$SITE_ROOT/public/media/avatars"
 mkdir -p "$SITE_ROOT/public/media/site"
-mkdir -p "$SITE_ROOT/var/log"
-mkdir -p "$SITE_ROOT/var/cache"
-
-# Права доступа
-log_info "Настраиваю права доступа..."
 chown -R www-data:www-data "$SITE_ROOT"
 chmod -R 775 "$SITE_ROOT/var"
 chmod -R 775 "$SITE_ROOT/public/media"
+log_success "Права настроены"
 
-log_success "TuboCMS развёрнут"
-
-
-# === 11. Установка phpMyAdmin ===
+# === 23. phpMyAdmin ===
 if [ ! -d "/usr/share/phpmyadmin" ]; then
     log_info "Устанавливаю phpMyAdmin..."
     add-apt-repository -y ppa:phpmyadmin/ppa
     apt update
-
     export DEBIAN_FRONTEND=noninteractive
-    debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect"
-    debconf-set-selections <<< "phpmyadmin phpmyadmin/dbconfig-install boolean true"
     apt install -y phpmyadmin
-    log_success "phpMyAdmin установлен"
-else
-    log_warn "phpMyAdmin уже установлен"
-fi
-
-# Конфигурация phpMyAdmin
-log_info "Настраиваю phpMyAdmin..."
-BLOWFISH=$(openssl rand -base64 32)
-
-cat > /etc/phpmyadmin/config.inc.php << PMAEOF
+    
+    BLOWFISH=$(openssl rand -base64 32)
+    cat > /etc/phpmyadmin/config.inc.php << PMAEOF
 <?php
 \$cfg['blowfish_secret'] = '$BLOWFISH';
 \$i = 0;
@@ -280,26 +323,27 @@ cat > /etc/phpmyadmin/config.inc.php << PMAEOF
 \$cfg['SendErrorReports'] = 'never';
 ?>
 PMAEOF
-log_success "phpMyAdmin настроен"
+    log_success "phpMyAdmin установлен"
+else
+    log_warn "phpMyAdmin уже установлен"
+fi
 
-# === 12. Конфигурация Nginx ===
+# === 24. Nginx конфигурация ===
 log_info "Настраиваю Nginx..."
-
 PHP_SOCKET="/run/php/php8.4-fpm.sock"
 rm -f /etc/nginx/sites-enabled/default
 
-# --- Конфиг для rextube.online ---
-cat > /etc/nginx/sites-available/$DOMAIN << NGINXEOF
+cat > /etc/nginx/sites-available/$DOMAIN << 'NGINXEOF'
 server {
     listen 80;
     listen [::]:80;
-    server_name $DOMAIN www.$DOMAIN;
+    server_name rextube.online www.rextube.online;
 
-    root $SITE_ROOT/public;
-    index index.php index.html;
+    root /var/www/rextube.online/public;
+    index index.php;
 
-    access_log /var/log/nginx/${DOMAIN}_access.log;
-    error_log /var/log/nginx/${DOMAIN}_error.log;
+    access_log /var/log/nginx/rextube.online_access.log;
+    error_log /var/log/nginx/rextube.online_error.log;
 
     client_max_body_size 2G;
     client_body_timeout 300s;
@@ -313,93 +357,73 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
 
     location / {
-        try_files \$uri \$uri/ /index.php?\$query_string;
+        try_files $uri $uri/ /index.php$is_args$args;
     }
 
-    location ~ \.php\$ {
-        fastcgi_split_path_info ^(.+\.php)(/.+)\$;
-        fastcgi_pass unix:$PHP_SOCKET;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
         fastcgi_read_timeout 300;
         fastcgi_send_timeout 300;
         fastcgi_buffer_size 128k;
         fastcgi_buffers 256 16k;
+        internal;
+    }
+
+    location ~ \.php$ {
+        return 404;
     }
 
     location ~ /\. {
         deny all;
     }
-
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|svg|mp4|webm)\$ {
-        expires 30d;
-        access_log off;
-    }
 }
 NGINXEOF
 
-ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
-
-# --- Конфиг для control.gmnode.ru (phpMyAdmin) ---
-cat > /etc/nginx/sites-available/$HOSTNAME << NGINXEOF
+cat > /etc/nginx/sites-available/$HOSTNAME << 'NGINXEOF2'
 server {
     listen 80;
     listen [::]:80;
-    server_name $HOSTNAME $SERVER_IP;
+    server_name control.gmnode.ru 93.183.71.104;
 
     root /var/www/html;
-    index index.html;
-
-    access_log /var/log/nginx/${HOSTNAME}_access.log;
-    error_log /var/log/nginx/${HOSTNAME}_error.log;
 
     location = / {
         default_type text/html;
-        return 200 '<html><head><title>$HOSTNAME</title></head><body><h1>Server Control Panel</h1><p><a href="/phpmyadmin">phpMyAdmin</a></p></body></html>';
+        return 200 '<html><head><title>Control Panel</title></head><body><h1>Server Control</h1><p><a href="/phpmyadmin">phpMyAdmin</a></p></body></html>';
     }
 
     location /phpmyadmin {
         alias /usr/share/phpmyadmin;
         index index.php;
 
-        location ~ ^/phpmyadmin/(.+\.php)\$ {
-            alias /usr/share/phpmyadmin/\$1;
-            fastcgi_pass unix:$PHP_SOCKET;
+        location ~ ^/phpmyadmin/(.+\.php)$ {
+            alias /usr/share/phpmyadmin/$1;
+            fastcgi_pass unix:/run/php/php8.4-fpm.sock;
             fastcgi_index index.php;
-            fastcgi_param SCRIPT_FILENAME /usr/share/phpmyadmin/\$1;
+            fastcgi_param SCRIPT_FILENAME /usr/share/phpmyadmin/$1;
             include fastcgi_params;
-            fastcgi_param PHP_VALUE "upload_max_filesize=256M
-post_max_size=256M
-max_execution_time=300
-memory_limit=256M";
         }
 
-        location ~* ^/phpmyadmin/(.+\.(css|js|png|jpg|jpeg|gif|ico|woff|woff2|svg|ttf|eot))\$ {
-            alias /usr/share/phpmyadmin/\$1;
+        location ~* ^/phpmyadmin/(.+\.(css|js|png|jpg|jpeg|gif|ico|woff|woff2|svg|ttf|eot))$ {
+            alias /usr/share/phpmyadmin/$1;
             expires 30d;
-            access_log off;
         }
-    }
-
-    location /phpMyAdmin {
-        return 301 /phpmyadmin;
-    }
-
-    location ~ /\. {
-        deny all;
     }
 }
-NGINXEOF
+NGINXEOF2
 
+ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/$HOSTNAME /etc/nginx/sites-enabled/
 
 nginx -t
 log_success "Nginx настроен"
 
-# === 13. Настройка PHP-FPM ===
+# === 25. PHP-FPM конфигурация ===
 log_info "Настраиваю PHP-FPM..."
-
 cat > /etc/php/8.4/fpm/conf.d/99-custom.ini << 'PHPINI'
 upload_max_filesize = 2G
 post_max_size = 2G
@@ -409,15 +433,15 @@ memory_limit = 512M
 opcache.enable = 1
 opcache.memory_consumption = 256
 opcache.max_accelerated_files = 10000
+opcache.revalidate_freq = 2
 expose_php = Off
 display_errors = Off
 log_errors = On
 session.cookie_httponly = 1
 PHPINI
-
 log_success "PHP-FPM настроен"
 
-# === 14. Firewall ===
+# === 26. Firewall ===
 log_info "Настраиваю Firewall..."
 ufw default deny incoming
 ufw default allow outgoing
@@ -426,9 +450,8 @@ ufw allow 'Nginx Full'
 ufw --force enable
 log_success "Firewall настроен"
 
-# === 15. Fail2Ban ===
+# === 27. Fail2Ban ===
 log_info "Настраиваю Fail2Ban..."
-
 cat > /etc/fail2ban/jail.local << 'F2BEOF'
 [DEFAULT]
 bantime = 3600
@@ -442,40 +465,29 @@ maxretry = 3
 [nginx-http-auth]
 enabled = true
 F2BEOF
-
 systemctl enable --now fail2ban
 log_success "Fail2Ban настроен"
 
-# === 16. Перезапуск сервисов ===
-log_info "Перезапускаю сервисы..."
-systemctl restart php8.4-fpm
-systemctl restart nginx
-systemctl restart mariadb
-log_success "Сервисы перезапущены"
-
-# === 17. Certbot ===
+# === 28. Certbot ===
 if ! command -v certbot &> /dev/null; then
     log_info "Устанавливаю Certbot..."
     apt install -y certbot python3-certbot-nginx
     log_success "Certbot установлен"
-else
-    log_warn "Certbot уже установлен"
 fi
 
-# === 18. Systemd сервис для Messenger Worker ===
-log_info "Создаю systemd сервис для Messenger..."
-
+# === 29. Messenger Worker ===
+log_info "Создаю Messenger Worker..."
 cat > /etc/systemd/system/rextube-messenger.service << 'SVCEOF'
 [Unit]
 Description=RexTube Messenger Worker
-After=network.target mariadb.service
+After=network.target mariadb.service redis.service
 
 [Service]
 Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/rextube.online
-ExecStart=/usr/bin/php /var/www/rextube.online/bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
+ExecStart=/usr/bin/php8.4 /var/www/rextube.online/bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
 Restart=always
 RestartSec=5
 
@@ -488,36 +500,51 @@ systemctl enable rextube-messenger
 systemctl start rextube-messenger
 log_success "Messenger Worker запущен"
 
-# === 19. Сохранение учётных данных ===
-CREDENTIALS_FILE="/root/.server_credentials"
+# === 30. Перезапуск сервисов ===
+log_info "Перезапускаю сервисы..."
+systemctl restart php8.4-fpm
+systemctl restart nginx
+log_success "Сервисы перезапущены"
 
-cat > "$CREDENTIALS_FILE" << CREDEOF
+# === 31. Сохранение данных ===
+cat > /root/.server_credentials << CREDEOF
 ============================================
-  Server: $HOSTNAME ($SERVER_IP)
+  RexTube Server Credentials
   Created: $(date)
 ============================================
 
-REXTUBE DATABASE:
+SERVER:
+  Hostname: $HOSTNAME
+  IP: $SERVER_IP
+
+DATABASE:
   DB: $DB_NAME
   User: $DB_USER
   Password: $DB_PASS
 
+ADMIN:
+  Email: $ADMIN_EMAIL
+  Username: $ADMIN_USERNAME
+  Password: $ADMIN_PASSWORD
+
 URLS:
   Site: http://$DOMAIN
   phpMyAdmin: http://$HOSTNAME/phpmyadmin
-              http://$SERVER_IP/phpmyadmin
 
 PATHS:
-  Site root: $SITE_ROOT/public
+  Root: $SITE_ROOT
   Logs: /var/log/nginx/
 
-SSL (после настройки DNS):
+SSL:
   sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN
   sudo certbot --nginx -d $HOSTNAME
+
+SERVICES:
+  systemctl status rextube-messenger
+  journalctl -u rextube-messenger -f
 ============================================
 CREDEOF
-
-chmod 600 "$CREDENTIALS_FILE"
+chmod 600 /root/.server_credentials
 
 # === ФИНАЛ ===
 echo ""
@@ -525,24 +552,21 @@ echo -e "${GREEN}============================================${NC}"
 echo -e "${GREEN}  ✅ УСТАНОВКА ЗАВЕРШЕНА!${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo ""
-echo -e "🖥️  ${BLUE}Сервер:${NC}      $HOSTNAME ($SERVER_IP)"
-echo ""
 echo -e "🌐 ${BLUE}Сайт:${NC}        http://$DOMAIN"
 echo -e "🔧 ${BLUE}phpMyAdmin:${NC}  http://$HOSTNAME/phpmyadmin"
-echo -e "                http://$SERVER_IP/phpmyadmin"
 echo ""
-echo -e "${YELLOW}=== База данных ===${NC}"
-echo -e "БД:           $DB_NAME"
-echo -e "Пользователь: $DB_USER"
-echo -e "Пароль:       $DB_PASS"
+echo -e "${YELLOW}=== Админ ===${NC}"
+echo -e "Email:    $ADMIN_EMAIL"
+echo -e "Username: $ADMIN_USERNAME"
+echo -e "Password: ${RED}$ADMIN_PASSWORD${NC}"
 echo ""
-echo -e "📄 Данные сохранены: ${BLUE}$CREDENTIALS_FILE${NC}"
+echo -e "${YELLOW}=== БД ===${NC}"
+echo -e "DB:   $DB_NAME"
+echo -e "User: $DB_USER"
+echo -e "Pass: $DB_PASS"
 echo ""
-echo -e "${YELLOW}=== SSL (после DNS) ===${NC}"
+echo -e "📄 Данные: ${BLUE}/root/.server_credentials${NC}"
+echo ""
+echo -e "${YELLOW}=== SSL ===${NC}"
 echo "sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
-echo "sudo certbot --nginx -d $HOSTNAME"
-echo ""
-echo -e "${YELLOW}=== Управление Messenger ===${NC}"
-echo "systemctl status rextube-messenger"
-echo "journalctl -u rextube-messenger -f"
 echo ""
