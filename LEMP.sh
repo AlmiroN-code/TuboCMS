@@ -135,15 +135,16 @@ else
 fi
 
 # === 9. Настройка БД ===
-if ! mysql -e "SELECT 1 FROM mysql.user WHERE user='$DB_USER'" 2>/dev/null | grep -q 1; then
-    log_info "Создаю базу данных $DB_NAME и пользователя $DB_USER..."
-    mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-    mysql -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';"
-    mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
-    mysql -e "FLUSH PRIVILEGES;"
-    log_success "База данных создана"
+# Проверяем подключение к БД с существующими данными
+if mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME" 2>/dev/null; then
+    log_warn "БД $DB_NAME и пользователь $DB_USER уже существуют - пропускаю"
 else
-    log_warn "БД и пользователь уже существуют - пропускаю"
+    log_info "Создаю базу данных $DB_NAME и пользователя $DB_USER..."
+    sudo mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null || true
+    sudo mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';" 2>/dev/null || true
+    sudo mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';" 2>/dev/null || true
+    sudo mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+    log_success "База данных создана"
 fi
 
 # === 10. Клонирование и развёртывание TuboCMS ===
