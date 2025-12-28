@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Video;
+use App\Message\DeleteFromStorageMessage;
 use App\Message\ProcessVideoEncodingMessage;
 use App\Repository\VideoRepository;
 use App\Repository\CategoryRepository;
@@ -83,6 +84,9 @@ class AdminVideoController extends AbstractController
             $this->addFlash('error', 'Недействительный токен безопасности');
             return $this->redirectToRoute('admin_videos');
         }
+
+        // Requirement 5.1: Queue deletion jobs for all associated remote files
+        $this->queueRemoteFileDeletions($video);
 
         $this->em->remove($video);
         $this->em->flush();
@@ -196,10 +200,42 @@ class AdminVideoController extends AbstractController
     #[Route('/{id}/delete-htmx', name: 'admin_videos_delete_htmx', methods: ['DELETE'])]
     public function deleteHtmx(Video $video): Response
     {
+        // Requirement 5.1: Queue deletion jobs for all associated remote files
+        $this->queueRemoteFileDeletions($video);
+
         $this->em->remove($video);
         $this->em->flush();
         
         return new Response('');
+    }
+
+    /**
+     * Создаёт задачи на удаление файлов из удалённых хранилищ.
+     * 
+     * Requirement 5.1: WHEN a video is deleted THEN the System SHALL 
+     * queue deletion jobs for all associated remote files
+     * 
+     * Property 10: For any video deletion with N associated VideoFile records 
+     * on remote storage, exactly N DeleteFromStorageMessage jobs SHALL be queued.
+     */
+    private function queueRemoteFileDeletions(Video $video): void
+    {
+        foreach ($video->getEncodedFiles() as $videoFile) {
+            // Проверяем, что файл на удалённом хранилище
+            if ($videoFile->isRemote()) {
+                $storage = $videoFile->getStorage();
+                $remotePath = $videoFile->getRemotePath();
+                
+                if ($storage !== null && $remotePath !== null) {
+                    $storageId = $storage->getId();
+                    if ($storageId !== null) {
+                        $this->messageBus->dispatch(
+                            new DeleteFromStorageMessage($storageId, $remotePath)
+                        );
+                    }
+                }
+            }
+        }
     }
 
     private function handleSave(Request $request, Video $video): Response

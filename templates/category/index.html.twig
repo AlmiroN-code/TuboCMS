@@ -1,19 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Categories{% endblock %}
+{% block title %}{{ 'category.title'|trans }}{% endblock %}
 
 {% block body %}
 
 <div class="p-4">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">All Categories</h1>
-
+    <h1 class="text-3xl text-gray-900 mb-8">{{ 'category.all_categories'|trans }}</h1>
     {% if categories|length > 0 %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {% for category in categories %}
                 <a href="{{ path('app_category_show', {slug: category.slug}) }}" 
                    class="bg-white rounded-lg shadow p-6 hover:shadow-xl transition text-center">
                     <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ category.name }}</h2>
-                    <p class="text-gray-600">{{ category.videosCount }} videos</p>
+                    <p class="text-gray-600">{{ 'category.videos_count'|trans({'%count%': category.videosCount}, 'messages', null, category.videosCount) }}</p>
                     {% if category.description %}
                         <p class="text-sm text-gray-500 mt-2">{{ category.description }}</p>
                     {% endif %}
@@ -22,7 +21,7 @@
         </div>
     {% else %}
         <div class="text-center py-12">
-            <p class="text-gray-500 text-lg">No categories found</p>
+            <p class="text-gray-500 text-lg">{{ 'category.no_categories'|trans }}</p>
         </div>
         </div>
     {% endif %}

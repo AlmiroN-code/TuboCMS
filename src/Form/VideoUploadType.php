@@ -22,33 +22,33 @@ class VideoUploadType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Название видео',
+                'label' => 'video.upload_page.video_title',
                 'constraints' => [
-                    new NotBlank(['message' => 'Введите название']),
-                    new Length(['max' => 200]),
+                    new NotBlank(message: 'video.title.not_blank'),
+                    new Length(max: 200, maxMessage: 'video.title.max_length'),
                 ],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Описание',
+                'label' => 'video.upload_page.description',
                 'required' => false,
                 'attr' => ['rows' => 5],
             ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
-                'label' => 'Категория',
-                'placeholder' => 'Выберите категорию',
+                'label' => 'video.upload_page.category',
+                'placeholder' => 'common.select',
                 'required' => false,
             ])
             ->add('tags', EntityType::class, [
                 'class' => Tag::class,
                 'choice_label' => 'name',
-                'label' => 'Теги',
+                'label' => 'video.upload_page.tags',
                 'multiple' => true,
                 'required' => false,
             ])
             ->add('videoFile', FileType::class, [
-                'label' => 'Видео файл',
+                'label' => 'video.upload_page.video_file',
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
@@ -61,7 +61,7 @@ class VideoUploadType extends AbstractType
                             'video/x-msvideo',
                             'video/x-matroska',
                         ],
-                        'mimeTypesMessage' => 'Загрузите корректный видео файл',
+                        'mimeTypesMessage' => 'video.file.invalid_type',
                     ])
                 ],
             ]);

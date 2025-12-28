@@ -7,12 +7,12 @@
         {% include 'partials/_sidebar.html.twig' %}
         
         <div class="flex-1">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
+            <div class="mt-8 mb-8">
+                <h1 class="text-3xl text-gray-900">{{ category.name }}</h1>
                 {% if category.description %}
                     <p class="text-gray-600 mt-2">{{ category.description }}</p>
                 {% endif %}
-                <p class="text-sm text-gray-500 mt-2">{{ category.videosCount }} videos</p>
+                <p class="text-sm text-gray-500 mt-2">{{ 'category.videos_count'|trans({'%count%': category.videosCount}, 'messages', null, category.videosCount) }}</p>
             </div>
 
             {% if videos|length > 0 %}
@@ -26,24 +26,24 @@
                     {% if page > 1 %}
                         <a href="{{ path('app_category_show', {slug: category.slug, page: page - 1}) }}" 
                            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            ← Previous
+                            ← {{ 'pagination.previous'|trans }}
                         </a>
                     {% endif %}
                     
                     <span class="px-4 py-2 bg-primary-600 text-white rounded-lg">
-                        Page {{ page }}
+                        {{ 'pagination.page'|trans({'%page%': page}) }}
                     </span>
                     
                     {% if videos|length == 24 %}
                         <a href="{{ path('app_category_show', {slug: category.slug, page: page + 1}) }}" 
                            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            Next →
+                            {{ 'pagination.next'|trans }} →
                         </a>
                     {% endif %}
                 </div>
             {% else %}
                 <div class="text-center py-12">
-                    <p class="text-gray-500 text-lg">No videos in this category yet</p>
+                    <p class="text-gray-500 text-lg">{{ 'category.no_videos_in_category'|trans }}</p>
                 </div>
             {% endif %}
         </div>

@@ -7,11 +7,11 @@
             <svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
             </svg>
-            <span>Trending</span>
+            <span>{{ 'sidebar.trending'|trans }}</span>
         </a>
     </div>
 
-{# Popular Section #}
+    {# Popular Section #}
     <div class="bg-white py-4">
         <nav class="space-y-1">
             <a href="{{ path('app_videos') }}" 
@@ -19,28 +19,28 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                 </svg>
-                All videos
+                {{ 'sidebar.all_videos'|trans }}
             </a>
             <a href="{{ path('app_videos') }}popular" 
                class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
-                Top views
+                {{ 'sidebar.top_views'|trans }}
             </a>
             <a href="{{ path('app_videos') }}newest" 
                class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                New
+                {{ 'sidebar.new'|trans }}
             </a>
         </nav>
     </div>
 
     {# Categories Section #}
     <div class="bg-white rounded-lg mb-4">
-        <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">Categories</h3>
+        <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">{{ 'sidebar.categories'|trans }}</h3>
         
         {% set sidebar_categories = get_sidebar_categories() %}
         {% if sidebar_categories|length > 0 %}
@@ -63,43 +63,43 @@
                 <button id="expand-btn" 
                         onclick="toggleCategories()" 
                         class="mt-3 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 rounded-lg transition font-medium">
-                    Show all
+                    {{ 'sidebar.show_all'|trans }}
                 </button>
                 <button id="collapse-btn" 
                         onclick="toggleCategories()" 
                         class="mt-3 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 rounded-lg transition font-medium hidden">
-                    Hide
+                    {{ 'sidebar.hide'|trans }}
                 </button>
             {% endif %}
             
             <div class="mt-4 pt-4 border-t">
                 <a href="{{ path('app_categories') }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                    All categories →
+                    {{ 'sidebar.all_categories'|trans }}
                 </a>
             </div>
         {% else %}
-            <p class="text-sm text-gray-500">No categories found</p>
+            <p class="text-sm text-gray-500">{{ 'sidebar.no_categories'|trans }}</p>
         {% endif %}
     </div>
 
     {# User Profile Section #}
     {% if app.user %}
         <div class="bg-white rounded-lg py-4 mb-4">
-            <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">My profile</h3>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">{{ 'sidebar.my_profile'|trans }}</h3>
             <nav class="space-y-1">
                 <a href="{{ path('video_my_videos') }}" 
                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
-                    My videos
+                    {{ 'sidebar.my_videos'|trans }}
                 </a>
                 <a href="{{ path('video_upload') }}" 
                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Upload video
+                    {{ 'sidebar.upload_video'|trans }}
                 </a>
             </nav>
         </div>

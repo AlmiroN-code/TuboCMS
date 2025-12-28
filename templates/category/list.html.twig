@@ -1,21 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Categories{% endblock %}
+{% block title %}{{ 'category.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1 class="text-3xl font-bold mb-8">All Categories</h1>
-    
+    <h1 class="text-3xl mb-8">{{ 'category.all_categories'|trans }}</h1>
+     <div class="mt-8 mb-8">
+                <h1 class="text-3xl text-gray-900">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="text-gray-600 mt-2">{{ category.description }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 mt-2">{{ 'category.videos_count'|trans({'%count%': category.videosCount}, 'messages', null, category.videosCount) }}</p>
+            </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% for category in categories %}
             <a href="{{ path('category_detail', {'slug': category.slug}) }}" 
                class="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition">
                 <h2 class="text-xl font-semibold mb-2">{{ category.name }}</h2>
                 <p class="text-gray-400 text-sm mb-4">{{ category.description }}</p>
-                <p class="text-red-500 font-semibold">{{ category.videosCount }} videos</p>
+                <p class="text-red-500 font-semibold">{{ 'category.videos_count'|trans({'%count%': category.videosCount}, 'messages', null, category.videosCount) }}</p>
             </a>
         {% else %}
             <div class="col-span-full text-center py-12 text-gray-400">
-                No categories found
+                {{ 'category.no_categories'|trans }}
             </div>
         {% endfor %}
     </div>

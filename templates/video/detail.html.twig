@@ -10,18 +10,20 @@
                 {% if video.encodedFiles|length > 0 %}
                     <video id="videoPlayer" controls class="w-full" poster="{{ video.poster ? '/media/' ~ video.poster : '' }}">
                         {% for encodedFile in video.encodedFiles %}
-                            <source src="/media/{{ encodedFile.file }}" type="video/mp4" data-quality="{{ encodedFile.profile.name }}">
+                            {% set fileUrl = video_file_urls[encodedFile.id] ?? ('/media/' ~ encodedFile.file) %}
+                            <source src="{{ fileUrl }}" type="video/mp4" data-quality="{{ encodedFile.profile.name }}" data-file-id="{{ encodedFile.id }}">
                         {% endfor %}
-                        Your browser does not support video.
+                        {{ 'video.browser_not_supported'|trans }}
                     </video>
                     
                     {# Quality Selector #}
                     {% if video.encodedFiles|length > 1 %}
                         <div class="mt-2 flex items-center gap-2">
-                            <span class="text-sm text-gray-600">Quality:</span>
-                            <select id="qualitySelector" class="text-sm border border-gray-300 rounded px-2 py-1">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'video.quality'|trans }}:</span>
+                            <select id="qualitySelector" class="text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded px-2 py-1">
                                 {% for encodedFile in video.encodedFiles %}
-                                    <option value="{{ encodedFile.file }}" {{ encodedFile.primary ? 'selected' : '' }}>
+                                    {% set fileUrl = video_file_urls[encodedFile.id] ?? ('/media/' ~ encodedFile.file) %}
+                                    <option value="{{ fileUrl }}" {{ encodedFile.primary ? 'selected' : '' }}>
                                         {{ encodedFile.profile.name }} ({{ encodedFile.profile.resolution }})
                                     </option>
                                 {% endfor %}
@@ -31,7 +33,7 @@
                 {% elseif video.tempVideoFile %}
                     <video controls class="w-full" poster="{{ video.poster ? '/media/' ~ video.poster : '' }}">
                         <source src="/media/{{ video.tempVideoFile }}" type="video/mp4">
-                        Your browser does not support video.
+                        {{ 'video.browser_not_supported'|trans }}
                     </video>
                 {% else %}
                     <div class="aspect-video flex items-center justify-center bg-gray-800">
@@ -40,7 +42,7 @@
                                 <svg class="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
-                                <p class="text-white mb-2">Video is processing...</p>
+                                <p class="text-white mb-2">{{ 'video.processing.in_progress'|trans }}</p>
                                 {% if video.processingProgress > 0 %}
                                     <div class="w-64 bg-gray-700 rounded-full h-2 mx-auto">
                                         <div class="bg-blue-600 h-2 rounded-full" style="width: {{ video.processingProgress }}%"></div>
@@ -51,7 +53,7 @@
                                 <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <p class="text-white">Video processing error</p>
+                                <p class="text-white">{{ 'video.processing.error'|trans }}</p>
                                 {% if video.processingError %}
                                     <p class="text-gray-300 text-sm mt-2">{{ video.processingError }}</p>
                                 {% endif %}
@@ -59,19 +61,19 @@
                                 <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <p class="text-white">Video is waiting for processing...</p>
+                                <p class="text-white">{{ 'video.processing.waiting'|trans }}</p>
                             {% endif %}
                         </div>
                     </div>
                 {% endif %}
             </div>
 
-            <h1 class="text-2xl font-bold text-gray-900 mb-4">{{ video.title }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ video.title }}</h1>
 
             <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>{{ video.viewsCount }} views</span>
-                    <span>{{ video.createdAt|date('d.m.Y') }}</span>
+                    <span>{{ 'video.views_count'|trans({'%count%': video.viewsCount|locale_number}) }}</span>
+                    <span>{{ video.createdAt|locale_date('short') }}</span>
                 </div>
                 
                 {# Like Buttons #}
@@ -92,7 +94,7 @@
                         </a>
                         <div>
                             <a href="{{ path('app_member_profile', {username: video.createdBy.username}) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400">{{ video.createdBy.username }}</a>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ video.createdBy.subscribersCount }} subscribers</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'video.subscribers'|trans({'%count%': video.createdBy.subscribersCount}) }}</p>
                         </div>
                     </div>
                     {% include 'partials/_subscribe_button.html.twig' with {'channel': video.createdBy, 'is_subscribed': is_subscribed|default(false)} %}
@@ -100,8 +102,8 @@
             {% endif %}
 
             {% if video.description %}
-                <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                    <p class="text-gray-700 whitespace-pre-line">{{ video.description }}</p>
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ video.description }}</p>
                 </div>
             {% endif %}
 
@@ -115,7 +117,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span class="ml-2 text-gray-500 dark:text-gray-400">Loading comments...</span>
+                        <span class="ml-2 text-gray-500 dark:text-gray-400">{{ 'video.loading_comments'|trans }}</span>
                     </div>
                 </div>
             </div>
@@ -123,16 +125,16 @@
 
         <div class="lg:col-span-1">
             {% if related_videos|length > 0 %}
-                <h2 class="text-lg font-bold text-gray-900 mb-4">Related Videos</h2>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">{{ 'video.related_videos'|trans }}</h2>
                 <div class="space-y-4">
                     {% for related in related_videos %}
                         {% if related.id != video.id %}
-                            <a href="{{ path('video_detail', {slug: related.slug}) }}" class="flex gap-3 hover:bg-gray-50 rounded-lg p-2 transition">
+                            <a href="{{ path('video_detail', {slug: related.slug}) }}" class="flex gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg p-2 transition">
                                 <div class="flex-shrink-0">
                                     {% if related.poster %}
                                         <img src="/media/{{ related.poster }}" alt="{{ related.title }}" class="w-40 h-24 object-cover rounded">
                                     {% else %}
-                                        <div class="w-40 h-24 bg-gray-200 rounded flex items-center justify-center">
+                                        <div class="w-40 h-24 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
                                             <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -141,8 +143,8 @@
                                     {% endif %}
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-medium text-gray-900 line-clamp-2 text-sm">{{ related.title }}</h3>
-                                    <p class="text-xs text-gray-500 mt-1">{{ related.viewsCount }} views</p>
+                                    <h3 class="font-medium text-gray-900 dark:text-gray-100 line-clamp-2 text-sm">{{ related.title }}</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ 'video.views_count'|trans({'%count%': related.viewsCount}) }}</p>
                                 </div>
                             </a>
                         {% endif %}
@@ -152,6 +154,7 @@
         </div>
     </div>
 {% endblock %}
+
 
 {% block javascripts %}
 <script>
@@ -169,7 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sources.forEach(source => source.remove());
             
             const newSource = document.createElement('source');
-            newSource.src = '/media/' + this.value;
+            // Use the full URL from the select value (supports both local and remote URLs)
+            newSource.src = this.value;
             newSource.type = 'video/mp4';
             videoPlayer.appendChild(newSource);
             

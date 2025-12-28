@@ -2,13 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Video;
+use App\Entity\Storage;
 use App\Repository\VideoRepository;
+use App\Service\StorageManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Psr\Log\LoggerInterface;
 
@@ -200,7 +202,8 @@ class VideoController extends AbstractController
     public function detail(
         string $slug,
         VideoRepository $videoRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        StorageManager $storageManager
     ): Response
     {
         $video = $videoRepository->findOneBy(['slug' => $slug]);
@@ -238,11 +241,66 @@ class VideoController extends AbstractController
             }
         }
 
+        // Build video file URLs based on storage type
+        // Requirement 3.1: Generate appropriate URL based on storage type
+        // Requirement 3.2: Serve FTP/SFTP files through proxy
+        // Requirement 3.3: Return direct URL for HTTP storage
+        $videoFileUrls = $this->buildVideoFileUrls($video, $storageManager);
+
         return $this->render('video/detail.html.twig', [
             'video' => $video,
             'related_videos' => $relatedVideos,
             'user_like' => $userLike,
             'is_subscribed' => $isSubscribed,
+            'video_file_urls' => $videoFileUrls,
         ]);
+    }
+
+    /**
+     * Build URLs for video files based on storage type.
+     * 
+     * Requirement 3.1: WHEN a user requests a video THEN the System SHALL 
+     * generate appropriate URL based on storage type
+     * 
+     * Requirement 3.2: WHEN video is stored on FTP/SFTP THEN the System SHALL 
+     * serve the file through a proxy endpoint
+     * 
+     * Requirement 3.3: WHEN video is stored on Remote Server THEN the System 
+     * SHALL return the direct URL to the remote file
+     * 
+     * @return array<int, string> Map of VideoFile ID to URL
+     */
+    private function buildVideoFileUrls($video, StorageManager $storageManager): array
+    {
+        $urls = [];
+        
+        foreach ($video->getEncodedFiles() as $videoFile) {
+            $storage = $videoFile->getStorage();
+            $remotePath = $videoFile->getRemotePath();
+            
+            // Local file - use local path
+            if ($storage === null || $remotePath === null) {
+                $localPath = $videoFile->getFile();
+                $urls[$videoFile->getId()] = $localPath ? '/media/' . $localPath : '';
+                continue;
+            }
+            
+            // Remote storage - generate appropriate URL based on type
+            $storageType = $storage->getType();
+            
+            if ($storageType === Storage::TYPE_HTTP) {
+                // HTTP storage - direct URL
+                $urls[$videoFile->getId()] = $storageManager->getFileUrl($videoFile);
+            } else {
+                // FTP/SFTP storage - proxy URL
+                $urls[$videoFile->getId()] = $this->generateUrl(
+                    'storage_file',
+                    ['id' => $videoFile->getId()],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
+            }
+        }
+        
+        return $urls;
     }
 }

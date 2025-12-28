@@ -227,9 +227,7 @@
 .video-title a {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    color: var(--text-primary);
     display: -webkit-box;
-    font-size: 14px;
     line-height: 1.4;
     margin-bottom: 5px;
     overflow: hidden;
@@ -572,4 +570,73 @@ header button[type="submit"]:hover {
 
 .dark tr:hover {
     background-color: var(--bg-tertiary) !important;
+}
+
+
+/* Language Switcher Styles */
+.language-switcher {
+    position: relative;
+}
+
+.language-switcher-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.language-switcher-btn:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.locale-flag {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.language-dropdown {
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem;
+    min-width: 10rem;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-lg);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.language-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.language-dropdown a:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.language-dropdown a.active {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.dark .language-dropdown {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.dark .language-dropdown a:hover {
+    background-color: var(--bg-tertiary);
 }

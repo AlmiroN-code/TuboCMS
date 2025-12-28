@@ -1,0 +1,236 @@
+# Russian translations - Main messages
+# Requirements: 7.1, 7.2
+
+# Navigation
+nav:
+    home: "Главная"
+    videos: "Видео"
+    categories: "Категории"
+    community: "Сообщество"
+    popular: "Популярное"
+    trending: "В тренде"
+
+# Authentication
+auth:
+    login: "Войти"
+    logout: "Выйти"
+    register: "Регистрация"
+    my_profile: "Мой профиль"
+    my_videos: "Мои видео"
+    admin_panel: "Админ панель"
+    # Login page
+    login_page:
+        title: "Вход"
+        heading: "Войдите в свой аккаунт"
+        email: "Email"
+        password: "Пароль"
+        submit: "Войти"
+        no_account: "Нет аккаунта?"
+        sign_up_link: "Зарегистрироваться"
+    # Registration page
+    register_page:
+        title: "Регистрация"
+        heading: "Создайте аккаунт"
+        username: "Имя пользователя"
+        email: "Email"
+        password: "Пароль"
+        submit: "Зарегистрироваться"
+        have_account: "Уже есть аккаунт?"
+        sign_in_link: "Войти"
+    # Error messages
+    errors:
+        invalid_credentials: "Неверные учётные данные"
+        account_disabled: "Ваш аккаунт отключён"
+        account_locked: "Ваш аккаунт заблокирован"
+        email_not_verified: "Пожалуйста, подтвердите ваш email"
+
+# Video
+video:
+    all_videos: "Все видео"
+    my_videos: "Мои видео"
+    related_videos: "Похожие видео"
+    upload: "Загрузить видео"
+    upload_new: "Загрузить новое видео"
+    views: "{0} просмотров|{1} просмотр|[2,4] %count% просмотра|[5,Inf[ %count% просмотров"
+    views_count: "%count% просмотров"
+    no_videos: "Видео не найдено"
+    no_videos_query: "Видео по запросу \"%query%\" не найдено"
+    load_more: "Загрузить ещё"
+    search_placeholder: "Поиск видео..."
+    search: "Поиск"
+    search_results: "Результаты поиска: \"%query%\""
+    search_videos: "Поиск видео"
+    enter_search_query: "Введите поисковый запрос"
+    show_all_results: "Показать все результаты"
+    try_full_search: "Попробовать полный поиск"
+    browser_not_supported: "Ваш браузер не поддерживает воспроизведение видео."
+    quality: "Качество"
+    subscribers: "%count% подписчиков"
+    loading_comments: "Загрузка комментариев..."
+    watch_later: "Смотреть позже"
+    # Video statuses
+    status:
+        published: "Опубликовано"
+        processing: "Обработка"
+        draft: "Черновик"
+        error: "Ошибка"
+    # Processing messages
+    processing:
+        in_progress: "Видео обрабатывается..."
+        waiting: "Видео ожидает обработки..."
+        error: "Ошибка обработки видео"
+    # My videos table
+    table:
+        video: "Видео"
+        status: "Статус"
+        views: "Просмотры"
+        date: "Дата"
+        actions: "Действия"
+        view: "Смотреть"
+    # Empty state
+    empty:
+        title: "Нет видео"
+        description: "Начните с загрузки вашего первого видео"
+        upload: "Загрузить видео"
+    # Upload page
+    upload_page:
+        title: "Загрузка видео"
+        video_title: "Название видео"
+        description: "Описание"
+        category: "Категория"
+        tags: "Теги"
+        video_file: "Видеофайл"
+        supported_formats: "Поддерживаемые форматы: MP4, AVI, MOV. Максимальный размер: 2 ГБ"
+        cancel: "Отмена"
+        submit: "Загрузить видео"
+        info_title: "Информация о загрузке"
+        info_processing: "После загрузки видео будет обработано и сконвертировано"
+        info_time: "Обработка может занять несколько минут"
+        info_notification: "Вы получите уведомление, когда видео будет готово"
+        info_rights: "Убедитесь, что у вас есть права на загружаемый контент"
+
+# Pagination
+pagination:
+    previous: "Назад"
+    next: "Вперёд"
+    page: "Страница %page%"
+
+# Category
+category:
+    title: "Категории"
+    all_categories: "Все категории"
+    videos_count: "{0} видео|{1} видео|[2,4] %count% видео|[5,Inf[ %count% видео"
+    no_categories: "Категории не найдены"
+    no_videos_in_category: "В этой категории пока нет видео"
+
+# Home page
+home:
+    featured: "Рекомендуемое"
+    new_videos: "Новые видео"
+    popular_videos: "Популярные видео"
+    view_all: "Смотреть все →"
+
+# Sidebar
+sidebar:
+    trending: "В тренде"
+    all_videos: "Все видео"
+    top_views: "Топ просмотров"
+    new: "Новые"
+    categories: "Категории"
+    show_all: "Показать все"
+    hide: "Скрыть"
+    all_categories: "Все категории →"
+    no_categories: "Категории не найдены"
+    my_profile: "Мой профиль"
+    my_videos: "Мои видео"
+    upload_video: "Загрузить видео"
+
+# Members / Community
+members:
+    title: "Сообщество"
+    description: "Познакомьтесь с нашими участниками! Здесь вы найдёте создателей контента, активных пользователей и всех, кто делает наше сообщество особенным."
+    total: "Участников"
+    creators: "Авторов"
+    verified: "Верифицированных"
+    premium: "Премиум"
+    search_placeholder: "Поиск по имени..."
+    sort:
+        newest: "Новые участники"
+        oldest: "Старые участники"
+        popular: "Популярные"
+        active: "Активные"
+    search_button: "Поиск"
+    reset: "Сбросить"
+    videos: "Видео:"
+    subscribers: "Подписчиков:"
+    member_since: "Участник с:"
+    profile: "Профиль"
+    no_users: "Пользователи не найдены"
+    no_users_search: "Попробуйте изменить поисковый запрос или сбросить фильтры."
+    no_users_empty: "В сообществе пока нет участников."
+    # Profile page
+    profile_title: "%username% - Профиль"
+    edit: "Редактировать"
+    subscribe: "Подписаться"
+    about: "О себе"
+    recent_videos: "Последние видео"
+    activity: "Активность"
+    registered: "Зарегистрирован %date%"
+    last_activity: "Последняя активность %date%"
+    information: "Информация"
+    country: "Страна"
+    city: "Город"
+    gender: "Пол"
+    gender_male: "Мужской"
+    gender_female: "Женский"
+    age: "Возраст"
+    age_years: "%age% лет"
+    marital_status: "Семейное положение"
+    marital_single: "Не женат/не замужем"
+    marital_in_relationship: "В отношениях"
+    marital_engaged: "Помолвлен(а)"
+    marital_married: "Женат/замужем"
+    marital_divorced: "В разводе"
+    marital_widowed: "Вдовец/вдова"
+    orientation: "Ориентация"
+    orientation_heterosexual: "Гетеросексуал"
+    orientation_homosexual: "Гомосексуал"
+    orientation_bisexual: "Бисексуал"
+    orientation_other: "Другое"
+    achievements: "Достижения"
+    achievement_verified: "Верифицированный пользователь"
+    achievement_premium: "Премиум участник"
+    achievement_creator: "Активный автор"
+    stats:
+        videos: "Видео"
+        subscribers: "Подписчиков"
+        views: "Просмотров"
+        member_since: "Участник с"
+
+# Footer
+footer:
+    site_name: "RexTube"
+    description: "Лучший видеохостинг для загрузки и просмотра видеоконтента."
+    navigation: "Навигация"
+    information: "Информация"
+    about_us: "О нас"
+    terms: "Условия"
+    contact: "Контакты"
+    copyright: "© %year% RexTube. Все права защищены."
+
+# Common
+common:
+    save: "Сохранить"
+    cancel: "Отмена"
+    delete: "Удалить"
+    edit: "Редактировать"
+    create: "Создать"
+    search: "Поиск"
+    select: "Выберите..."
+
+# Profile
+profile:
+    avatar: "Аватар"
+    cover: "Обложка профиля"
+    birth_date: "Дата рождения"
+    bio_placeholder: "Расскажите о себе..."

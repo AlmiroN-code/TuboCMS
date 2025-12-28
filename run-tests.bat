@@ -1,0 +1,3 @@
+@echo off
+echo Running PHPUnit tests...
+php vendor/bin/phpunit %*

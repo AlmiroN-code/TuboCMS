@@ -19,7 +19,7 @@ class ProfileEditType extends AbstractType
     {
         $builder
             ->add('avatarFile', FileType::class, [
-                'label' => 'Аватар',
+                'label' => 'profile.avatar',
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
@@ -31,12 +31,12 @@ class ProfileEditType extends AbstractType
                             'image/gif',
                             'image/webp',
                         ],
-                        mimeTypesMessage: 'Пожалуйста, загрузите изображение (JPEG, PNG, GIF, WebP)',
+                        mimeTypesMessage: 'profile.avatar.invalid_type',
                     )
                 ],
             ])
             ->add('coverImageFile', FileType::class, [
-                'label' => 'Обложка профиля',
+                'label' => 'profile.cover',
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
@@ -48,67 +48,67 @@ class ProfileEditType extends AbstractType
                             'image/gif',
                             'image/webp',
                         ],
-                        mimeTypesMessage: 'Пожалуйста, загрузите изображение (JPEG, PNG, GIF, WebP)',
+                        mimeTypesMessage: 'profile.cover.invalid_type',
                     )
                 ],
             ])
             ->add('country', ChoiceType::class, [
-                'label' => 'Страна',
+                'label' => 'members.country',
                 'required' => false,
-                'placeholder' => 'Выберите страну',
+                'placeholder' => 'common.select',
                 'choices' => $this->getCountries(),
             ])
             ->add('city', TextType::class, [
-                'label' => 'Город',
+                'label' => 'members.city',
                 'required' => false,
-                'attr' => ['placeholder' => 'Введите город'],
+                'attr' => ['placeholder' => 'members.city'],
             ])
             ->add('gender', ChoiceType::class, [
-                'label' => 'Пол',
+                'label' => 'members.gender',
                 'required' => false,
-                'placeholder' => 'Выберите пол',
+                'placeholder' => 'common.select',
                 'choices' => [
-                    'Мужской' => 'male',
-                    'Женский' => 'female',
+                    'members.gender_male' => 'male',
+                    'members.gender_female' => 'female',
                 ],
             ])
             ->add('maritalStatus', ChoiceType::class, [
-                'label' => 'Семейное положение',
+                'label' => 'members.marital_status',
                 'required' => false,
-                'placeholder' => 'Выберите статус',
+                'placeholder' => 'common.select',
                 'choices' => [
-                    'Не женат/Не замужем' => 'single',
-                    'В отношениях' => 'in_relationship',
-                    'Помолвлен(а)' => 'engaged',
-                    'Женат/Замужем' => 'married',
-                    'В разводе' => 'divorced',
-                    'Вдовец/Вдова' => 'widowed',
+                    'members.marital_single' => 'single',
+                    'members.marital_in_relationship' => 'in_relationship',
+                    'members.marital_engaged' => 'engaged',
+                    'members.marital_married' => 'married',
+                    'members.marital_divorced' => 'divorced',
+                    'members.marital_widowed' => 'widowed',
                 ],
             ])
             ->add('birthDate', DateType::class, [
-                'label' => 'Дата рождения',
+                'label' => 'profile.birth_date',
                 'required' => false,
                 'widget' => 'single_text',
                 'html5' => true,
                 'attr' => ['max' => (new \DateTime())->format('Y-m-d')],
             ])
             ->add('orientation', ChoiceType::class, [
-                'label' => 'Ориентация',
+                'label' => 'members.orientation',
                 'required' => false,
-                'placeholder' => 'Выберите ориентацию',
+                'placeholder' => 'common.select',
                 'choices' => [
-                    'Гетеросексуал' => 'heterosexual',
-                    'Гомосексуал' => 'homosexual',
-                    'Бисексуал' => 'bisexual',
-                    'Другое' => 'other',
+                    'members.orientation_heterosexual' => 'heterosexual',
+                    'members.orientation_homosexual' => 'homosexual',
+                    'members.orientation_bisexual' => 'bisexual',
+                    'members.orientation_other' => 'other',
                 ],
             ])
             ->add('bio', TextareaType::class, [
-                'label' => 'Обо мне',
+                'label' => 'members.about',
                 'required' => false,
                 'attr' => [
                     'rows' => 5,
-                    'placeholder' => 'Расскажите о себе...',
+                    'placeholder' => 'profile.bio_placeholder',
                     'maxlength' => 1000,
                 ],
             ]);

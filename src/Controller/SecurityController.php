@@ -75,20 +75,24 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        // Apply rate limiting for registration
-        $limiter = $registrationLimiter->create($request->getClientIp());
-        if (false === $limiter->consume(1)->isAccepted()) {
-            $logger->warning('Registration rate limit exceeded', [
-                'ip' => $request->getClientIp(),
-                'user_agent' => $request->headers->get('User-Agent')
-            ]);
-            $this->addFlash('error', 'Слишком много попыток регистрации. Попробуйте позже.');
-            return $this->redirectToRoute('app_login');
-        }
-
         $user = new User();
         $form = $this->createForm(RegistrationType::class, $user);
         $form->handleRequest($request);
+
+        // Apply rate limiting only on form submission
+        if ($form->isSubmitted()) {
+            $limiter = $registrationLimiter->create($request->getClientIp());
+            if (false === $limiter->consume(1)->isAccepted()) {
+                $logger->warning('Registration rate limit exceeded', [
+                    'ip' => $request->getClientIp(),
+                    'user_agent' => $request->headers->get('User-Agent')
+                ]);
+                $this->addFlash('error', 'Слишком много попыток регистрации. Попробуйте позже.');
+                return $this->render('security/register.html.twig', [
+                    'registrationForm' => $form,
+                ]);
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {

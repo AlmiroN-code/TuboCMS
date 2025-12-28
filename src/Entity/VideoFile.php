@@ -38,6 +38,13 @@ class VideoFile
     #[ORM\JoinColumn(nullable: false)]
     private ?VideoEncodingProfile $profile = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Storage $storage = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $remotePath = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -117,5 +124,35 @@ class VideoFile
     {
         $this->profile = $profile;
         return $this;
+    }
+
+    public function getStorage(): ?Storage
+    {
+        return $this->storage;
+    }
+
+    public function setStorage(?Storage $storage): static
+    {
+        $this->storage = $storage;
+        return $this;
+    }
+
+    public function getRemotePath(): ?string
+    {
+        return $this->remotePath;
+    }
+
+    public function setRemotePath(?string $remotePath): static
+    {
+        $this->remotePath = $remotePath;
+        return $this;
+    }
+
+    /**
+     * Проверяет, хранится ли файл на удалённом хранилище
+     */
+    public function isRemote(): bool
+    {
+        return $this->storage !== null && $this->remotePath !== null;
     }
 }

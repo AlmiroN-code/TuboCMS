@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{% if setting('seo_home_title') %}{{ setting('seo_home_title') }}{% else %}Главная{% endif %}{% endblock %}
+{% block title %}{% if setting('seo_home_title') %}{{ setting('seo_home_title') }}{% else %}{{ 'nav.home'|trans }}{% endif %}{% endblock %}
 
 {% block body %}
     <div class="flex gap-2">
@@ -11,7 +11,7 @@
             {% if show_featured and featured_videos|length > 0 %}
             <section class="mb-8">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">Featured</h2>
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.featured'|trans }}</h2>
                 </div>
                 <div class="video-grid">
                     {% for video in featured_videos %}
@@ -25,9 +25,9 @@
             {% if show_new and new_videos|length > 0 %}
             <section class="mb-8">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">New Videos</h2>
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.new_videos'|trans }}</h2>
                     <a href="{{ path('app_videos_newest') }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-                        View all →
+                        {{ 'home.view_all'|trans }}
                     </a>
                 </div>
                 <div class="video-grid">
@@ -42,9 +42,9 @@
             {% if show_popular and popular_videos|length > 0 %}
             <section class="mb-8">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">Popular Videos</h2>
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.popular_videos'|trans }}</h2>
                     <a href="{{ path('app_videos_popular') }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
-                        View all →
+                        {{ 'home.view_all'|trans }}
                     </a>
                 </div>
                 <div class="video-grid">

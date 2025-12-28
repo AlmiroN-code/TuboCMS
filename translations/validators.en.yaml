@@ -1,0 +1,66 @@
+# English translations - Validation messages
+# Requirements: 6.1, 7.1, 7.2
+
+# Common validation messages
+This value should not be blank.: "This value should not be blank."
+This value is not valid.: "This value is not valid."
+This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.: "This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more."
+This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.: "This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less."
+This value is not a valid email address.: "This value is not a valid email address."
+The two values should be equal.: "The two values should be equal."
+This value should be positive.: "This value should be positive."
+This value should be greater than {{ compared_value }}.: "This value should be greater than {{ compared_value }}."
+This value should be less than {{ compared_value }}.: "This value should be less than {{ compared_value }}."
+
+# File validation
+The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.: "The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}."
+The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.: "The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}."
+The file could not be uploaded.: "The file could not be uploaded."
+An empty file is not allowed.: "An empty file is not allowed."
+
+# User registration validation
+username:
+    not_blank: "Please enter a username"
+    min_length: "Username must be at least {{ limit }} characters"
+    max_length: "Username cannot be longer than {{ limit }} characters"
+    invalid_characters: "Username can only contain letters, numbers, hyphens and underscores"
+    already_used: "This username is already taken"
+
+email:
+    not_blank: "Please enter an email address"
+    invalid: "Please enter a valid email address"
+    max_length: "Email cannot be longer than {{ limit }} characters"
+    already_used: "There is already an account with this email"
+
+password:
+    not_blank: "Please enter a password"
+    min_length: "Password must be at least {{ limit }} characters"
+    max_length: "Password cannot be longer than {{ limit }} characters"
+    weak: "Password must contain at least one lowercase letter, one uppercase letter and one digit"
+    compromised: "This password has been compromised in a data breach. Please choose a different password."
+    mismatch: "Passwords must match"
+
+# Video upload validation
+video:
+    title:
+        not_blank: "Please enter a video title"
+        max_length: "Title cannot be longer than {{ limit }} characters"
+    file:
+        invalid_type: "Please upload a valid video file"
+        too_large: "Video file is too large. Maximum size is {{ limit }}"
+
+# Profile validation
+profile:
+    avatar:
+        invalid_type: "Please upload an image (JPEG, PNG, GIF, WebP)"
+        too_large: "Avatar file is too large. Maximum size is {{ limit }}"
+    cover:
+        invalid_type: "Please upload an image (JPEG, PNG, GIF, WebP)"
+        too_large: "Cover image is too large. Maximum size is {{ limit }}"
+    bio:
+        max_length: "Bio cannot be longer than {{ limit }} characters"
+
+# Comment validation
+comment:
+    not_blank: "Comment cannot be empty"
+    max_length: "Comment is too long"

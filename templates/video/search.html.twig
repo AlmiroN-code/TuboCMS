@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Search: {{ query }}{% endblock %}
+{% block title %}{{ 'video.search'|trans }}: {{ query }}{% endblock %}
 
 {% block body %}
     <div class="flex gap-8">
@@ -8,20 +8,20 @@
         
         <div class="flex-1">
             <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
                     {% if query %}
-                        Search results: "{{ query }}"
+                        {{ 'video.search_results'|trans({'%query%': query}) }}
                     {% else %}
-                        Search videos
+                        {{ 'video.search_videos'|trans }}
                     {% endif %}
                 </h1>
                 
                 <form action="{{ path('video_search') }}" method="get" class="flex gap-2">
-                    <input type="text" name="q" placeholder="Search videos..." 
+                    <input type="text" name="q" placeholder="{{ 'video.search_placeholder'|trans }}" 
                            value="{{ query }}"
-                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                           class="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-                        Search
+                        {{ 'video.search'|trans }}
                     </button>
                 </form>
             </div>
@@ -36,28 +36,28 @@
                 <div class="mt-8 flex justify-center gap-2">
                     {% if page > 1 %}
                         <a href="{{ path('video_search', {q: query, page: page - 1}) }}" 
-                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            ← Previous
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                            ← {{ 'pagination.previous'|trans }}
                         </a>
                     {% endif %}
                     
                     <span class="px-4 py-2 bg-primary-600 text-white rounded-lg">
-                        Page {{ page }}
+                        {{ 'pagination.page'|trans({'%page%': page}) }}
                     </span>
                     
                     {% if videos|length == 24 %}
                         <a href="{{ path('video_search', {q: query, page: page + 1}) }}" 
-                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            Next →
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                            {{ 'pagination.next'|trans }} →
                         </a>
                     {% endif %}
                 </div>
             {% else %}
                 <div class="text-center py-12">
                     {% if query %}
-                        <p class="text-gray-500 text-lg">No videos found for "{{ query }}"</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'video.no_videos_query'|trans({'%query%': query}) }}</p>
                     {% else %}
-                        <p class="text-gray-500 text-lg">Enter a search query</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'video.enter_search_query'|trans }}</p>
                     {% endif %}
                 </div>
             {% endif %}

@@ -21,3 +21,5 @@ framework:
         routing:
             # Route video processing messages to async transport
             'App\Message\ProcessVideoEncodingMessage': async
+            'App\Message\UploadToStorageMessage': async
+            'App\Message\DeleteFromStorageMessage': async

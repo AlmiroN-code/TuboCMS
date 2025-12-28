@@ -103,9 +103,10 @@ npm run dev-server
 
 ## Important Notes
 
-- PHP 8.4+ required (strict types, modern features)
+- PHP 8.4.15 required (strict types, modern features)
 - Doctrine migrations are used for database versioning
 - Messenger handles async video processing
 - Webpack Encore compiles and optimizes frontend assets
 - Tailwind CSS uses JIT compilation with PurgeCSS
 - Turbo provides SPA-like experience without full SPA complexity
+- Всегда пиши и отвечай на русском языке

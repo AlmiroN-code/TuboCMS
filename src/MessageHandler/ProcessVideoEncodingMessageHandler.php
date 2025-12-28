@@ -8,6 +8,7 @@ use App\Repository\VideoRepository;
 use App\Repository\VideoEncodingProfileRepository;
 use App\Service\VideoProcessingService;
 use App\Service\NotificationService;
+use App\Service\StorageManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -22,6 +23,7 @@ class ProcessVideoEncodingMessageHandler
         private VideoEncodingProfileRepository $profileRepository,
         private VideoProcessingService $videoProcessor,
         private NotificationService $notificationService,
+        private StorageManager $storageManager,
         private ManagerRegistry $doctrine,
         private LoggerInterface $logger,
         private Filesystem $filesystem,
@@ -77,15 +79,58 @@ class ProcessVideoEncodingMessageHandler
             $mediaDir = $this->projectDir . '/public/media';
             $basicResult = $this->videoProcessor->processVideo($tempVideoPath, $mediaDir);
             
+            // Получаем default storage для загрузки
+            $defaultStorage = $this->storageManager->getDefaultStorage();
+            
             if ($basicResult['success']) {
                 $video->setDuration($basicResult['duration']);
                 $video->setResolution($basicResult['resolution']);
                 
+                // Загружаем постер на удалённое хранилище
                 if ($basicResult['poster']) {
+                    $posterLocalPath = $mediaDir . '/' . $basicResult['poster'];
+                    
+                    if ($defaultStorage !== null && file_exists($posterLocalPath)) {
+                        $posterRemotePath = sprintf('posters/%d/%s', $video->getId(), basename($basicResult['poster']));
+                        $uploadResult = $this->storageManager->uploadFile($posterLocalPath, $posterRemotePath, $defaultStorage);
+                        
+                        if ($uploadResult->success) {
+                            $this->logger->info('Poster uploaded to remote storage', [
+                                'videoId' => $video->getId(),
+                                'remotePath' => $uploadResult->remotePath
+                            ]);
+                        } else {
+                            $this->logger->warning('Failed to upload poster to remote storage, keeping local', [
+                                'videoId' => $video->getId(),
+                                'error' => $uploadResult->errorMessage
+                            ]);
+                        }
+                    }
+                    
                     $video->setPoster($basicResult['poster']);
                 }
                 
+                // Загружаем превью на удалённое хранилище
                 if ($basicResult['preview']) {
+                    $previewLocalPath = $mediaDir . '/' . $basicResult['preview'];
+                    
+                    if ($defaultStorage !== null && file_exists($previewLocalPath)) {
+                        $previewRemotePath = sprintf('previews/%d/%s', $video->getId(), basename($basicResult['preview']));
+                        $uploadResult = $this->storageManager->uploadFile($previewLocalPath, $previewRemotePath, $defaultStorage);
+                        
+                        if ($uploadResult->success) {
+                            $this->logger->info('Preview uploaded to remote storage', [
+                                'videoId' => $video->getId(),
+                                'remotePath' => $uploadResult->remotePath
+                            ]);
+                        } else {
+                            $this->logger->warning('Failed to upload preview to remote storage, keeping local', [
+                                'videoId' => $video->getId(),
+                                'error' => $uploadResult->errorMessage
+                            ]);
+                        }
+                    }
+                    
                     $video->setPreview($basicResult['preview']);
                 }
             }
@@ -131,6 +176,35 @@ class ProcessVideoEncodingMessageHandler
                         $videoFile->setFileSize(filesize($outputPath));
                         $videoFile->setDuration($video->getDuration());
                         
+                        // Загружаем на удалённое хранилище если настроено
+                        if ($defaultStorage !== null) {
+                            $remotePath = sprintf(
+                                'videos/%d/%s/%s',
+                                $video->getId(),
+                                strtolower($profile->getName()),
+                                $outputFilename
+                            );
+                            
+                            $uploadResult = $this->storageManager->uploadFile($outputPath, $remotePath, $defaultStorage);
+                            
+                            if ($uploadResult->success) {
+                                $videoFile->setStorage($defaultStorage);
+                                $videoFile->setRemotePath($uploadResult->remotePath);
+                                
+                                $this->logger->info('Encoded video uploaded to remote storage', [
+                                    'videoId' => $video->getId(),
+                                    'profile' => $profile->getName(),
+                                    'remotePath' => $uploadResult->remotePath
+                                ]);
+                            } else {
+                                $this->logger->warning('Failed to upload encoded video to remote storage, keeping local', [
+                                    'videoId' => $video->getId(),
+                                    'profile' => $profile->getName(),
+                                    'error' => $uploadResult->errorMessage
+                                ]);
+                            }
+                        }
+                        
                         // Первый профиль помечаем как основной
                         if (!$isPrimarySet) {
                             $videoFile->setPrimary(true);
@@ -142,7 +216,8 @@ class ProcessVideoEncodingMessageHandler
 
                         $this->logger->info('Profile encoded successfully', [
                             'profile' => $profile->getName(),
-                            'fileSize' => filesize($outputPath)
+                            'fileSize' => filesize($outputPath),
+                            'isRemote' => $videoFile->isRemote()
                         ]);
                     } else {
                         $this->logger->error('Failed to encode profile', [

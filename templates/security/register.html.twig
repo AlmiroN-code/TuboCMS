@@ -1,32 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sign Up{% endblock %}
+{% block title %}{{ 'auth.register_page.title'|trans }}{% endblock %}
 
 {% block body %}
 <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Create an account
+                {{ 'auth.register_page.heading'|trans }}
             </h2>
         </div>
 
         {{ form_start(registrationForm, {'attr': {'class': 'mt-8 space-y-6'}}) }}
             <div class="rounded-md shadow-sm space-y-4">
                 <div>
-                    {{ form_label(registrationForm.username, 'Username', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                    {{ form_label(registrationForm.username, 'auth.register_page.username'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
                     {{ form_widget(registrationForm.username, {'attr': {'class': 'mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm'}}) }}
                     {{ form_errors(registrationForm.username) }}
                 </div>
 
                 <div>
-                    {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                    {{ form_label(registrationForm.email, 'auth.register_page.email'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
                     {{ form_widget(registrationForm.email, {'attr': {'class': 'mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm'}}) }}
                     {{ form_errors(registrationForm.email) }}
                 </div>
 
                 <div>
-                    {{ form_label(registrationForm.plainPassword, 'Password', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                    {{ form_label(registrationForm.plainPassword, 'auth.register_page.password'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
                     {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm'}}) }}
                     {{ form_errors(registrationForm.plainPassword) }}
                 </div>
@@ -35,13 +35,13 @@
             <div>
                 <button type="submit" 
                         class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                    Sign up
+                    {{ 'auth.register_page.submit'|trans }}
                 </button>
             </div>
 
             <div class="text-center">
                 <a href="{{ path('app_login') }}" class="text-primary-600 hover:text-primary-700">
-                    Already have an account? Sign in
+                    {{ 'auth.register_page.have_account'|trans }} {{ 'auth.register_page.sign_in_link'|trans }}
                 </a>
             </div>
         {{ form_end(registrationForm) }}

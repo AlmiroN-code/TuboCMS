@@ -38,3 +38,5 @@ The project is fully functional with core features implemented. Video processing
 - Content creators (uploaders)
 - Content consumers (viewers)
 - Site administrators
+
+Всегда пиши и отвечай на русском языке

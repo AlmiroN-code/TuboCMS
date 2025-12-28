@@ -30,6 +30,10 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
     
+    App\MessageHandler\UploadToStorageMessageHandler:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+    
     App\Service\NotificationService:
         arguments:
             $fromEmail: '%env(MAILER_FROM)%'
@@ -53,3 +57,49 @@ services:
     
     # File system service
     Symfony\Component\Filesystem\Filesystem: ~
+    
+    # Storage adapter factories
+    App\Storage\Factory\LocalStorageAdapterFactory:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+    
+    # Storage adapter factories - tagged for injection
+    _instanceof:
+        App\Storage\Factory\StorageAdapterFactoryInterface:
+            tags: ['app.storage_adapter_factory']
+    
+    # Storage Manager with all factories
+    App\Service\StorageManager:
+        arguments:
+            $factories: !tagged_iterator app.storage_adapter_factory
+    
+    # Signed URL Service for secure file access
+    App\Service\SignedUrlService:
+        arguments:
+            $secretKey: '%env(APP_SECRET)%'
+    
+    # Locale Subscriber for i18n
+    # Requirements: 1.1, 1.3, 1.4, 5.2
+    App\EventSubscriber\LocaleSubscriber:
+        arguments:
+            $defaultLocale: '%kernel.default_locale%'
+            $supportedLocales: '%kernel.enabled_locales%'
+    
+    # Locale Controller for language switching
+    # Requirements: 2.3, 5.1
+    App\Controller\LocaleController:
+        arguments:
+            $supportedLocales: '%kernel.enabled_locales%'
+    
+    # Locale Twig Extension for locale helpers
+    # Requirements: 2.1, 2.2
+    App\Twig\LocaleExtension:
+        arguments:
+            $enabledLocales: '%kernel.enabled_locales%'
+            $defaultLocale: '%kernel.default_locale%'
+    
+    # Formatting Twig Extension for locale-aware date/number formatting
+    # Requirements: 8.1, 8.2, 8.3
+    App\Twig\FormattingExtension:
+        arguments:
+            $defaultLocale: '%kernel.default_locale%'

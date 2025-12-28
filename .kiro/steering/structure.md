@@ -216,3 +216,6 @@ rextube/
 - `public/media/` - User-uploaded files
 - `config/` - Application configuration
 - `migrations/` - Database version control
+
+
+Всегда пиши и отвечай на русском языке

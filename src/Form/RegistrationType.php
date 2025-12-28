@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationType extends AbstractType
 {
@@ -22,77 +23,77 @@ class RegistrationType extends AbstractType
     {
         $builder
             ->add('username', TextType::class, [
-                'label' => 'Имя пользователя',
+                'label' => 'auth.register_page.username',
                 'attr' => [
-                    'placeholder' => 'Введите имя пользователя',
+                    'placeholder' => 'auth.register_page.username',
                     'class' => 'form-control'
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'Введите имя пользователя']),
-                    new Length([
-                        'min' => 3, 
-                        'max' => 180,
-                        'minMessage' => 'Имя пользователя должно содержать минимум {{ limit }} символа',
-                        'maxMessage' => 'Имя пользователя не может быть длиннее {{ limit }} символов'
-                    ]),
-                    new Regex([
-                        'pattern' => '/^[a-zA-Z0-9_-]+$/',
-                        'message' => 'Имя пользователя может содержать только буквы, цифры, дефисы и подчеркивания'
-                    ])
+                    new NotBlank(message: 'username.not_blank'),
+                    new Length(
+                        min: 3, 
+                        max: 180,
+                        minMessage: 'username.min_length',
+                        maxMessage: 'username.max_length'
+                    ),
+                    new Regex(
+                        pattern: '/^[a-zA-Z0-9_-]+$/',
+                        message: 'username.invalid_characters'
+                    )
                 ],
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'auth.register_page.email',
                 'attr' => [
-                    'placeholder' => 'Введите email адрес',
+                    'placeholder' => 'auth.register_page.email',
                     'class' => 'form-control'
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'Введите email']),
-                    new Email([
-                        'message' => 'Введите корректный email адрес',
-                        'mode' => 'strict'
-                    ]),
-                    new Length([
-                        'max' => 180,
-                        'maxMessage' => 'Email не может быть длиннее {{ limit }} символов'
-                    ])
+                    new NotBlank(message: 'email.not_blank'),
+                    new Email(
+                        message: 'email.invalid',
+                        mode: Email::VALIDATION_MODE_STRICT
+                    ),
+                    new Length(
+                        max: 180,
+                        maxMessage: 'email.max_length'
+                    )
                 ],
             ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
                 'first_options' => [
-                    'label' => 'Пароль',
+                    'label' => 'auth.register_page.password',
                     'attr' => [
-                        'placeholder' => 'Введите пароль',
+                        'placeholder' => 'auth.register_page.password',
                         'class' => 'form-control'
                     ],
                     'constraints' => [
-                        new NotBlank(['message' => 'Введите пароль']),
-                        new Length([
-                            'min' => 8, 
-                            'max' => 128,
-                            'minMessage' => 'Пароль должен содержать минимум {{ limit }} символов',
-                            'maxMessage' => 'Пароль не может быть длиннее {{ limit }} символов'
-                        ]),
-                        new Regex([
-                            'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/',
-                            'message' => 'Пароль должен содержать минимум одну строчную букву, одну заглавную букву и одну цифру'
-                        ]),
-                        new NotCompromisedPassword([
-                            'message' => 'Этот пароль был скомпрометирован в утечках данных. Выберите другой пароль.'
-                        ])
+                        new NotBlank(message: 'password.not_blank'),
+                        new Length(
+                            min: 8, 
+                            max: 128,
+                            minMessage: 'password.min_length',
+                            maxMessage: 'password.max_length'
+                        ),
+                        new Regex(
+                            pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/',
+                            message: 'password.weak'
+                        ),
+                        new NotCompromisedPassword(
+                            message: 'password.compromised'
+                        )
                     ],
                 ],
                 'second_options' => [
-                    'label' => 'Повторите пароль',
+                    'label' => 'auth.register_page.password',
                     'attr' => [
-                        'placeholder' => 'Повторите пароль',
+                        'placeholder' => 'auth.register_page.password',
                         'class' => 'form-control'
                     ]
                 ],
-                'invalid_message' => 'Пароли должны совпадать',
+                'invalid_message' => 'password.mismatch',
             ]);
     }
 

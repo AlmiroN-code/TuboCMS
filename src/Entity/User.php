@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'email.already_used')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -24,22 +24,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank(message: 'Email не может быть пустым')]
-    #[Assert\Email(message: 'Введите корректный email')]
-    #[Assert\Length(max: 180, maxMessage: 'Email не может быть длиннее {{ limit }} символов')]
+    #[Assert\NotBlank(message: 'email.not_blank')]
+    #[Assert\Email(message: 'email.invalid')]
+    #[Assert\Length(max: 180, maxMessage: 'email.max_length')]
     private ?string $email = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank(message: 'Имя пользователя не может быть пустым')]
+    #[Assert\NotBlank(message: 'username.not_blank')]
     #[Assert\Length(
         min: 3,
         max: 180,
-        minMessage: 'Имя пользователя должно содержать минимум {{ limit }} символа',
-        maxMessage: 'Имя пользователя не может быть длиннее {{ limit }} символов'
+        minMessage: 'username.min_length',
+        maxMessage: 'username.max_length'
     )]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9_-]+$/',
-        message: 'Имя пользователя может содержать только буквы, цифры, дефисы и подчеркивания'
+        message: 'username.invalid_characters'
     )]
     private ?string $username = null;
 

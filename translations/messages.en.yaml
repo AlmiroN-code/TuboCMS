@@ -1,0 +1,236 @@
+# English translations - Main messages
+# Requirements: 7.1, 7.2
+
+# Navigation
+nav:
+    home: "Home"
+    videos: "Videos"
+    categories: "Categories"
+    community: "Community"
+    popular: "Popular"
+    trending: "Trending"
+
+# Authentication
+auth:
+    login: "Login"
+    logout: "Logout"
+    register: "Sign Up"
+    my_profile: "My Profile"
+    my_videos: "My Videos"
+    admin_panel: "Admin Panel"
+    # Login page
+    login_page:
+        title: "Login"
+        heading: "Sign in to your account"
+        email: "Email"
+        password: "Password"
+        submit: "Sign in"
+        no_account: "Don't have an account?"
+        sign_up_link: "Sign up"
+    # Registration page
+    register_page:
+        title: "Sign Up"
+        heading: "Create an account"
+        username: "Username"
+        email: "Email"
+        password: "Password"
+        submit: "Sign up"
+        have_account: "Already have an account?"
+        sign_in_link: "Sign in"
+    # Error messages
+    errors:
+        invalid_credentials: "Invalid credentials"
+        account_disabled: "Your account has been disabled"
+        account_locked: "Your account is locked"
+        email_not_verified: "Please verify your email address"
+
+# Video
+video:
+    all_videos: "All Videos"
+    my_videos: "My Videos"
+    related_videos: "Related Videos"
+    upload: "Upload Video"
+    upload_new: "Upload new video"
+    views: "{0} views|{1} view|]1,Inf[ %count% views"
+    views_count: "%count% views"
+    no_videos: "No videos found"
+    no_videos_query: "No videos found for \"%query%\""
+    load_more: "Load more"
+    search_placeholder: "Search videos..."
+    search: "Search"
+    search_results: "Search results: \"%query%\""
+    search_videos: "Search videos"
+    enter_search_query: "Enter a search query"
+    show_all_results: "Show all results"
+    try_full_search: "Try full search"
+    browser_not_supported: "Your browser does not support video."
+    quality: "Quality"
+    subscribers: "%count% subscribers"
+    loading_comments: "Loading comments..."
+    watch_later: "Watch Later"
+    # Video statuses
+    status:
+        published: "Published"
+        processing: "Processing"
+        draft: "Draft"
+        error: "Error"
+    # Processing messages
+    processing:
+        in_progress: "Video is processing..."
+        waiting: "Video is waiting for processing..."
+        error: "Video processing error"
+    # My videos table
+    table:
+        video: "Video"
+        status: "Status"
+        views: "Views"
+        date: "Date"
+        actions: "Actions"
+        view: "View"
+    # Empty state
+    empty:
+        title: "No videos"
+        description: "Start by uploading your first video"
+        upload: "Upload video"
+    # Upload page
+    upload_page:
+        title: "Upload Video"
+        video_title: "Video Title"
+        description: "Description"
+        category: "Category"
+        tags: "Tags"
+        video_file: "Video File"
+        supported_formats: "Supported formats: MP4, AVI, MOV. Maximum size: 2GB"
+        cancel: "Cancel"
+        submit: "Upload Video"
+        info_title: "Upload Information"
+        info_processing: "After upload, the video will be processed and converted"
+        info_time: "Processing may take several minutes"
+        info_notification: "You will be notified when the video is ready"
+        info_rights: "Make sure you have the rights to the uploaded content"
+
+# Pagination
+pagination:
+    previous: "Previous"
+    next: "Next"
+    page: "Page %page%"
+
+# Category
+category:
+    title: "Categories"
+    all_categories: "All Categories"
+    videos_count: "{0} videos|{1} video|]1,Inf[ %count% videos"
+    no_categories: "No categories found"
+    no_videos_in_category: "No videos in this category yet"
+
+# Home page
+home:
+    featured: "Featured"
+    new_videos: "New Videos"
+    popular_videos: "Popular Videos"
+    view_all: "View all →"
+
+# Sidebar
+sidebar:
+    trending: "Trending"
+    all_videos: "All videos"
+    top_views: "Top views"
+    new: "New"
+    categories: "Categories"
+    show_all: "Show all"
+    hide: "Hide"
+    all_categories: "All categories →"
+    no_categories: "No categories found"
+    my_profile: "My profile"
+    my_videos: "My videos"
+    upload_video: "Upload video"
+
+# Members / Community
+members:
+    title: "Community"
+    description: "Meet our members! Here you'll find content creators, active users, and everyone who makes our community special."
+    total: "Members"
+    creators: "Creators"
+    verified: "Verified"
+    premium: "Premium"
+    search_placeholder: "Search by username..."
+    sort:
+        newest: "New members"
+        oldest: "Oldest members"
+        popular: "Popular"
+        active: "Active"
+    search_button: "Search"
+    reset: "Reset"
+    videos: "Videos:"
+    subscribers: "Subscribers:"
+    member_since: "Member since:"
+    profile: "Profile"
+    no_users: "No users found"
+    no_users_search: "Try changing your search query or reset filters."
+    no_users_empty: "There are no members in the community yet."
+    # Profile page
+    profile_title: "%username% - Profile"
+    edit: "Edit"
+    subscribe: "Subscribe"
+    about: "About"
+    recent_videos: "Recent Videos"
+    activity: "Activity"
+    registered: "Registered %date%"
+    last_activity: "Last activity %date%"
+    information: "Information"
+    country: "Country"
+    city: "City"
+    gender: "Gender"
+    gender_male: "Male"
+    gender_female: "Female"
+    age: "Age"
+    age_years: "%age% years"
+    marital_status: "Marital Status"
+    marital_single: "Single"
+    marital_in_relationship: "In a relationship"
+    marital_engaged: "Engaged"
+    marital_married: "Married"
+    marital_divorced: "Divorced"
+    marital_widowed: "Widowed"
+    orientation: "Orientation"
+    orientation_heterosexual: "Heterosexual"
+    orientation_homosexual: "Homosexual"
+    orientation_bisexual: "Bisexual"
+    orientation_other: "Other"
+    achievements: "Achievements"
+    achievement_verified: "Verified user"
+    achievement_premium: "Premium member"
+    achievement_creator: "Active creator"
+    stats:
+        videos: "Videos"
+        subscribers: "Subscribers"
+        views: "Views"
+        member_since: "Member since"
+
+# Footer
+footer:
+    site_name: "RexTube"
+    description: "The best video hosting for uploading and watching video content."
+    navigation: "Navigation"
+    information: "Information"
+    about_us: "About Us"
+    terms: "Terms"
+    contact: "Contact"
+    copyright: "© %year% RexTube. All rights reserved."
+
+# Common
+common:
+    save: "Save"
+    cancel: "Cancel"
+    delete: "Delete"
+    edit: "Edit"
+    create: "Create"
+    search: "Search"
+    select: "Select..."
+
+# Profile
+profile:
+    avatar: "Avatar"
+    cover: "Cover Image"
+    birth_date: "Birth Date"
+    bio_placeholder: "Tell us about yourself..."

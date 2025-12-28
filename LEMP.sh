@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # =============================================================================
-# LEMP Stack Setup Script for Symfony 8 + RexTube
+# LEMP Stack Setup Script for Symfony 8 + SeeXXX
 # Hostname: control.gmnode.ru (93.183.71.104)
-# Site: rextube.online
+# Site: seexxx.online
 # phpMyAdmin: control.gmnode.ru/phpmyadmin
 # =============================================================================
 set -e
@@ -11,14 +11,14 @@ set -e
 # === КОНФИГУРАЦИЯ ===
 HOSTNAME="control.gmnode.ru"
 SERVER_IP="93.183.71.104"
-DOMAIN="rextube.online"
+DOMAIN="seexxx.online"
 SITE_ROOT="/var/www/$DOMAIN"
 
-DB_NAME="rextube"
+DB_NAME="seexxx"
 DB_USER="almiron"
 DB_PASS="Mtn999Un86@"
 
-ADMIN_EMAIL="admin@rextube.online"
+ADMIN_EMAIL="admin@seexxx.online"
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="admin123"
 
@@ -189,7 +189,6 @@ else
     log_warn "БД уже существует"
 fi
 
-
 # === 14. Клонирование TuboCMS ===
 log_info "Клонирую TuboCMS..."
 if [ -d "$SITE_ROOT" ]; then
@@ -238,16 +237,146 @@ php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/mig
 
 if grep -q "error" /tmp/migration.log; then
     log_warn "Пропускаю проблемные миграции..."
-    php bin/console doctrine:migrations:version DoctrineMigrations\\Version20251215235351 --add --no-interaction 2>/dev/null || true
-    php bin/console doctrine:migrations:migrate --no-interaction 2>/dev/null || true
+    php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
 fi
 
-# Добавляем недостающие колонки
+# === 19. Добавляем недостающие колонки в user ===
+log_info "Проверяю структуру таблицы user..."
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT NULL;" 2>/dev/null || true
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
-log_success "Миграции выполнены"
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS orientation VARCHAR(20) DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS marital_status VARCHAR(20) DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS education VARCHAR(200) DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS website VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS birth_date DATE DEFAULT NULL;" 2>/dev/null || true
+log_success "Структура user обновлена"
 
-# === 19. Создание админа ===
+# === 20. Добавляем likes_count и dislikes_count в video ===
+log_info "Проверяю структуру таблицы video..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS likes_count INT NOT NULL DEFAULT 0;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS dislikes_count INT NOT NULL DEFAULT 0;" 2>/dev/null || true
+log_success "Структура video обновлена"
+
+# === 21. Создаём таблицу video_like если не существует ===
+log_info "Проверяю таблицу video_like..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS video_like (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    type VARCHAR(10) NOT NULL,
+    created_at DATETIME NOT NULL,
+    INDEX IDX_ABF41D6FA76ED395 (user_id),
+    INDEX IDX_ABF41D6F29C1004E (video_id),
+    UNIQUE INDEX unique_user_video_like (user_id, video_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_ABF41D6FA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    CONSTRAINT FK_ABF41D6F29C1004E FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+log_success "Таблица video_like готова"
+
+# === 22. Создаём таблицы role и permission ===
+log_info "Проверяю таблицы ролей и разрешений..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS permission (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    display_name VARCHAR(150) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    category VARCHAR(50) NOT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    UNIQUE INDEX UNIQ_E04992AA5E237E06 (name),
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS role (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    UNIQUE INDEX UNIQ_57698A6A5E237E06 (name),
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS role_permission (
+    role_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    INDEX IDX_6F7DF886D60322AC (role_id),
+    INDEX IDX_6F7DF886FED90CCA (permission_id),
+    PRIMARY KEY (role_id, permission_id),
+    CONSTRAINT FK_6F7DF886D60322AC FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE,
+    CONSTRAINT FK_6F7DF886FED90CCA FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS user_role (
+    user_id INT NOT NULL,
+    role_id INT NOT NULL,
+    INDEX IDX_2DE8C6A3A76ED395 (user_id),
+    INDEX IDX_2DE8C6A3D60322AC (role_id),
+    PRIMARY KEY (user_id, role_id),
+    CONSTRAINT FK_2DE8C6A3A76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    CONSTRAINT FK_2DE8C6A3D60322AC FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+log_success "Таблицы ролей готовы"
+
+# === 23. Создаём таблицу storage ===
+log_info "Проверяю таблицу storage..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS storage (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    config JSON NOT NULL,
+    is_default TINYINT(1) NOT NULL DEFAULT 0,
+    is_enabled TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY(id),
+    INDEX idx_storage_default (is_default),
+    INDEX idx_storage_type (type),
+    INDEX idx_storage_enabled (is_enabled)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+log_success "Таблица storage готова"
+
+# === 24. Добавляем колонки storage в video_file ===
+log_info "Проверяю структуру video_file..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video_file ADD COLUMN IF NOT EXISTS storage_id INT DEFAULT NULL;" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video_file ADD COLUMN IF NOT EXISTS remote_path VARCHAR(500) DEFAULT NULL;" 2>/dev/null || true
+log_success "Структура video_file обновлена"
+
+# === 25. Создаём таблицу video_encoding_profile ===
+log_info "Проверяю таблицу video_encoding_profile..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS video_encoding_profile (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    resolution VARCHAR(20) NOT NULL,
+    bitrate INT NOT NULL,
+    codec VARCHAR(10) NOT NULL DEFAULT 'libx264',
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    order_position INT NOT NULL DEFAULT 0,
+    PRIMARY KEY(id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+INSERT IGNORE INTO video_encoding_profile (name, resolution, bitrate, codec, is_active, order_position) VALUES
+    ('360p', '640x360', 800, 'libx264', 1, 1),
+    ('480p', '854x480', 1200, 'libx264', 1, 2),
+    ('720p', '1280x720', 2500, 'libx264', 1, 3),
+    ('1080p', '1920x1080', 5000, 'libx264', 1, 4);
+SQLEOF
+log_success "Профили кодирования готовы"
+
+# === 26. Создание админа ===
 log_info "Создаю супер админа..."
 ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$defaulthash')
 
@@ -271,12 +400,17 @@ SQLEOF
 
 log_success "Админ создан: $ADMIN_EMAIL / $ADMIN_PASSWORD"
 
-# === 20. Messenger ===
+# === 27. Инициализация ролей и разрешений ===
+log_info "Инициализирую роли и разрешения..."
+php bin/console app:init-roles-permissions 2>/dev/null || true
+log_success "Роли и разрешения инициализированы"
+
+# === 28. Messenger ===
 log_info "Настраиваю Messenger..."
 php bin/console messenger:setup-transports 2>/dev/null || true
 log_success "Messenger настроен"
 
-# === 21. Кэш ===
+# === 29. Кэш ===
 log_info "Прогреваю кэш..."
 php bin/console doctrine:cache:clear-metadata 2>/dev/null || true
 php bin/console doctrine:cache:clear-query 2>/dev/null || true
@@ -286,19 +420,20 @@ chown -R www-data:www-data var/
 sudo -u www-data php bin/console cache:warmup --env=prod
 log_success "Кэш прогрет"
 
-# === 22. Права ===
+# === 30. Права ===
 log_info "Настраиваю права..."
 mkdir -p "$SITE_ROOT/public/media/videos"
 mkdir -p "$SITE_ROOT/public/media/posters"
 mkdir -p "$SITE_ROOT/public/media/previews"
 mkdir -p "$SITE_ROOT/public/media/avatars"
 mkdir -p "$SITE_ROOT/public/media/site"
+mkdir -p "$SITE_ROOT/public/media/covers"
 chown -R www-data:www-data "$SITE_ROOT"
 chmod -R 775 "$SITE_ROOT/var"
 chmod -R 775 "$SITE_ROOT/public/media"
 log_success "Права настроены"
 
-# === 23. phpMyAdmin ===
+# === 31. phpMyAdmin ===
 if [ ! -d "/usr/share/phpmyadmin" ]; then
     log_info "Устанавливаю phpMyAdmin..."
     add-apt-repository -y ppa:phpmyadmin/ppa
@@ -328,7 +463,7 @@ else
     log_warn "phpMyAdmin уже установлен"
 fi
 
-# === 24. Nginx конфигурация ===
+# === 32. Nginx конфигурация ===
 log_info "Настраиваю Nginx..."
 PHP_SOCKET="/run/php/php8.4-fpm.sock"
 rm -f /etc/nginx/sites-enabled/default
@@ -337,13 +472,13 @@ cat > /etc/nginx/sites-available/$DOMAIN << 'NGINXEOF'
 server {
     listen 80;
     listen [::]:80;
-    server_name rextube.online www.rextube.online;
+    server_name seexxx.online www.seexxx.online;
 
-    root /var/www/rextube.online/public;
+    root /var/www/seexxx.online/public;
     index index.php;
 
-    access_log /var/log/nginx/rextube.online_access.log;
-    error_log /var/log/nginx/rextube.online_error.log;
+    access_log /var/log/nginx/seexxx.online_access.log;
+    error_log /var/log/nginx/seexxx.online_error.log;
 
     client_max_body_size 2G;
     client_body_timeout 300s;
@@ -422,7 +557,7 @@ ln -sf /etc/nginx/sites-available/$HOSTNAME /etc/nginx/sites-enabled/
 nginx -t
 log_success "Nginx настроен"
 
-# === 25. PHP-FPM конфигурация ===
+# === 33. PHP-FPM конфигурация ===
 log_info "Настраиваю PHP-FPM..."
 cat > /etc/php/8.4/fpm/conf.d/99-custom.ini << 'PHPINI'
 upload_max_filesize = 2G
@@ -441,7 +576,7 @@ session.cookie_httponly = 1
 PHPINI
 log_success "PHP-FPM настроен"
 
-# === 26. Firewall ===
+# === 34. Firewall ===
 log_info "Настраиваю Firewall..."
 ufw default deny incoming
 ufw default allow outgoing
@@ -450,7 +585,7 @@ ufw allow 'Nginx Full'
 ufw --force enable
 log_success "Firewall настроен"
 
-# === 27. Fail2Ban ===
+# === 35. Fail2Ban ===
 log_info "Настраиваю Fail2Ban..."
 cat > /etc/fail2ban/jail.local << 'F2BEOF'
 [DEFAULT]
@@ -468,26 +603,26 @@ F2BEOF
 systemctl enable --now fail2ban
 log_success "Fail2Ban настроен"
 
-# === 28. Certbot ===
+# === 36. Certbot ===
 if ! command -v certbot &> /dev/null; then
     log_info "Устанавливаю Certbot..."
     apt install -y certbot python3-certbot-nginx
     log_success "Certbot установлен"
 fi
 
-# === 29. Messenger Worker ===
+# === 37. Messenger Worker ===
 log_info "Создаю Messenger Worker..."
-cat > /etc/systemd/system/rextube-messenger.service << 'SVCEOF'
+cat > /etc/systemd/system/seexxx-messenger.service << 'SVCEOF'
 [Unit]
-Description=RexTube Messenger Worker
+Description=SeeXXX Messenger Worker
 After=network.target mariadb.service redis.service
 
 [Service]
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/rextube.online
-ExecStart=/usr/bin/php8.4 /var/www/rextube.online/bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
+WorkingDirectory=/var/www/seexxx.online
+ExecStart=/usr/bin/php8.4 /var/www/seexxx.online/bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
 Restart=always
 RestartSec=5
 
@@ -496,20 +631,20 @@ WantedBy=multi-user.target
 SVCEOF
 
 systemctl daemon-reload
-systemctl enable rextube-messenger
-systemctl start rextube-messenger
+systemctl enable seexxx-messenger
+systemctl start seexxx-messenger
 log_success "Messenger Worker запущен"
 
-# === 30. Перезапуск сервисов ===
+# === 38. Перезапуск сервисов ===
 log_info "Перезапускаю сервисы..."
 systemctl restart php8.4-fpm
 systemctl restart nginx
 log_success "Сервисы перезапущены"
 
-# === 31. Сохранение данных ===
+# === 39. Сохранение данных ===
 cat > /root/.server_credentials << CREDEOF
 ============================================
-  RexTube Server Credentials
+  SeeXXX Server Credentials
   Created: $(date)
 ============================================
 
@@ -540,8 +675,8 @@ SSL:
   sudo certbot --nginx -d $HOSTNAME
 
 SERVICES:
-  systemctl status rextube-messenger
-  journalctl -u rextube-messenger -f
+  systemctl status seexxx-messenger
+  journalctl -u seexxx-messenger -f
 ============================================
 CREDEOF
 chmod 600 /root/.server_credentials

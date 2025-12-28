@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}{{ 'auth.login_page.title'|trans }}{% endblock %}
 
 {% block body %}
 <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Sign in to your account
+                {{ 'auth.login_page.heading'|trans }}
             </h2>
         </div>
         
@@ -22,30 +22,30 @@
             
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
-                    <label for="username" class="sr-only">Email</label>
+                    <label for="username" class="sr-only">{{ 'auth.login_page.email'|trans }}</label>
                     <input id="username" name="_username" type="email" required 
                            value="{{ last_username }}"
                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
-                           placeholder="Email">
+                           placeholder="{{ 'auth.login_page.email'|trans }}">
                 </div>
                 <div>
-                    <label for="password" class="sr-only">Password</label>
+                    <label for="password" class="sr-only">{{ 'auth.login_page.password'|trans }}</label>
                     <input id="password" name="_password" type="password" required 
                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
-                           placeholder="Password">
+                           placeholder="{{ 'auth.login_page.password'|trans }}">
                 </div>
             </div>
 
             <div>
                 <button type="submit" 
                         class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                    Sign in
+                    {{ 'auth.login_page.submit'|trans }}
                 </button>
             </div>
 
             <div class="text-center">
                 <a href="{{ path('app_register') }}" class="text-primary-600 hover:text-primary-700">
-                    Don't have an account? Sign up
+                    {{ 'auth.login_page.no_account'|trans }} {{ 'auth.login_page.sign_up_link'|trans }}
                 </a>
             </div>
         </form>

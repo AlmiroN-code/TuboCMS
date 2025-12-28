@@ -23,7 +23,7 @@
             
             <!-- Video action buttons -->
             <div class="video-actions">
-                <div id="wl-btn-90" class="watch-later-btn" role="button" aria-label="Watch Later" title="Watch Later" hx-post="/videos/htmx/aaaaaa/watch-later/" hx-headers="{&quot;X-CSRFToken&quot;: &quot;gszx2KVDCRSdoa84x5FulEw5jJwczuT4&quot;}" hx-target="#wl-btn-90" hx-swap="outerHTML" hx-on:click="event.preventDefault(); event.stopPropagation();">
+                <div id="wl-btn-90" class="watch-later-btn" role="button" aria-label="{{ 'video.watch_later'|trans }}" title="{{ 'video.watch_later'|trans }}" hx-post="/videos/htmx/aaaaaa/watch-later/" hx-headers="{&quot;X-CSRFToken&quot;: &quot;gszx2KVDCRSdoa84x5FulEw5jJwczuT4&quot;}" hx-target="#wl-btn-90" hx-swap="outerHTML" hx-on:click="event.preventDefault(); event.stopPropagation();">
     <i class="fas fa-clock"></i>
  </div>
 
@@ -32,18 +32,18 @@
     </a>
     <div class="video-info">
         <div class="video-details">
-            <div class="video-title">
+            <div class="video-title text-sm text-gray-700">
                 <a href="{{ path('video_detail', {slug: video.slug}) }}">{{ video.title }}</a>
             </div>
             <div class="video-meta">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-                <span>{{ video.viewsCount }}</span>
-            {% if video.resolution %}
-                <span class="text-xs bg-gray-100 px-2 py-1 rounded">{{ video.resolution }}</span>
-            {% endif %}
+                <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    {{ video.viewsCount|locale_number }}
+                </span>
+                <span>{{ video.createdAt|time_ago }}</span>
             </div>
             
         </div>

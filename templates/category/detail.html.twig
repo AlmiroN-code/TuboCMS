@@ -15,7 +15,7 @@
             {% include 'video/_card.html.twig' with {'video': video} %}
         {% else %}
             <div class="col-span-full text-center py-12 text-gray-400">
-                No videos in this category yet
+                {{ 'category.no_videos_in_category'|trans }}
             </div>
         {% endfor %}
     </div>
@@ -27,7 +27,7 @@
             {% if page > 1 %}
                 <a href="{{ path('category_detail', {'slug': category.slug, 'page': page - 1}) }}" 
                    class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded">
-                    Previous
+                    {{ 'pagination.previous'|trans }}
                 </a>
             {% endif %}
             
@@ -37,7 +37,7 @@
             
             <a href="{{ path('category_detail', {'slug': category.slug, 'page': page + 1}) }}" 
                class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded">
-                Next
+                {{ 'pagination.next'|trans }}
             </a>
         </div>
     </div>

@@ -1,0 +1,38 @@
+# English translations - Security messages
+# Requirements: 7.1, 7.2, 6.3
+
+# Authentication error messages (Symfony Security)
+"Invalid credentials.": "Invalid credentials."
+"Invalid CSRF token.": "Invalid security token. Please try again."
+"Authentication request could not be processed due to a system problem.": "Authentication request could not be processed due to a system problem."
+"Account is disabled.": "Your account has been disabled."
+"Account is locked.": "Your account is locked."
+"Account has expired.": "Your account has expired."
+"Credentials have expired.": "Your credentials have expired."
+"Too many failed login attempts, please try again later.": "Too many failed login attempts, please try again later."
+"Username could not be found.": "Username could not be found."
+"Bad credentials.": "Invalid email or password."
+"An authentication exception occurred.": "An authentication error occurred."
+
+# Additional authentication messages
+"Not privileged to request the resource.": "You do not have permission to access this resource."
+"Full authentication is required to access this resource.": "Please log in to access this resource."
+"Session has expired or is invalid.": "Your session has expired. Please log in again."
+"No session available, it either timed out or cookies are not enabled.": "No session available. Please enable cookies and try again."
+"Cookie has already been used by someone else.": "Security error. Please try logging in again."
+
+# Password reset messages
+"Password reset link has expired.": "Password reset link has expired."
+"Invalid password reset token.": "Invalid password reset token."
+
+# Registration messages
+"This email is already registered.": "This email is already registered."
+"This username is already taken.": "This username is already taken."
+
+# Rate limiting messages
+"Too many login attempts.": "Too many login attempts. Please try again later."
+"Too many registration attempts.": "Too many registration attempts. Please try again later."
+
+# Access denied messages
+"Access Denied.": "Access denied."
+"You are not allowed to access this page.": "You are not allowed to access this page."
