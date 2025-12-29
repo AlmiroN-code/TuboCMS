@@ -356,7 +356,86 @@ mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video_file ADD COLUM
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video_file ADD COLUMN IF NOT EXISTS remote_path VARCHAR(500) DEFAULT NULL;" 2>/dev/null || true
 log_success "Структура video_file обновлена"
 
-# === 25. Создаём таблицу video_encoding_profile ===
+# === 25. Создаём таблицы для моделей ===
+log_info "Проверяю таблицы моделей..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS model_profile (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT DEFAULT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    slug VARCHAR(200) NOT NULL,
+    bio LONGTEXT DEFAULT NULL,
+    avatar VARCHAR(255) DEFAULT NULL,
+    cover_photo VARCHAR(255) DEFAULT NULL,
+    gender VARCHAR(10) NOT NULL DEFAULT 'female',
+    age INT DEFAULT NULL,
+    birth_date DATE DEFAULT NULL,
+    country VARCHAR(100) DEFAULT NULL,
+    ethnicity VARCHAR(100) DEFAULT NULL,
+    career_start DATE DEFAULT NULL,
+    hair_color VARCHAR(20) DEFAULT NULL,
+    eye_color VARCHAR(20) DEFAULT NULL,
+    has_tattoos TINYINT(1) NOT NULL DEFAULT 0,
+    has_piercings TINYINT(1) NOT NULL DEFAULT 0,
+    breast_size VARCHAR(20) DEFAULT NULL,
+    height INT DEFAULT NULL,
+    weight INT DEFAULT NULL,
+    views_count INT NOT NULL DEFAULT 0,
+    subscribers_count INT NOT NULL DEFAULT 0,
+    videos_count INT NOT NULL DEFAULT 0,
+    likes_count INT NOT NULL DEFAULT 0,
+    dislikes_count INT NOT NULL DEFAULT 0,
+    is_verified TINYINT(1) NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    is_premium TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    UNIQUE INDEX UNIQ_model_slug (slug),
+    INDEX IDX_model_user (user_id),
+    PRIMARY KEY(id),
+    CONSTRAINT FK_model_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video_model (
+    video_id INT NOT NULL,
+    model_profile_id INT NOT NULL,
+    INDEX IDX_video_model_video (video_id),
+    INDEX IDX_video_model_model (model_profile_id),
+    PRIMARY KEY (video_id, model_profile_id),
+    CONSTRAINT FK_video_model_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    CONSTRAINT FK_video_model_model FOREIGN KEY (model_profile_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS model_subscription (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    model_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    INDEX IDX_model_sub_user (user_id),
+    INDEX IDX_model_sub_model (model_id),
+    UNIQUE INDEX unique_model_subscription (user_id, model_id),
+    PRIMARY KEY(id),
+    CONSTRAINT FK_model_sub_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    CONSTRAINT FK_model_sub_model FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS model_like (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    model_id INT NOT NULL,
+    type VARCHAR(10) NOT NULL,
+    created_at DATETIME NOT NULL,
+    INDEX IDX_model_like_user (user_id),
+    INDEX IDX_model_like_model (model_id),
+    UNIQUE INDEX unique_model_like (user_id, model_id),
+    PRIMARY KEY(id),
+    CONSTRAINT FK_model_like_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    CONSTRAINT FK_model_like_model FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+log_success "Таблицы моделей готовы"
+
+# === 26. Создаём таблицу video_encoding_profile ===
 log_info "Проверяю таблицу video_encoding_profile..."
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
 CREATE TABLE IF NOT EXISTS video_encoding_profile (

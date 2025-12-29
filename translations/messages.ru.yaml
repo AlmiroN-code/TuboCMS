@@ -50,6 +50,7 @@ video:
     all_videos: "Все видео"
     my_videos: "Мои видео"
     related_videos: "Похожие видео"
+    performers: "Модели в видео"
     upload: "Загрузить видео"
     upload_new: "Загрузить новое видео"
     views: "{0} просмотров|{1} просмотр|[2,4] %count% просмотра|[5,Inf[ %count% просмотров"

@@ -50,6 +50,7 @@ video:
     all_videos: "All Videos"
     my_videos: "My Videos"
     related_videos: "Related Videos"
+    performers: "Models in this video"
     upload: "Upload Video"
     upload_new: "Upload new video"
     views: "{0} views|{1} view|]1,Inf[ %count% views"

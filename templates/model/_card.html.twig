@@ -1,52 +1,39 @@
-{# Карточка модели для сетки #}
+{# Карточка модели для сетки (компактная) #}
 <a href="{{ path('app_model_show', {slug: model.slug}) }}" 
-   class="group bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-xl transition overflow-hidden">
+   class="group bg-white dark:bg-slate-800 rounded shadow hover:shadow-lg transition overflow-hidden">
     {# Аватар #}
     <div class="aspect-[3/4] bg-gray-200 dark:bg-slate-700 relative overflow-hidden">
         {% if model.avatar %}
-            <img src="{{ model.avatar }}" 
+            <img src="/media/avatars/{{ model.avatar }}" 
                  alt="{{ model.displayName }}"
                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                  loading="lazy">
         {% else %}
             <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
             </div>
         {% endif %}
         
         {# Бейджи #}
-        <div class="absolute top-2 left-2 flex gap-1">
+        <div class="absolute top-1 left-1 flex gap-0.5">
             {% if model.isVerified %}
-                <span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded" title="{{ 'model.verified'|trans }}">
-                    ✓
-                </span>
+                <span class="bg-blue-500 text-white text-[10px] px-1 py-0.5 rounded" title="{{ 'model.verified'|trans }}">✓</span>
             {% endif %}
             {% if model.isPremium %}
-                <span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded" title="{{ 'model.premium'|trans }}">
-                    ★
-                </span>
+                <span class="bg-yellow-500 text-white text-[10px] px-1 py-0.5 rounded" title="{{ 'model.premium'|trans }}">★</span>
             {% endif %}
         </div>
     </div>
     
     {# Информация #}
-    <div class="p-3">
-        <h3 class="font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400">
+    <div class="p-2">
+        <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400">
             {{ model.displayName }}
         </h3>
-        
-        <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-            <span title="{{ 'model.stats.videos'|trans }}">
-                🎬 {{ model.videosCount|number_format }}
-            </span>
-            <span title="{{ 'model.stats.subscribers'|trans }}">
-                👥 {{ model.subscribersCount|number_format }}
-            </span>
-            <span title="{{ 'model.stats.views'|trans }}">
-                👁 {{ model.viewsCount|number_format }}
-            </span>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
+            🎬 {{ model.videosCount|number_format }} · 👁 {{ model.viewsCount|number_format }}
         </div>
     </div>
 </a>

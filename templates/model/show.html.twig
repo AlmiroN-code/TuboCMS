@@ -7,7 +7,7 @@
 {% block og_title %}{{ model.displayName }} - {{ site_name() }}{% endblock %}
 {% block og_description %}{{ 'model.meta_description'|trans({'%name%': model.displayName, '%videos%': model.videosCount}) }}{% endblock %}
 {% block og_type %}profile{% endblock %}
-{% block og_image %}{% if model.avatar %}<meta property="og:image" content="{{ absolute_url(model.avatar) }}">{% endif %}{% endblock %}
+{% block og_image %}{% if model.avatar %}<meta property="og:image" content="{{ absolute_url('/media/avatars/' ~ model.avatar) }}">{% endif %}{% endblock %}
 
 {% block body %}
 <div class="flex gap-8">
@@ -17,7 +17,7 @@
         {# Обложка профиля #}
         {% if model.coverPhoto %}
             <div class="h-48 md:h-64 bg-gray-200 dark:bg-slate-700 rounded-lg overflow-hidden mb-6">
-                <img src="{{ model.coverPhoto }}" 
+                <img src="/media/covers/{{ model.coverPhoto }}" 
                      alt="{{ model.displayName }}"
                      class="w-full h-full object-cover">
             </div>
@@ -30,7 +30,7 @@
                 <div class="flex-shrink-0">
                     <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-gray-200 dark:bg-slate-700 mx-auto md:mx-0">
                         {% if model.avatar %}
-                            <img src="{{ model.avatar }}" 
+                            <img src="/media/avatars/{{ model.avatar }}" 
                                  alt="{{ model.displayName }}"
                                  class="w-full h-full object-cover">
                         {% else %}
@@ -66,7 +66,7 @@
                     {# Статистика #}
                     <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-4">
                         <div class="text-center">
-                            <div class="text-xl font-bold text-gray-900 dark:text-white">{{ model.viewsCount|format_number }}</div>
+                            <div class="text-xl font-bold text-gray-900 dark:text-white">{{ model.viewsCount|number_format }}</div>
                             <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.stats.views'|trans }}</div>
                         </div>
                         <div class="text-center">
@@ -85,8 +85,8 @@
 
                     {# Кнопки действий #}
                     <div class="flex gap-3 justify-center md:justify-start">
-                        {% include 'model/_subscribe_button.html.twig' with {'model': model} ignore missing %}
-                        {% include 'model/_like_buttons.html.twig' with {'model': model} ignore missing %}
+                        {% include 'model/_subscribe_button.html.twig' ignore missing with {'model': model} %}
+                        {% include 'model/_like_buttons.html.twig' ignore missing with {'model': model} %}
                     </div>
                 </div>
             </div>
