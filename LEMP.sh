@@ -220,6 +220,8 @@ log_success ".env.local создан"
 # === 16. Composer зависимости ===
 log_info "Устанавливаю Composer зависимости..."
 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+# symfony/process нужен для обработки видео (FFmpeg)
+composer require symfony/process --no-interaction
 log_success "Composer установлен"
 
 # === 17. NPM зависимости ===
@@ -609,6 +611,10 @@ if ! command -v certbot &> /dev/null; then
     apt install -y certbot python3-certbot-nginx
     log_success "Certbot установлен"
 fi
+
+# === 36.1. Получение SSL сертификата ===
+log_info "Получаю SSL сертификат для $DOMAIN..."
+certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $ADMIN_EMAIL --redirect 2>/dev/null || log_warn "SSL не удалось получить. Проверь DNS записи и запусти вручную: certbot --nginx -d $DOMAIN -d www.$DOMAIN"
 
 # === 37. Messenger Worker ===
 log_info "Создаю Messenger Worker..."
