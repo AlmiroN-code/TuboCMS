@@ -8,6 +8,7 @@ use App\Message\ProcessVideoEncodingMessage;
 use App\Repository\VideoRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\TagRepository;
+use App\Repository\ModelProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,7 @@ class AdminVideoController extends AbstractController
         private VideoRepository $videoRepository,
         private CategoryRepository $categoryRepository,
         private TagRepository $tagRepository,
+        private ModelProfileRepository $modelProfileRepository,
         private EntityManagerInterface $em,
         private MessageBusInterface $messageBus
     ) {
@@ -59,6 +61,7 @@ class AdminVideoController extends AbstractController
             'video' => new Video(),
             'categories' => $this->categoryRepository->findAll(),
             'tags' => $this->tagRepository->findAll(),
+            'models' => $this->modelProfileRepository->findBy(['isActive' => true], ['displayName' => 'ASC']),
         ]);
     }
 
@@ -73,6 +76,7 @@ class AdminVideoController extends AbstractController
             'video' => $video,
             'categories' => $this->categoryRepository->findAll(),
             'tags' => $this->tagRepository->findAll(),
+            'models' => $this->modelProfileRepository->findBy(['isActive' => true], ['displayName' => 'ASC']),
         ]);
     }
 
@@ -83,6 +87,11 @@ class AdminVideoController extends AbstractController
         if (!$this->isCsrfTokenValid('delete_video_' . $video->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Недействительный токен безопасности');
             return $this->redirectToRoute('admin_videos');
+        }
+
+        // Уменьшаем счётчики видео у моделей-участников (Requirement 7.3)
+        foreach ($video->getPerformers() as $performer) {
+            $performer->setVideosCount(max(0, $performer->getVideosCount() - 1));
         }
 
         // Requirement 5.1: Queue deletion jobs for all associated remote files
@@ -200,6 +209,11 @@ class AdminVideoController extends AbstractController
     #[Route('/{id}/delete-htmx', name: 'admin_videos_delete_htmx', methods: ['DELETE'])]
     public function deleteHtmx(Video $video): Response
     {
+        // Уменьшаем счётчики видео у моделей-участников (Requirement 7.3)
+        foreach ($video->getPerformers() as $performer) {
+            $performer->setVideosCount(max(0, $performer->getVideosCount() - 1));
+        }
+
         // Requirement 5.1: Queue deletion jobs for all associated remote files
         $this->queueRemoteFileDeletions($video);
 
@@ -258,6 +272,31 @@ class AdminVideoController extends AbstractController
             $tag = $this->tagRepository->find($tagId);
             if ($tag) {
                 $video->addTag($tag);
+            }
+        }
+        
+        // Обработка моделей-участников (Requirements 7.1, 7.2, 7.3)
+        $performerIds = $request->request->all('performers');
+        $oldPerformers = $video->getPerformers()->toArray();
+        $newPerformerIds = array_map('intval', $performerIds);
+        
+        // Удаляем старых участников и уменьшаем их счётчики
+        foreach ($oldPerformers as $oldPerformer) {
+            if (!in_array($oldPerformer->getId(), $newPerformerIds, true)) {
+                $video->removePerformer($oldPerformer);
+                // Уменьшаем счётчик видео у модели (Requirement 7.3)
+                $oldPerformer->setVideosCount(max(0, $oldPerformer->getVideosCount() - 1));
+            }
+        }
+        
+        // Добавляем новых участников и увеличиваем их счётчики
+        $oldPerformerIds = array_map(fn($p) => $p->getId(), $oldPerformers);
+        foreach ($newPerformerIds as $performerId) {
+            $performer = $this->modelProfileRepository->find($performerId);
+            if ($performer && !in_array($performerId, $oldPerformerIds, true)) {
+                $video->addPerformer($performer);
+                // Увеличиваем счётчик видео у модели (Requirement 7.2)
+                $performer->setVideosCount($performer->getVideosCount() + 1);
             }
         }
         

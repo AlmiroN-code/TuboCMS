@@ -84,6 +84,9 @@ class ModelProfile
     private ?int $likesCount = 0;
 
     #[ORM\Column]
+    private ?int $dislikesCount = 0;
+
+    #[ORM\Column]
     private ?bool $isVerified = false;
 
     #[ORM\Column]
@@ -356,6 +359,17 @@ class ModelProfile
     public function setLikesCount(int $likesCount): static
     {
         $this->likesCount = $likesCount;
+        return $this;
+    }
+
+    public function getDislikesCount(): ?int
+    {
+        return $this->dislikesCount;
+    }
+
+    public function setDislikesCount(int $dislikesCount): static
+    {
+        $this->dislikesCount = $dislikesCount;
         return $this;
     }
 

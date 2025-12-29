@@ -6,6 +6,7 @@ nav:
     home: "Главная"
     videos: "Видео"
     categories: "Категории"
+    models: "Модели"
     community: "Сообщество"
     popular: "Популярное"
     trending: "В тренде"
@@ -114,6 +115,7 @@ pagination:
     previous: "Назад"
     next: "Вперёд"
     page: "Страница %page%"
+    page_of: "Страница %page% из %pages%"
 
 # Category
 category:
@@ -227,6 +229,10 @@ common:
     create: "Создать"
     search: "Поиск"
     select: "Выберите..."
+    yes: "Да"
+    no: "Нет"
+    cm: "см"
+    kg: "кг"
 
 # Profile
 profile:
@@ -234,3 +240,75 @@ profile:
     cover: "Обложка профиля"
     birth_date: "Дата рождения"
     bio_placeholder: "Расскажите о себе..."
+
+# Models section
+models:
+    title: "Модели"
+    meta_description: "Просмотрите нашу коллекцию моделей и актёров"
+    total_count: "%count% моделей"
+    search: "Поиск"
+    search_placeholder: "Поиск по имени..."
+    sort:
+        label: "Сортировка"
+        popular: "Популярные"
+        newest: "Новые"
+        alphabetical: "По алфавиту"
+        videos: "Больше видео"
+    filter:
+        gender: "Пол"
+        all: "Все"
+        female: "Женщины"
+        male: "Мужчины"
+        trans: "Транс"
+        apply: "Применить"
+        reset: "Сбросить"
+    no_models: "Модели не найдены"
+
+model:
+    verified: "Верифицирован"
+    premium: "Премиум"
+    bio: "Биография"
+    videos_title: "Видео (%count%)"
+    no_videos: "Видео пока нет"
+    meta_description: "%name% - %videos% видео на нашей платформе"
+    subscribe: "Подписаться"
+    unsubscribe: "Отписаться"
+    stats:
+        views: "Просмотров"
+        subscribers: "Подписчиков"
+        videos: "Видео"
+        likes: "Лайков"
+    info:
+        title: "Информация"
+        gender: "Пол"
+        age: "Возраст"
+        birth_date: "Дата рождения"
+        zodiac: "Знак зодиака"
+        country: "Страна"
+        ethnicity: "Этничность"
+        career_start: "Начало карьеры"
+        hair_color: "Цвет волос"
+        eye_color: "Цвет глаз"
+        tattoos: "Татуировки"
+        piercings: "Пирсинг"
+        breast_size: "Размер груди"
+        height: "Рост"
+        weight: "Вес"
+        added: "Добавлен"
+    gender:
+        female: "Женщина"
+        male: "Мужчина"
+        trans: "Транс"
+    zodiac:
+        aries: "Овен"
+        taurus: "Телец"
+        gemini: "Близнецы"
+        cancer: "Рак"
+        leo: "Лев"
+        virgo: "Дева"
+        libra: "Весы"
+        scorpio: "Скорпион"
+        sagittarius: "Стрелец"
+        capricorn: "Козерог"
+        aquarius: "Водолей"
+        pisces: "Рыбы"

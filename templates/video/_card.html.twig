@@ -45,6 +45,18 @@
                 </span>
                 <span>{{ video.createdAt|time_ago }}</span>
             </div>
+            {% if video.performers|length > 0 %}
+            <div class="video-performers mt-1 text-xs text-gray-500 truncate">
+                {% for performer in video.performers|slice(0, 3) %}
+                    <a href="{{ path('app_model_show', {slug: performer.slug}) }}" 
+                       class="hover:text-red-500 transition-colors"
+                       onclick="event.stopPropagation();">{{ performer.displayName }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                {% if video.performers|length > 3 %}
+                    <span class="text-gray-400">+{{ video.performers|length - 3 }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
             
         </div>
     </div>

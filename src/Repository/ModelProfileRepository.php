@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\ModelProfile;
+use App\Entity\Video;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -25,5 +27,116 @@ class ModelProfileRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Поиск моделей с пагинацией, сортировкой, поиском и фильтрацией по полу
+     * 
+     * @param int $page Номер страницы (начиная с 1)
+     * @param int $limit Количество элементов на странице
+     * @param string|null $search Поисковый запрос по имени
+     * @param string $sort Критерий сортировки: popular, newest, alphabetical, videos
+     * @param string|null $gender Фильтр по полу: male, female, trans
+     * @return array{items: ModelProfile[], total: int, pages: int}
+     */
+    public function findPaginated(
+        int $page = 1,
+        int $limit = 24,
+        ?string $search = null,
+        string $sort = 'popular',
+        ?string $gender = null
+    ): array {
+        $qb = $this->createQueryBuilder('m')
+            ->where('m.isActive = :active')
+            ->setParameter('active', true);
+
+        // Поиск по имени
+        if ($search !== null && trim($search) !== '') {
+            $qb->andWhere('LOWER(m.displayName) LIKE LOWER(:search)')
+               ->setParameter('search', '%' . trim($search) . '%');
+        }
+
+        // Фильтрация по полу
+        if ($gender !== null && in_array($gender, ['male', 'female', 'trans'], true)) {
+            $qb->andWhere('m.gender = :gender')
+               ->setParameter('gender', $gender);
+        }
+
+        // Сортировка
+        switch ($sort) {
+            case 'newest':
+                $qb->orderBy('m.createdAt', 'DESC');
+                break;
+            case 'alphabetical':
+                $qb->orderBy('m.displayName', 'ASC');
+                break;
+            case 'videos':
+                $qb->orderBy('m.videosCount', 'DESC');
+                break;
+            case 'popular':
+            default:
+                $qb->orderBy('m.subscribersCount', 'DESC');
+                break;
+        }
+
+        // Пагинация
+        $offset = ($page - 1) * $limit;
+        $qb->setFirstResult($offset)
+           ->setMaxResults($limit);
+
+        $paginator = new Paginator($qb->getQuery(), true);
+        $total = count($paginator);
+        $pages = (int) ceil($total / $limit);
+
+        return [
+            'items' => iterator_to_array($paginator),
+            'total' => $total,
+            'pages' => $pages,
+        ];
+    }
+
+    /**
+     * Поиск модели по slug
+     */
+    public function findBySlug(string $slug): ?ModelProfile
+    {
+        return $this->createQueryBuilder('m')
+            ->where('m.slug = :slug')
+            ->andWhere('m.isActive = :active')
+            ->setParameter('slug', $slug)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Получить видео модели с пагинацией (только опубликованные)
+     * 
+     * @return array{items: Video[], total: int}
+     */
+    public function findActiveWithVideos(int $modelId, int $limit = 24, int $offset = 0): array
+    {
+        $em = $this->getEntityManager();
+        
+        // Получаем видео модели
+        $qb = $em->createQueryBuilder()
+            ->select('v')
+            ->from(Video::class, 'v')
+            ->innerJoin('v.performers', 'm')
+            ->where('m.id = :modelId')
+            ->andWhere('v.status = :status')
+            ->setParameter('modelId', $modelId)
+            ->setParameter('status', 'published')
+            ->orderBy('v.createdAt', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        $paginator = new Paginator($qb->getQuery(), true);
+        $total = count($paginator);
+
+        return [
+            'items' => iterator_to_array($paginator),
+            'total' => $total,
+        ];
     }
 }

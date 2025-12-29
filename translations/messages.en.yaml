@@ -6,6 +6,7 @@ nav:
     home: "Home"
     videos: "Videos"
     categories: "Categories"
+    models: "Models"
     community: "Community"
     popular: "Popular"
     trending: "Trending"
@@ -114,6 +115,7 @@ pagination:
     previous: "Previous"
     next: "Next"
     page: "Page %page%"
+    page_of: "Page %page% of %pages%"
 
 # Category
 category:
@@ -227,6 +229,10 @@ common:
     create: "Create"
     search: "Search"
     select: "Select..."
+    yes: "Yes"
+    no: "No"
+    cm: "cm"
+    kg: "kg"
 
 # Profile
 profile:
@@ -234,3 +240,75 @@ profile:
     cover: "Cover Image"
     birth_date: "Birth Date"
     bio_placeholder: "Tell us about yourself..."
+
+# Models section
+models:
+    title: "Models"
+    meta_description: "Browse our collection of models and performers"
+    total_count: "%count% models"
+    search: "Search"
+    search_placeholder: "Search by name..."
+    sort:
+        label: "Sort by"
+        popular: "Popular"
+        newest: "Newest"
+        alphabetical: "A-Z"
+        videos: "Most videos"
+    filter:
+        gender: "Gender"
+        all: "All"
+        female: "Female"
+        male: "Male"
+        trans: "Trans"
+        apply: "Apply"
+        reset: "Reset"
+    no_models: "No models found"
+
+model:
+    verified: "Verified"
+    premium: "Premium"
+    bio: "Biography"
+    videos_title: "Videos (%count%)"
+    no_videos: "No videos yet"
+    meta_description: "%name% - %videos% videos on our platform"
+    subscribe: "Subscribe"
+    unsubscribe: "Unsubscribe"
+    stats:
+        views: "Views"
+        subscribers: "Subscribers"
+        videos: "Videos"
+        likes: "Likes"
+    info:
+        title: "Information"
+        gender: "Gender"
+        age: "Age"
+        birth_date: "Birth Date"
+        zodiac: "Zodiac Sign"
+        country: "Country"
+        ethnicity: "Ethnicity"
+        career_start: "Career Start"
+        hair_color: "Hair Color"
+        eye_color: "Eye Color"
+        tattoos: "Tattoos"
+        piercings: "Piercings"
+        breast_size: "Breast Size"
+        height: "Height"
+        weight: "Weight"
+        added: "Added"
+    gender:
+        female: "Female"
+        male: "Male"
+        trans: "Trans"
+    zodiac:
+        aries: "Aries"
+        taurus: "Taurus"
+        gemini: "Gemini"
+        cancer: "Cancer"
+        leo: "Leo"
+        virgo: "Virgo"
+        libra: "Libra"
+        scorpio: "Scorpio"
+        sagittarius: "Sagittarius"
+        capricorn: "Capricorn"
+        aquarius: "Aquarius"
+        pisces: "Pisces"

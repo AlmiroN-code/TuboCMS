@@ -13,6 +13,13 @@
     <meta name="description" content="{% block meta_description %}{% if use_seo_settings and setting('seo_home_description') %}{{ setting('seo_home_description') }}{% else %}{{ setting('site_description') }}{% endif %}{% endblock %}">
     <meta name="keywords" content="{% if use_seo_settings and setting('seo_home_keywords') %}{{ setting('seo_home_keywords') }}{% else %}{{ setting('site_keywords') }}{% endif %}">
     
+    {# Open Graph meta tags #}
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ app.request.uri }}">
+    {% block og_image %}{% endblock %}
+    
     {% if site_favicon() %}
         <link rel="icon" type="image/x-icon" href="{{ site_favicon() }}">
         <link rel="shortcut icon" type="image/x-icon" href="{{ site_favicon() }}">
