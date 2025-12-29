@@ -118,11 +118,14 @@ class ModelProfileRepository extends ServiceEntityRepository
     {
         $em = $this->getEntityManager();
         
-        // Получаем видео модели
+        // Получаем видео модели с eager loading
         $qb = $em->createQueryBuilder()
-            ->select('v')
+            ->select('v', 'u', 'c', 'p')
             ->from(Video::class, 'v')
             ->innerJoin('v.performers', 'm')
+            ->leftJoin('v.createdBy', 'u')
+            ->leftJoin('v.category', 'c')
+            ->leftJoin('v.performers', 'p')
             ->where('m.id = :modelId')
             ->andWhere('v.status = :status')
             ->setParameter('modelId', $modelId)
