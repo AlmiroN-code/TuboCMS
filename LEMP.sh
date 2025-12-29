@@ -221,7 +221,9 @@ log_success ".env.local создан"
 log_info "Устанавливаю Composer зависимости..."
 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 # symfony/process нужен для обработки видео (FFmpeg)
-composer require symfony/process --no-interaction
+composer require symfony/process --no-interaction --no-scripts 2>/dev/null || true
+# Выполняем assets:install вручную
+php bin/console assets:install public --no-interaction 2>/dev/null || true
 log_success "Composer установлен"
 
 # === 17. NPM зависимости ===
