@@ -1,0 +1,82 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Настройки категорий{% endblock %}
+
+{% block content %}
+<div class="container mx-auto max-w-4xl">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold">Настройки категорий</h1>
+        <a href="{{ path('admin_settings') }}" class="text-gray-600 hover:text-gray-800">
+            ← Назад к настройкам
+        </a>
+    </div>
+    
+    <form method="POST" class="space-y-6">
+        {# Автогенерация постеров #}
+        <div class="bg-white rounded-md shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Автогенерация постеров категорий</h2>
+            <p class="text-gray-600 mb-4">
+                Если включено, постеры для категорий будут автоматически создаваться на основе постеров видео в этих категориях.
+            </p>
+            
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="category_poster_auto_generate" value="1" id="category_poster_auto_generate"
+                           {{ settings.category_poster_auto_generate ? 'checked' : '' }}
+                           class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                    <label for="category_poster_auto_generate" class="ml-2 text-sm font-medium text-gray-700">
+                        Включить автогенерацию постеров при сохранении категории без постера
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Критерий выбора видео для постера</label>
+                    <select name="category_poster_criteria" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        {% for value, label in criteria_options %}
+                            <option value="{{ value }}" {{ settings.category_poster_criteria == value ? 'selected' : '' }}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Определяет, какое видео из категории будет использовано для создания постера
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {# Кнопки действий #}
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('admin_settings') }}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                Отмена
+            </a>
+            <button type="submit" class="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+                Сохранить настройки
+            </button>
+        </div>
+    </form>
+    
+    {# Массовая генерация #}
+    <div class="bg-white rounded-md shadow p-6 mt-6">
+        <h2 class="text-xl font-semibold mb-4">Массовая генерация постеров</h2>
+        <p class="text-gray-600 mb-4">
+            Сгенерировать постеры для всех категорий, у которых ещё нет постера.
+        </p>
+        
+        <form method="POST" action="{{ path('admin_generate_category_posters') }}" class="flex items-center gap-4">
+            <div class="flex items-center">
+                <input type="checkbox" name="force" value="1" id="force_regenerate"
+                       class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                <label for="force_regenerate" class="ml-2 text-sm text-gray-700">
+                    Перезаписать существующие постеры
+                </label>
+            </div>
+            
+            <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                Сгенерировать постеры
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

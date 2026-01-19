@@ -1,0 +1,165 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Transcoding Settings{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Transcoding Settings</h1>
+        <a href="{{ path('admin_settings') }}" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+            ← Back to settings
+        </a>
+    </div>
+    
+    <form method="POST" class="space-y-6">
+        {# Poster Settings #}
+        <div class="bg-white rounded-md shadow p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Poster Settings
+            </h2>
+            <p class="text-gray-600 mb-4">Poster is extracted from the middle of the uploaded video</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Poster Width (px)</label>
+                    <input type="number" name="poster_width" value="{{ settings.poster_width }}" 
+                           min="100" max="1920" step="10"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Recommended: 400px</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Poster Height (px)</label>
+                    <input type="number" name="poster_height" value="{{ settings.poster_height }}" 
+                           min="100" max="1080" step="10"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Recommended: 225px (16:9 ratio)</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Poster Format</label>
+                    <select name="poster_format" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        <option value="AVIF" {{ settings.poster_format == 'AVIF' ? 'selected' : '' }}>AVIF (modern, best compression)</option>
+                        <option value="WebP" {{ settings.poster_format == 'WebP' ? 'selected' : '' }}>WebP (good compression)</option>
+                        <option value="JPEG" {{ settings.poster_format == 'JPEG' ? 'selected' : '' }}>JPEG (universal)</option>
+                        <option value="PNG" {{ settings.poster_format == 'PNG' ? 'selected' : '' }}>PNG (lossless)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Poster Quality (%)</label>
+                    <input type="range" name="poster_quality" value="{{ settings.poster_quality }}" 
+                           min="50" max="100" step="5" 
+                           class="w-full h-2 bg-gray-200 rounded-md appearance-none cursor-pointer"
+                           oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-sm text-gray-600">{{ settings.poster_quality }}%</output>
+                    <p class="text-xs text-gray-500 mt-1">Recommended: 85%</p>
+                </div>
+            </div>
+        </div>
+
+        {# Video Preview Settings #}
+        <div class="bg-white rounded-md shadow p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m2-10V6a2 2 0 00-2-2H6a2 2 0 00-2-2v14a2 2 0 002 2h8a2 2 0 002-2v-1"></path>
+                </svg>
+                Video Preview Settings
+            </h2>
+            <p class="text-gray-600 mb-4">Video preview is created from evenly distributed segments across the video length</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preview Width (px)</label>
+                    <input type="number" name="preview_width" value="{{ settings.preview_width }}" 
+                           min="150" max="1920" step="10"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Recommended: 640px</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preview Height (px)</label>
+                    <input type="number" name="preview_height" value="{{ settings.preview_height }}" 
+                           min="150" max="1080" step="10"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Recommended: 360px (16:9 ratio)</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preview Duration (sec)</label>
+                    <input type="number" name="preview_duration" value="{{ settings.preview_duration }}" 
+                           min="5" max="30" step="1"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Total duration of the final preview</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Number of Segments</label>
+                    <input type="number" name="preview_segments" value="{{ settings.preview_segments }}" 
+                           min="3" max="12" step="1"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Number of segments to merge</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preview Format</label>
+                    <select name="preview_format" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        <option value="MP4" {{ settings.preview_format == 'MP4' ? 'selected' : '' }}>MP4 (recommended)</option>
+                        <option value="WebM" {{ settings.preview_format == 'WebM' ? 'selected' : '' }}>WebM</option>
+                        <option value="AVI" {{ settings.preview_format == 'AVI' ? 'selected' : '' }}>AVI</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preview Quality</label>
+                    <select name="preview_quality" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        <option value="low" {{ settings.preview_quality == 'low' ? 'selected' : '' }}>Low (fast, less space)</option>
+                        <option value="medium" {{ settings.preview_quality == 'medium' ? 'selected' : '' }}>Medium (recommended)</option>
+                        <option value="high" {{ settings.preview_quality == 'high' ? 'selected' : '' }}>High (slow, more space)</option>
+                    </select>
+                </div>
+            </div>
+            
+            {# Info Panel #}
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <h3 class="text-sm font-medium text-blue-800 mb-2">How preview generation works:</h3>
+                <ol class="text-sm text-blue-700 space-y-1">
+                    <li>1. Source video duration is determined</li>
+                    <li>2. Evenly distributed points are calculated across the length</li>
+                    <li>3. Segments are extracted (preview duration ÷ number of segments)</li>
+                    <li>4. Segments are merged into one preview without audio</li>
+                    <li>5. Result is saved to media/previews/</li>
+                </ol>
+            </div>
+        </div>
+
+        {# Action Buttons #}
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('admin_settings') }}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit" class="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+                Save Settings
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Update quality slider value in real time
+document.addEventListener('DOMContentLoaded', function() {
+    const qualitySlider = document.querySelector('input[name="poster_quality"]');
+    const qualityOutput = qualitySlider.nextElementSibling;
+    
+    qualitySlider.addEventListener('input', function() {
+        qualityOutput.textContent = this.value + '%';
+    });
+});
+</script>
+{% endblock %}

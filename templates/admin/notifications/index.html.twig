@@ -1,0 +1,153 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Уведомления{% endblock %}
+{% block page_title %}Управление уведомлениями{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    {# Каналы уведомлений #}
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">📡 Каналы уведомлений</h3>
+        </div>
+        <div class="divide-y">
+            {% for channel_id, channel in channels %}
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ channel.icon }}</span>
+                    <div>
+                        <p class="font-medium text-gray-900">{{ channel.name }}</p>
+                        <p class="text-sm text-gray-500">{{ channel.description }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-2 py-1 text-xs rounded-full {{ channel.configured ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ channel.configured ? 'Настроен' : 'Не настроен' }}
+                    </span>
+                    {% if channel.configured %}
+                    <form action="{{ path('admin_notifications_test', {channel: channel_id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('notification_test') }}">
+                        <button type="submit" class="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition">
+                            Тест
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {# Тест всех каналов #}
+            <div class="px-6 py-4">
+                <form action="{{ path('admin_notifications_test', {channel: 'all'}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('notification_test') }}">
+                    <button type="submit" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition">
+                        🧪 Тестировать все каналы
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {# Типы уведомлений #}
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">📋 Типы уведомлений</h3>
+        </div>
+        <div class="divide-y">
+            {% for type_id, type in notification_types %}
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="font-medium text-gray-900">{{ type.name }}</p>
+                    <span class="px-2 py-1 text-xs rounded-full 
+                        {% if type.importance == 'urgent' %}bg-red-100 text-red-700
+                        {% elseif type.importance == 'high' %}bg-orange-100 text-orange-700
+                        {% elseif type.importance == 'medium' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ type.importance|upper }}
+                    </span>
+                </div>
+                <div class="flex gap-2">
+                    {% for ch in type.channels %}
+                    <span class="px-2 py-0.5 text-xs bg-blue-50 text-blue-600 rounded">{{ ch }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# Отправка кастомного уведомления #}
+<div class="bg-white rounded-md shadow">
+    <div class="px-6 py-4 border-b">
+        <h3 class="text-lg font-semibold text-gray-900">✉️ Отправить уведомление</h3>
+    </div>
+    <form action="{{ path('admin_notifications_send') }}" method="post" class="p-6">
+        <input type="hidden" name="_token" value="{{ csrf_token('notification_send') }}">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Заголовок</label>
+                <input type="text" name="title" value="Уведомление от RexTube" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Получатель (email)</label>
+                <input type="email" name="recipient" value="{{ admin_email }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="Оставьте пустым для отправки админу">
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Сообщение</label>
+            <textarea name="message" rows="4" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Текст уведомления..."></textarea>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Каналы</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="channels[]" value="email" checked class="rounded text-blue-600">
+                        <span class="text-sm">📧 Email</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="channels[]" value="telegram" class="rounded text-blue-600">
+                        <span class="text-sm">📱 Telegram</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Важность</label>
+                <select name="importance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="low">Низкая</option>
+                    <option value="medium" selected>Средняя</option>
+                    <option value="high">Высокая</option>
+                    <option value="urgent">Срочная</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+                📤 Отправить уведомление
+            </button>
+        </div>
+    </form>
+</div>
+
+{# Настройка #}
+<div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+    <h4 class="font-semibold text-yellow-900 mb-2">⚙️ Настройка каналов</h4>
+    <div class="text-sm text-yellow-800 space-y-2">
+        <p><strong>Email:</strong> Настройте <code class="bg-yellow-100 px-1 rounded">MAILER_DSN</code> в файле <code>.env</code></p>
+        <p><strong>Telegram:</strong> Настройте <code class="bg-yellow-100 px-1 rounded">TELEGRAM_DSN=telegram://BOT_TOKEN@default?channel=CHAT_ID</code></p>
+        <p><strong>Получатель:</strong> Укажите <code class="bg-yellow-100 px-1 rounded">ADMIN_EMAIL</code> в файле <code>.env</code></p>
+    </div>
+</div>
+{% endblock %}

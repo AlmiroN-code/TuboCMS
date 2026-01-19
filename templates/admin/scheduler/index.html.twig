@@ -1,0 +1,63 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Планировщик задач{% endblock %}
+{% block page_title %}Планировщик задач{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-md shadow mb-6">
+    <div class="px-6 py-4 border-b">
+        <h3 class="text-lg font-semibold text-gray-900">⏰ Запланированные задачи</h3>
+        <p class="text-sm text-gray-600">Автоматические задачи, выполняемые по расписанию</p>
+    </div>
+    <div class="p-6">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Задача</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Описание</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Расписание</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Статус</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for task in tasks %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">{{ task.icon }}</span>
+                                <span class="font-medium text-gray-900">{{ task.name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-gray-600">{{ task.description }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ task.schedule }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                Активна
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="bg-blue-50 border border-blue-200 rounded-md p-6">
+    <h4 class="font-semibold text-blue-900 mb-2">💡 Как запустить планировщик</h4>
+    <p class="text-blue-800 mb-4">Для работы планировщика необходимо запустить Messenger worker:</p>
+    <code class="block bg-blue-100 p-3 rounded text-blue-900 font-mono text-sm">
+        php bin/console messenger:consume scheduler_main -vv
+    </code>
+    <p class="text-blue-700 mt-3 text-sm">
+        Рекомендуется настроить supervisor или systemd для автоматического запуска worker'а.
+    </p>
+</div>
+{% endblock %}

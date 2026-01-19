@@ -1,0 +1,49 @@
+framework:
+    rate_limiter:
+        # Video upload rate limiter
+        video_upload:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
+        
+        # Comment posting rate limiter
+        comment_post:
+            policy: 'fixed_window'
+            limit: 10
+            interval: '5 minutes'
+        
+        # API requests rate limiter
+        api_requests:
+            policy: 'token_bucket'
+            limit: 100
+            rate: { interval: '1 minute', amount: 10 }
+        
+        # Login attempts rate limiter
+        login_attempts:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+        
+        # Registration rate limiter
+        registration:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '1 hour'
+        
+        # Search rate limiter
+        search:
+            policy: 'token_bucket'
+            limit: 30
+            rate: { interval: '1 minute', amount: 5 }
+        
+        # Admin actions rate limiter
+        admin_actions:
+            policy: 'sliding_window'
+            limit: 100
+            interval: '1 hour'
+
+        # Media download rate limiter (for content protection)
+        media_download:
+            policy: 'sliding_window'
+            limit: 100
+            interval: '1 hour'

@@ -1,0 +1,16 @@
+{# Language Switcher Component #}
+{# Requirements: 2.1, 2.2 #}
+<div class="language-switcher flex items-center gap-1">
+    {% for locale in available_locales() %}
+        {% if current_locale() == locale %}
+            <span class="px-2 py-1 text-sm font-medium text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 rounded">
+                {{ locale|upper }}
+            </span>
+        {% else %}
+            <a href="{{ path('app_locale_switch', {locale: locale, redirect: app.request.uri}) }}"
+               class="px-2 py-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                {{ locale|upper }}
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>

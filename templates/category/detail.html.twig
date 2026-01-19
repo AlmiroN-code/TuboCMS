@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'category.title'|trans, 'url': path('app_category_index')},
+    {'label': category.name, 'url': ''}
+] %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block body %}
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">{{ category.name }}</h1>
+        {% if category.description %}
+            <p class="text-gray-400">{{ category.description }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="video-grid">
+        {% for video in videos %}
+            {% include 'video/_card.html.twig' with {'video': video} %}
+        {% else %}
+            <div class="col-span-full text-center py-12 text-gray-400">
+                {{ 'category.no_videos_in_category'|trans }}
+            </div>
+        {% endfor %}
+    </div>
+    
+    {# Pagination #}
+    {% if videos|length > 0 %}
+    <div class="mt-8 flex justify-center">
+        <div class="flex space-x-2">
+            {% if page > 1 %}
+                <a href="{{ path('category_detail', {'slug': category.slug, 'page': page - 1}) }}" 
+                   class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded">
+                    {{ 'pagination.previous'|trans }}
+                </a>
+            {% endif %}
+            
+            <span class="px-4 py-2 bg-red-600 rounded">
+                {{ page }}
+            </span>
+            
+            <a href="{{ path('category_detail', {'slug': category.slug, 'page': page + 1}) }}" 
+               class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded">
+                {{ 'pagination.next'|trans }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

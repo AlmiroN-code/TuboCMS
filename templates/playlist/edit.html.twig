@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'playlist.my_playlists'|trans, 'url': path('app_playlist_index')},
+    {'label': 'playlist.edit'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ 'playlist.edit'|trans }} - {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <h1 class="text-2xl font-bold text-white mb-6">{{ 'playlist.edit'|trans }}</h1>
+
+    <form method="post" class="space-y-6">
+        <div>
+            <label for="title" class="block text-sm font-medium text-gray-300 mb-2">{{ 'playlist.title'|trans }}</label>
+            <input type="text" name="title" id="title" required value="{{ playlist.title }}"
+                   class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-white focus:border-red-500 focus:ring-red-500">
+        </div>
+
+        <div>
+            <label for="description" class="block text-sm font-medium text-gray-300 mb-2">{{ 'playlist.description'|trans }}</label>
+            <textarea name="description" id="description" rows="4"
+                      class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-white focus:border-red-500 focus:ring-red-500">{{ playlist.description }}</textarea>
+        </div>
+
+        <div class="flex items-center">
+            <input type="checkbox" name="is_public" id="is_public" value="1" {{ playlist.isPublic ? 'checked' : '' }}
+                   class="w-4 h-4 text-red-600 bg-gray-800 border-gray-700 rounded focus:ring-red-500">
+            <label for="is_public" class="ml-2 text-sm text-gray-300">{{ 'playlist.make_public'|trans }}</label>
+        </div>
+
+        <div class="flex gap-4">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md">
+                {{ 'common.save'|trans }}
+            </button>
+            <a href="{{ path('app_playlist_show', {id: playlist.id}) }}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-md">
+                {{ 'common.cancel'|trans }}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

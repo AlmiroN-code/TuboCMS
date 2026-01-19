@@ -1,0 +1,7 @@
+<span class="px-2 py-1 text-xs rounded text-white
+    {% if video.status == 'published' %}bg-green-500
+    {% elseif video.status == 'processing' %}bg-blue-500
+    {% elseif video.status == 'rejected' %}bg-red-500
+    {% else %}bg-gray-500{% endif %}">
+    {{ video.status }}
+</span>

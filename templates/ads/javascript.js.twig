@@ -1,0 +1,147 @@
+{# JavaScript для динамической загрузки рекламы #}
+(function() {
+    'use strict';
+    
+    {% if ad %}
+    // Создание контейнера для рекламы
+    var adContainer = document.createElement('div');
+    adContainer.className = 'ad-container ad-js-loaded';
+    adContainer.setAttribute('data-ad-id', '{{ ad.id }}');
+    adContainer.setAttribute('data-placement', '{{ placement }}');
+    
+    {% if ad.format == 'image' %}
+        {% if ad.clickUrl %}
+        var link = document.createElement('a');
+        link.href = '{{ path('ad_click', {id: ad.id}) }}';
+        {% if ad.openInNewTab %}link.target = '_blank';{% endif %}
+        link.className = 'ad-link';
+        
+        var img = document.createElement('img');
+        img.src = '{{ ad.imageUrl }}';
+        img.alt = '{{ ad.altText ?: ad.name }}';
+        {% if ad.placement.width %}img.width = {{ ad.placement.width }};{% endif %}
+        {% if ad.placement.height %}img.height = {{ ad.placement.height }};{% endif %}
+        img.className = 'ad-image';
+        
+        link.appendChild(img);
+        adContainer.appendChild(link);
+        {% else %}
+        var img = document.createElement('img');
+        img.src = '{{ ad.imageUrl }}';
+        img.alt = '{{ ad.altText ?: ad.name }}';
+        {% if ad.placement.width %}img.width = {{ ad.placement.width }};{% endif %}
+        {% if ad.placement.height %}img.height = {{ ad.placement.height }};{% endif %}
+        img.className = 'ad-image';
+        adContainer.appendChild(img);
+        {% endif %}
+    
+    {% elseif ad.format == 'html' %}
+        adContainer.innerHTML = '{{ ad.htmlContent|e('js') }}';
+    
+    {% elseif ad.format == 'script' %}
+        // Выполнение скрипта
+        var script = document.createElement('script');
+        script.text = '{{ ad.scriptCode|e('js') }}';
+        document.head.appendChild(script);
+        
+    {% elseif ad.format == 'text' %}
+        {% if ad.clickUrl %}
+        var link = document.createElement('a');
+        link.href = '{{ path('ad_click', {id: ad.id}) }}';
+        {% if ad.openInNewTab %}link.target = '_blank';{% endif %}
+        link.className = 'ad-text-link';
+        link.innerHTML = '{{ ad.htmlContent|e('js') }}';
+        adContainer.appendChild(link);
+        {% else %}
+        adContainer.innerHTML = '{{ ad.htmlContent|e('js') }}';
+        {% endif %}
+    {% endif %}
+    
+    // Добавление стилей
+    var style = document.createElement('style');
+    style.textContent = `
+        .ad-js-loaded {
+            margin: 10px 0;
+            text-align: center;
+        }
+        .ad-js-loaded .ad-image {
+            max-width: 100%;
+            height: auto;
+        }
+        .ad-js-loaded .ad-text-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .ad-js-loaded .ad-text-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .ad-js-loaded {
+                margin: 5px 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Вставка рекламы в DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            insertAd();
+        });
+    } else {
+        insertAd();
+    }
+    
+    function insertAd() {
+        // Поиск подходящего места для вставки
+        var targetElement = document.querySelector('[data-ad-placement="{{ placement }}"]') ||
+                           document.querySelector('.ad-placement-{{ placement }}') ||
+                           document.body;
+        
+        if (targetElement) {
+            targetElement.appendChild(adContainer);
+            
+            // Отслеживание показа
+            trackImpression();
+        }
+    }
+    
+    function trackImpression() {
+        // Отслеживание показа при появлении в viewport
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        sendImpression();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            observer.observe(adContainer);
+        } else {
+            // Fallback для старых браузеров
+            setTimeout(sendImpression, 1000);
+        }
+    }
+    
+    function sendImpression() {
+        if ('fetch' in window) {
+            fetch('{{ path('ad_impression', {id: ad.id}) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).catch(function() {
+                // Игнорируем ошибки отслеживания
+            });
+        } else {
+            // Fallback для старых браузеров
+            var img = new Image();
+            img.src = '{{ path('ad_impression', {id: ad.id}) }}?_=' + Date.now();
+        }
+    }
+    
+    {% endif %}
+})();

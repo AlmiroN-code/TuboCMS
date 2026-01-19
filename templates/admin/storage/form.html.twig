@@ -1,0 +1,466 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ storage.id ? 'Редактировать хранилище' : 'Новое хранилище' }}{% endblock %}
+{% block page_title %}{{ storage.id ? 'Редактировать хранилище' : 'Новое хранилище' }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-md shadow p-6 max-w-2xl">
+    <form method="post" id="storageForm">
+        <div class="space-y-6">
+            <!-- Основные поля -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Название *</label>
+                <input type="text" name="name" value="{{ storage.name }}" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Тип хранилища *</label>
+                <select name="type" id="storageType" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for type in types %}
+                        {% set typeLabels = {
+                            'local': 'Локальное хранилище',
+                            'ftp': 'FTP сервер',
+                            'sftp': 'SFTP сервер',
+                            'http': 'HTTP/API сервер',
+                            's3': 'S3 / BunnyCDN'
+                        } %}
+                        <option value="{{ type }}" {{ (storage.type|default('local')) == type ? 'selected' : '' }}>
+                            {{ typeLabels[type] ?? type }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Поля для Local -->
+            <div id="localFields" class="config-fields space-y-4" style="display: none;">
+                <div class="border-t pt-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Настройки локального хранилища</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Базовый путь *</label>
+                            <input type="text" name="basePath" value="{{ storage.config.basePath ?? 'public/media' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="public/media">
+                            <p class="text-xs text-gray-500 mt-1">Путь относительно корня проекта</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Базовый URL</label>
+                            <input type="text" name="localBaseUrl" value="{{ storage.config.baseUrl ?? '/media' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="/media">
+                            <p class="text-xs text-gray-500 mt-1">URL для доступа к файлам</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поля для FTP -->
+            <div id="ftpFields" class="config-fields space-y-4" style="display: none;">
+                <div class="border-t pt-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Настройки FTP</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Хост *</label>
+                            <input type="text" name="host" value="{{ storage.config.host ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="ftp.example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Порт *</label>
+                            <input type="number" name="port" value="{{ storage.config.port ?? 21 }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Имя пользователя *</label>
+                            <input type="text" name="username" value="{{ storage.config.username ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Пароль *</label>
+                            <input type="password" name="password" value="{{ storage.config.password ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Базовый путь *</label>
+                        <input type="text" name="basePath" value="{{ storage.config.basePath ?? '/' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="/videos">
+                        <p class="text-xs text-gray-500 mt-1">Путь на FTP сервере для хранения файлов</p>
+                    </div>
+                    
+                    <div class="flex space-x-6 mt-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="passive" value="1" {{ storage.config.passive ?? true ? 'checked' : '' }}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label class="ml-2 block text-sm text-gray-900">Пассивный режим</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="ssl" value="1" {{ storage.config.ssl ?? false ? 'checked' : '' }}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label class="ml-2 block text-sm text-gray-900">SSL/TLS</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поля для SFTP -->
+            <div id="sftpFields" class="config-fields space-y-4" style="display: none;">
+                <div class="border-t pt-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Настройки SFTP</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Хост *</label>
+                            <input type="text" name="host" value="{{ storage.config.host ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="sftp.example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Порт *</label>
+                            <input type="number" name="port" value="{{ storage.config.port ?? 22 }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Имя пользователя *</label>
+                        <input type="text" name="username" value="{{ storage.config.username ?? '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Метод аутентификации *</label>
+                        <select name="authType" id="sftpAuthType"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="password" {{ (storage.config.authType|default('password')) == 'password' ? 'selected' : '' }}>Пароль</option>
+                            <option value="key" {{ (storage.config.authType|default('')) == 'key' ? 'selected' : '' }}>SSH ключ</option>
+                        </select>
+                    </div>
+                    
+                    <div id="sftpPasswordAuth" class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Пароль</label>
+                        <input type="password" name="password" value="{{ storage.config.password ?? '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div id="sftpKeyAuth" class="space-y-4 mt-4" style="display: none;">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Приватный ключ</label>
+                            <textarea name="privateKey" rows="4"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-xs"
+                                      placeholder="-----BEGIN RSA PRIVATE KEY-----">{{ storage.config.privateKey ?? '' }}</textarea>
+                            <p class="text-xs text-gray-500 mt-1">Вставьте содержимое приватного ключа</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Пароль ключа (если есть)</label>
+                            <input type="password" name="privateKeyPassphrase" value="{{ storage.config.privateKeyPassphrase ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Базовый путь *</label>
+                        <input type="text" name="basePath" value="{{ storage.config.basePath ?? '/' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="/home/user/videos">
+                        <p class="text-xs text-gray-500 mt-1">Путь на SFTP сервере для хранения файлов</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поля для HTTP -->
+            <div id="httpFields" class="config-fields space-y-4" style="display: none;">
+                <div class="border-t pt-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Настройки HTTP/API</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Базовый URL *</label>
+                        <input type="url" name="baseUrl" value="{{ storage.config.baseUrl ?? '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="https://storage.example.com">
+                        <p class="text-xs text-gray-500 mt-1">URL сервера хранилища</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Endpoint загрузки *</label>
+                        <input type="text" name="uploadEndpoint" value="{{ storage.config.uploadEndpoint ?? '/upload' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="/upload">
+                        <p class="text-xs text-gray-500 mt-1">Путь для загрузки файлов (POST/PUT)</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Endpoint удаления</label>
+                        <input type="text" name="deleteEndpoint" value="{{ storage.config.deleteEndpoint ?? '/delete' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="/delete">
+                        <p class="text-xs text-gray-500 mt-1">Путь для удаления файлов (DELETE)</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Заголовок авторизации</label>
+                            <input type="text" name="authHeader" value="{{ storage.config.authHeader ?? 'Authorization' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Authorization">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Токен авторизации *</label>
+                            <input type="password" name="authToken" value="{{ storage.config.authToken ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Bearer token...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поля для S3 / BunnyCDN -->
+            <div id="s3Fields" class="config-fields space-y-4" style="display: none;">
+                <div class="border-t pt-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-4">Настройки S3 / BunnyCDN</h3>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+                        <p class="text-sm text-blue-800">
+                            <strong>BunnyCDN:</strong> Используйте Storage Zone для хранения и Pull Zone для раздачи контента.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Endpoint *</label>
+                        <input type="url" name="s3Endpoint" value="{{ storage.config.endpoint ?? 'https://storage.bunnycdn.com' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="https://storage.bunnycdn.com">
+                        <p class="text-xs text-gray-500 mt-1">
+                            BunnyCDN: storage.bunnycdn.com (или региональный: de.storage.bunnycdn.com, ny.storage.bunnycdn.com)
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Bucket / Storage Zone *</label>
+                            <input type="text" name="s3Bucket" value="{{ storage.config.bucket ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="my-storage-zone">
+                            <p class="text-xs text-gray-500 mt-1">Имя Storage Zone в BunnyCDN</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Регион</label>
+                            <select name="s3Region" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="de" {{ (storage.config.region ?? 'de') == 'de' ? 'selected' : '' }}>Германия (de)</option>
+                                <option value="ny" {{ (storage.config.region ?? '') == 'ny' ? 'selected' : '' }}>Нью-Йорк (ny)</option>
+                                <option value="la" {{ (storage.config.region ?? '') == 'la' ? 'selected' : '' }}>Лос-Анджелес (la)</option>
+                                <option value="sg" {{ (storage.config.region ?? '') == 'sg' ? 'selected' : '' }}>Сингапур (sg)</option>
+                                <option value="syd" {{ (storage.config.region ?? '') == 'syd' ? 'selected' : '' }}>Сидней (syd)</option>
+                                <option value="uk" {{ (storage.config.region ?? '') == 'uk' ? 'selected' : '' }}>Великобритания (uk)</option>
+                                <option value="se" {{ (storage.config.region ?? '') == 'se' ? 'selected' : '' }}>Швеция (se)</option>
+                                <option value="br" {{ (storage.config.region ?? '') == 'br' ? 'selected' : '' }}>Бразилия (br)</option>
+                                <option value="jh" {{ (storage.config.region ?? '') == 'jh' ? 'selected' : '' }}>ЮАР (jh)</option>
+                                <option value="us-east-1" {{ (storage.config.region ?? '') == 'us-east-1' ? 'selected' : '' }}>AWS us-east-1</option>
+                                <option value="eu-west-1" {{ (storage.config.region ?? '') == 'eu-west-1' ? 'selected' : '' }}>AWS eu-west-1</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Access Key *</label>
+                            <input type="text" name="s3AccessKey" value="{{ storage.config.accessKey ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="storage-zone-name">
+                            <p class="text-xs text-gray-500 mt-1">BunnyCDN: имя Storage Zone</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Secret Key / Password *</label>
+                            <input type="password" name="s3SecretKey" value="{{ storage.config.secretKey ?? '' }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="API Key">
+                            <p class="text-xs text-gray-500 mt-1">BunnyCDN: Storage Zone Password</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">CDN URL (Pull Zone)</label>
+                        <input type="url" name="s3CdnUrl" value="{{ storage.config.cdnUrl ?? '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="https://my-zone.b-cdn.net">
+                        <p class="text-xs text-gray-500 mt-1">
+                            URL Pull Zone для раздачи контента. Если не указан, будет использоваться прямой URL хранилища.
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center mt-4">
+                        <input type="checkbox" name="s3PathStyle" value="1" {{ storage.config.pathStyleEndpoint ?? true ? 'checked' : '' }}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label class="ml-2 block text-sm text-gray-900">Path-style endpoint (рекомендуется для BunnyCDN)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="flex space-x-4 pt-4 border-t">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+                    Сохранить
+                </button>
+                <button type="button" onclick="testConfig()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">
+                    Тест подключения
+                </button>
+                <a href="{{ path('admin_storage') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded">
+                    Отмена
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Модальное окно результата теста -->
+<div id="testModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-md shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <h3 class="text-lg font-medium mb-4">Результат теста подключения</h3>
+            <div id="testResult"></div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeTestModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('storageType');
+    const sftpAuthType = document.getElementById('sftpAuthType');
+    
+    // Показать/скрыть поля в зависимости от типа хранилища
+    function updateFields() {
+        const type = typeSelect.value;
+        
+        // Скрыть все секции
+        document.querySelectorAll('.config-fields').forEach(el => {
+            el.style.display = 'none';
+            // Отключить required для скрытых полей
+            el.querySelectorAll('input, select, textarea').forEach(input => {
+                input.removeAttribute('required');
+            });
+        });
+        
+        // Показать нужную секцию
+        const fieldsId = type + 'Fields';
+        const fields = document.getElementById(fieldsId);
+        if (fields) {
+            fields.style.display = 'block';
+        }
+    }
+    
+    // Показать/скрыть поля аутентификации SFTP
+    function updateSftpAuth() {
+        if (!sftpAuthType) return;
+        
+        const authType = sftpAuthType.value;
+        const passwordAuth = document.getElementById('sftpPasswordAuth');
+        const keyAuth = document.getElementById('sftpKeyAuth');
+        
+        if (authType === 'password') {
+            passwordAuth.style.display = 'block';
+            keyAuth.style.display = 'none';
+        } else {
+            passwordAuth.style.display = 'none';
+            keyAuth.style.display = 'block';
+        }
+    }
+    
+    typeSelect.addEventListener('change', updateFields);
+    if (sftpAuthType) {
+        sftpAuthType.addEventListener('change', updateSftpAuth);
+    }
+    
+    // Инициализация
+    updateFields();
+    updateSftpAuth();
+});
+
+function testConfig() {
+    const form = document.getElementById('storageForm');
+    const formData = new FormData(form);
+    
+    const modal = document.getElementById('testModal');
+    const result = document.getElementById('testResult');
+    
+    result.innerHTML = '<div class="text-gray-500">Тестирование подключения...</div>';
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    fetch('{{ path('admin_storage_test_config') }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            result.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded p-4">
+                    <div class="text-green-800 font-medium">✓ Подключение успешно</div>
+                    <div class="text-green-700 text-sm mt-1">${data.message}</div>
+                    ${data.latency ? `<div class="text-green-600 text-xs mt-1">Задержка: ${data.latency}ms</div>` : ''}
+                    ${data.serverInfo ? `<div class="text-green-600 text-xs mt-1">Сервер: ${data.serverInfo}</div>` : ''}
+                </div>
+            `;
+        } else {
+            let errorHtml = `
+                <div class="bg-red-50 border border-red-200 rounded p-4">
+                    <div class="text-red-800 font-medium">✗ Ошибка подключения</div>
+                    <div class="text-red-700 text-sm mt-1">${data.message}</div>
+            `;
+            if (data.errors) {
+                errorHtml += '<ul class="text-red-600 text-xs mt-2 list-disc list-inside">';
+                for (const [field, error] of Object.entries(data.errors)) {
+                    errorHtml += `<li>${error}</li>`;
+                }
+                errorHtml += '</ul>';
+            }
+            errorHtml += '</div>';
+            result.innerHTML = errorHtml;
+        }
+    })
+    .catch(error => {
+        result.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded p-4">
+                <div class="text-red-800 font-medium">✗ Ошибка</div>
+                <div class="text-red-700 text-sm mt-1">${error.message}</div>
+            </div>
+        `;
+    });
+}
+
+function closeTestModal() {
+    const modal = document.getElementById('testModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// Закрытие модального окна по клику вне его
+document.getElementById('testModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeTestModal();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

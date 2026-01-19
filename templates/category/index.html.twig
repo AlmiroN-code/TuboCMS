@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'category.title'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ setting('seo_categories_title') ?: 'category.title'|trans }}{% endblock %}
+
+{% block meta_description %}{{ setting('seo_categories_description') ?: parent() }}{% endblock %}
+
+{% block meta_keywords %}{{ setting('seo_categories_keywords') ?: parent() }}{% endblock %}
+
+{% block body %}
+{# Рекламный блок в верхней части страницы категорий #}
+<div class="ad-block mb-4">
+    {{ show_ad('categories_top_banner', {
+        'page': 'categories',
+        'user_id': app.user ? app.user.id : null
+    }) }}
+</div>
+
+<div class="flex gap-2">
+    {% include 'partials/_sidebar.html.twig' %}
+    
+    <div class="flex-1 p-4">
+        <h1 class="text-3xl text-gray-900 dark:text-white mb-8">{{ 'category.all_categories'|trans }}</h1>
+        
+        {% if categories|length > 0 %}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {% for category in categories %}
+                    {% if loop.index % 12 == 6 %}
+                        {# Рекламный блок между категориями #}
+                        <div class="ad-block col-span-2 sm:col-span-3 md:col-span-4 lg:col-span-6 my-4">
+                            {{ show_ad('categories_between_blocks', {
+                                'page': 'categories',
+                                'user_id': app.user ? app.user.id : null
+                            }) }}
+                        </div>
+                    {% endif %}
+                    
+                    <a href="{{ path('app_category_show', {slug: category.slug}) }}" 
+                       class="group bg-white dark:bg-slate-800 rounded-md shadow hover:shadow-lg transition overflow-hidden">
+                        {# Постер или буква #}
+                        <div class="aspect-[4/3] relative overflow-hidden border-b border-gray-100 dark:border-slate-600">
+                            {% if category.poster %}
+                                {{ lazy_img('/media/categories/' ~ category.poster, category.name ~ ' - ' ~ ('category.videos'|trans), 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300') }}
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-transparent text-gray-500 dark:text-gray-400">
+                                    <span class="text-4xl font-bold">{{ category.name|slice(0, 1)|upper }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            {# Счётчик видео #}
+                            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                {{ category.videosCount|number_format }}
+                            </div>
+                        </div>
+                        
+                        {# Название #}
+                        <div class="p-3">
+                            <h2 class="font-medium text-gray-900 dark:text-white truncate group-hover:text-orange-600 dark:group-hover:text-orange-400">
+                                {{ category.name }}
+                            </h2>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'category.no_categories'|trans }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- {# Рекламный сайдбар на странице категорий #}
+    <div class="w-80 flex-shrink-0 p-3">
+        <div class="ad-block mb-4">
+            {{ show_ad('categories_sidebar', {
+                'page': 'categories',
+                'user_id': app.user ? app.user.id : null
+            }) }}
+        </div>
+    </div> -->
+</div>
+{% endblock %}

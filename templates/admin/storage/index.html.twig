@@ -1,0 +1,226 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Хранилища{% endblock %}
+{% block page_title %}Хранилища{% endblock %}
+
+{% block content %}
+{# Requirements 6.3: Warning notification when storage usage exceeds 80% #}
+{% if storagesWithWarning|length > 0 %}
+<div class="mb-6 bg-orange-50 border border-orange-200 rounded-md p-4">
+    <div class="flex items-start">
+        <span class="text-orange-500 text-xl mr-3">⚠️</span>
+        <div>
+            <h4 class="text-orange-800 font-medium">Предупреждение о заполнении хранилищ</h4>
+            <p class="text-orange-700 text-sm mt-1">
+                Следующие хранилища заполнены более чем на 80%:
+            </p>
+            <ul class="mt-2 text-sm text-orange-700">
+                {% for data in storagesWithWarning %}
+                <li class="flex items-center">
+                    <span class="mr-2">•</span>
+                    <span class="font-medium">{{ data.storage.name }}</span>
+                    <span class="ml-2">({{ data.usagePercent|number_format(1) }}% использовано)</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="mb-6 flex justify-between">
+    <a href="{{ path('admin_storage_migration') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+        Миграция файлов
+    </a>
+    <a href="{{ path('admin_storage_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Добавить хранилище
+    </a>
+</div>
+
+<div class="bg-white rounded-md shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Название</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Тип</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Использование</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Статус</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">По умолчанию</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Действия</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for storage in storages %}
+            {% set data = storageData[storage.id] ?? null %}
+            <tr class="{% if data and data.warningExceeded %}bg-orange-50{% endif %}">
+                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ storage.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    {{ storage.name }}
+                    {% if data and data.warningExceeded %}
+                    <span class="ml-1 text-orange-500" title="Использование превышает 80%">⚠️</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    {% set typeLabels = {
+                        'local': 'Локальное',
+                        'ftp': 'FTP',
+                        'sftp': 'SFTP',
+                        'http': 'HTTP/API'
+                    } %}
+                    {% set typeColors = {
+                        'local': 'bg-gray-100 text-gray-800',
+                        'ftp': 'bg-blue-100 text-blue-800',
+                        'sftp': 'bg-purple-100 text-purple-800',
+                        'http': 'bg-orange-100 text-orange-800'
+                    } %}
+                    <span class="px-2 py-1 text-xs rounded {{ typeColors[storage.type] ?? 'bg-gray-100 text-gray-800' }}">
+                        {{ typeLabels[storage.type] ?? storage.type }}
+                    </span>
+                </td>
+                {# Requirements 6.2, 6.3: Display quota and warning #}
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    {% if data and data.quota %}
+                        <div class="flex flex-col">
+                            <span class="text-gray-600">{{ data.quotaFormatted.used }}</span>
+                            {% if data.quotaFormatted.total %}
+                            <span class="text-gray-400 text-xs">из {{ data.quotaFormatted.total }}</span>
+                            {% endif %}
+                            {% if data.usagePercent is not null %}
+                            <div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="h-1.5 rounded-full {% if data.warningExceeded %}bg-orange-500{% elseif data.usagePercent > 60 %}bg-yellow-500{% else %}bg-green-500{% endif %}" 
+                                     style="width: {{ min(data.usagePercent, 100) }}%"></div>
+                            </div>
+                            <span class="text-xs {% if data.warningExceeded %}text-orange-600 font-medium{% else %}text-gray-400{% endif %}">
+                                {{ data.usagePercent|number_format(1) }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <span class="text-gray-400">—</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded {{ storage.enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ storage.enabled ? 'Включено' : 'Отключено' }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if storage.default %}
+                        <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800">По умолчанию</span>
+                    {% else %}
+                        <span class="text-gray-400">—</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                    <button type="button" 
+                            onclick="testConnection({{ storage.id }})"
+                            class="text-green-600 hover:text-green-900">Тест</button>
+                    <a href="{{ path('admin_storage_edit', {id: storage.id}) }}" 
+                       class="text-indigo-600 hover:text-indigo-900">Редактировать</a>
+                    {% if not storage.default %}
+                        <form method="post" action="{{ path('admin_storage_set_default', {id: storage.id}) }}" class="inline">
+                            <button type="submit" class="text-yellow-600 hover:text-yellow-900">По умолчанию</button>
+                        </form>
+                    {% endif %}
+                    <form method="post" action="{{ path('admin_storage_toggle', {id: storage.id}) }}" class="inline">
+                        <button type="submit" class="text-blue-600 hover:text-blue-900">
+                            {{ storage.enabled ? 'Отключить' : 'Включить' }}
+                        </button>
+                    </form>
+                    {% if not storage.default %}
+                        <form method="post" action="{{ path('admin_storage_delete', {id: storage.id}) }}" class="inline" 
+                              onsubmit="return confirm('Удалить хранилище?')">
+                            <button type="submit" class="text-red-600 hover:text-red-900">Удалить</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    Хранилища не настроены
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Модальное окно результата теста -->
+<div id="testModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-md shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <h3 class="text-lg font-medium mb-4">Результат теста подключения</h3>
+            <div id="testResult"></div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeTestModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function testConnection(storageId) {
+    const modal = document.getElementById('testModal');
+    const result = document.getElementById('testResult');
+    
+    result.innerHTML = '<div class="text-gray-500">Тестирование подключения...</div>';
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    fetch(`/admin/storage/${storageId}/test`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            result.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded p-4">
+                    <div class="text-green-800 font-medium">✓ Подключение успешно</div>
+                    <div class="text-green-700 text-sm mt-1">${data.message}</div>
+                    ${data.latency ? `<div class="text-green-600 text-xs mt-1">Задержка: ${data.latency}ms</div>` : ''}
+                    ${data.serverInfo ? `<div class="text-green-600 text-xs mt-1">Сервер: ${data.serverInfo}</div>` : ''}
+                </div>
+            `;
+        } else {
+            result.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded p-4">
+                    <div class="text-red-800 font-medium">✗ Ошибка подключения</div>
+                    <div class="text-red-700 text-sm mt-1">${data.message}</div>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        result.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded p-4">
+                <div class="text-red-800 font-medium">✗ Ошибка</div>
+                <div class="text-red-700 text-sm mt-1">${error.message}</div>
+            </div>
+        `;
+    });
+}
+
+function closeTestModal() {
+    const modal = document.getElementById('testModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// Закрытие модального окна по клику вне его
+document.getElementById('testModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeTestModal();
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

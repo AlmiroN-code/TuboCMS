@@ -1,0 +1,242 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}A/B тесты{% endblock %}
+{% block page_title %}A/B тесты{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+        <h1 class="text-2xl font-bold text-gray-900">A/B тесты</h1>
+        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded">
+            {{ total }} тестов
+        </span>
+    </div>
+    <a href="{{ path('admin_ads_abtests_new') }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Создать A/B тест
+    </a>
+</div>
+
+{# Фильтры #}
+<div class="bg-white p-4 rounded-md shadow mb-6">
+    <form method="GET" class="flex items-center space-x-4">
+        <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+            <select name="status" id="status" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Все статусы</option>
+                <option value="draft" {{ status == 'draft' ? 'selected' : '' }}>Черновик</option>
+                <option value="running" {{ status == 'running' ? 'selected' : '' }}>Запущен</option>
+                <option value="paused" {{ status == 'paused' ? 'selected' : '' }}>Приостановлен</option>
+                <option value="completed" {{ status == 'completed' ? 'selected' : '' }}>Завершен</option>
+            </select>
+        </div>
+        <div class="pt-6">
+            <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition">
+                Фильтровать
+            </button>
+            {% if status %}
+                <a href="{{ path('admin_ads_abtests') }}" class="ml-2 text-gray-600 hover:text-gray-800">
+                    Сбросить
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% if tests|length > 0 %}
+    <div class="bg-white shadow rounded-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Название теста
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Варианты
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Период
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Трафик
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Статус
+                    </th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Действия
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for test in tests %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ test.name }}
+                                </div>
+                                {% if test.description %}
+                                    <div class="text-sm text-gray-500">
+                                        {{ test.description|slice(0, 60) }}{% if test.description|length > 60 %}...{% endif %}
+                                    </div>
+                                {% endif %}
+                                <div class="text-xs text-gray-400 mt-1">
+                                    Метрика: {{ test.winnerMetric|upper }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm">
+                                {% if test.variantA %}
+                                    <div class="text-gray-900">A: {{ test.variantA.name }}</div>
+                                {% else %}
+                                    <div class="text-gray-400">A: Не выбран</div>
+                                {% endif %}
+                                {% if test.variantB %}
+                                    <div class="text-gray-900">B: {{ test.variantB.name }}</div>
+                                {% else %}
+                                    <div class="text-gray-400">B: Не выбран</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if test.startDate %}
+                                {{ test.startDate|date('d.m.Y') }}
+                            {% else %}
+                                <span class="text-gray-400">Не задано</span>
+                            {% endif %}
+                            —
+                            {% if test.endDate %}
+                                {{ test.endDate|date('d.m.Y') }}
+                            {% else %}
+                                <span class="text-gray-400">∞</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-l-full" style="width: {{ test.trafficSplitA }}%"></div>
+                                </div>
+                                <span class="text-xs text-gray-500">{{ test.trafficSplitA }}% / {{ test.trafficSplitB }}%</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% set statusLabels = {
+                                'draft': 'Черновик',
+                                'running': 'Запущен',
+                                'paused': 'Приостановлен',
+                                'completed': 'Завершен'
+                            } %}
+                            {% set statusColors = {
+                                'draft': 'bg-gray-100 text-gray-800',
+                                'running': 'bg-green-100 text-green-800',
+                                'paused': 'bg-yellow-100 text-yellow-800',
+                                'completed': 'bg-blue-100 text-blue-800'
+                            } %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ statusColors[test.status]|default('bg-gray-100 text-gray-800') }}">
+                                {% if test.status == 'running' %}
+                                    <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3"/>
+                                    </svg>
+                                {% endif %}
+                                {{ statusLabels[test.status]|default(test.status) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                {% if test.status == 'running' or test.status == 'completed' %}
+                                    <a href="{{ path('admin_ads_abtests_results', {id: test.id}) }}" 
+                                       class="text-green-600 hover:text-green-900 transition"
+                                       title="Результаты">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                        </svg>
+                                    </a>
+                                {% endif %}
+                                
+                                <a href="{{ path('admin_ads_abtests_edit', {id: test.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-900 transition"
+                                   title="Редактировать">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </a>
+                                
+                                <form method="POST" action="{{ path('admin_ads_abtests_delete', {id: test.id}) }}" 
+                                      class="inline" 
+                                      onsubmit="return confirm('Вы уверены, что хотите удалить этот A/B тест?')">
+                                    <button type="submit" 
+                                            class="text-red-600 hover:text-red-900 transition"
+                                            title="Удалить">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Пагинация #}
+    {% if totalPages > 1 %}
+        <div class="mt-6 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if currentPage > 1 %}
+                    <a href="{{ path('admin_ads_abtests', {page: currentPage - 1, status: status}) }}" 
+                       class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                        Назад
+                    </a>
+                {% endif %}
+                
+                {% for page in 1..totalPages %}
+                    {% if page == currentPage %}
+                        <span class="px-3 py-2 text-sm bg-blue-600 text-white border border-blue-600 rounded-md">
+                            {{ page }}
+                        </span>
+                    {% elseif page == 1 or page == totalPages or (page >= currentPage - 2 and page <= currentPage + 2) %}
+                        <a href="{{ path('admin_ads_abtests', {page: page, status: status}) }}" 
+                           class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                            {{ page }}
+                        </a>
+                    {% elseif page == currentPage - 3 or page == currentPage + 3 %}
+                        <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if currentPage < totalPages %}
+                    <a href="{{ path('admin_ads_abtests', {page: currentPage + 1, status: status}) }}" 
+                       class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                        Вперед
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    {% endif %}
+
+{% else %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Нет A/B тестов</h3>
+        <p class="mt-1 text-sm text-gray-500">Создайте первый A/B тест для оптимизации рекламы.</p>
+        <div class="mt-6">
+            <a href="{{ path('admin_ads_abtests_new') }}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Создать A/B тест
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

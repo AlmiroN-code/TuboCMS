@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'video.upload_page.title'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ 'video.upload_page.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">{{ 'video.upload_page.title'|trans }}</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="bg-white dark:bg-gray-800 rounded-md shadow p-6">
+        {{ form_start(uploadForm, {'attr': {'class': 'space-y-6', 'enctype': 'multipart/form-data'}}) }}
+            
+            <div>
+                {{ form_label(uploadForm.title, 'video.upload_page.video_title'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(uploadForm.title, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:ring-orange-500 focus:border-orange-500'}}) }}
+                {{ form_errors(uploadForm.title) }}
+            </div>
+
+            <div>
+                {{ form_label(uploadForm.description, 'video.upload_page.description'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(uploadForm.description, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:ring-orange-500 focus:border-orange-500', 'rows': 5}}) }}
+                {{ form_errors(uploadForm.description) }}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ form_label(uploadForm.category, 'video.upload_page.category'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                    {{ form_widget(uploadForm.category) }}
+                    {{ form_errors(uploadForm.category) }}
+                </div>
+
+                {% if uploadForm.tags is defined %}
+                <div>
+                    {{ form_label(uploadForm.tags, 'video.upload_page.tags'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                    {{ form_widget(uploadForm.tags) }}
+                    {{ form_errors(uploadForm.tags) }}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if uploadForm.performers is defined %}
+            <div>
+                {{ form_label(uploadForm.performers, 'video.performers'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(uploadForm.performers) }}
+                {{ form_errors(uploadForm.performers) }}
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Начните вводить имя для поиска</p>
+            </div>
+            {% endif %}
+
+            <div>
+                {{ form_label(uploadForm.videoFile, 'video.upload_page.video_file'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                <div class="mt-2">
+                    {{ form_widget(uploadForm.videoFile) }}
+                </div>
+                {{ form_errors(uploadForm.videoFile) }}
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ 'video.upload_page.supported_formats'|trans }}</p>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ path('app_home') }}" class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    {{ 'video.upload_page.cancel'|trans }}
+                </a>
+                <button type="submit" class="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+                    {{ 'video.upload_page.submit'|trans }}
+                </button>
+            </div>
+
+        {{ form_end(uploadForm) }}
+    </div>
+
+    <div class="mt-6 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-md p-4">
+        <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">{{ 'video.upload_page.info_title'|trans }}</h3>
+        <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+            <li>• {{ 'video.upload_page.info_processing'|trans }}</li>
+            <li>• {{ 'video.upload_page.info_time'|trans }}</li>
+            <li>• {{ 'video.upload_page.info_notification'|trans }}</li>
+            <li>• {{ 'video.upload_page.info_rights'|trans }}</li>
+        </ul>
+    </div>
+{% endblock %}

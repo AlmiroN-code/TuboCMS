@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{% if setting('seo_home_title') %}{{ setting('seo_home_title') }}{% else %}{{ 'nav.home'|trans }}{% endif %}{% endblock %}
+
+{% block body %}
+    {# Рекламный блок в верхней части главной страницы #}
+    <div class="ad-block mb-4">
+        {{ show_ad('home_top_banner', {
+            'page': 'home',
+            'user_id': app.user ? app.user.id : null
+        }) }}
+    </div>
+
+    <div class="flex gap-2">
+        {% include 'partials/_sidebar.html.twig' %}
+        
+        <div class="flex-1 p-3">
+            {# Featured Videos Block #}
+            {% if show_featured and featured_videos|length > 0 %}
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.featured'|trans }}</h2>
+                </div>
+                <div class="video-grid">
+                    {% for video in featured_videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# Рекламный блок между блоками контента #}
+            <div class="ad-block mb-8">
+                {{ show_ad('home_content_middle', {
+                    'page': 'home',
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+
+            {# New Videos Block #}
+            {% if show_new and new_videos|length > 0 %}
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.new_videos'|trans }}</h2>
+                    <a href="{{ path('app_videos_newest') }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">
+                        {{ 'home.view_all'|trans }}
+                    </a>
+                </div>
+                
+                <div class="video-grid">
+                    {% for video in new_videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# Recently Watched Block #}
+            {% if show_recently_watched and recently_watched_videos|length > 0 %}
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.recently_watched'|trans }}</h2>
+                    <a href="{{ path('app_history_index') }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">
+                        {{ 'home.view_all'|trans }}
+                    </a>
+                </div>
+                <div class="video-grid">
+                    {% for video in recently_watched_videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# Popular Videos Block #}
+            {% if show_popular and popular_videos|length > 0 %}
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.popular_videos'|trans }}</h2>
+                    <a href="{{ path('app_videos_popular') }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">
+                        {{ 'home.view_all'|trans }}
+                    </a>
+                </div>
+                <div class="video-grid">
+                    {% for video in popular_videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </div>
+
+       <!-- {# Рекламный сайдбар на главной странице #}
+        <div class="w-80 flex-shrink-0 p-3">
+            <div class="ad-block mb-4">
+                {{ show_ad('home_sidebar_top', {
+                    'page': 'home',
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+            
+            <div class="ad-block mb-4">
+                {{ show_ad('home_sidebar_bottom', {
+                    'page': 'home',
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+        </div> -->
+    </div>
+{% endblock %}

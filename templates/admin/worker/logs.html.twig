@@ -1,0 +1,92 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Логи воркера{% endblock %}
+{% block page_title %}Логи Messenger Worker{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Панель управления -->
+    <div class="bg-white rounded-md shadow p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="{{ path('admin_worker_index') }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Назад к статусу
+                </a>
+                
+                <div class="flex items-center gap-2">
+                    {% if status.running %}
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            Воркер запущен
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                            Воркер остановлен
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Количество строк -->
+                <form method="GET" class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600">Строк:</label>
+                    <select name="lines" onchange="this.form.submit()" class="text-sm border-gray-300 rounded-md">
+                        <option value="50" {{ app.request.query.get('lines', 100) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ app.request.query.get('lines', 100) == 100 ? 'selected' : '' }}>100</option>
+                        <option value="200" {{ app.request.query.get('lines', 100) == 200 ? 'selected' : '' }}>200</option>
+                        <option value="500" {{ app.request.query.get('lines', 100) == 500 ? 'selected' : '' }}>500</option>
+                    </select>
+                </form>
+                
+                <!-- Обновить -->
+                <a href="{{ path('admin_worker_logs', {lines: app.request.query.get('lines', 100)}) }}" 
+                   class="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Обновить
+                </a>
+                
+                <!-- Очистить логи -->
+                <form action="{{ path('admin_worker_clear_logs') }}" method="POST" class="inline" 
+                      onsubmit="return confirm('Очистить все логи воркера?')">
+                    <button type="submit" class="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Очистить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Логи -->
+    <div class="bg-white rounded-md shadow">
+        <div class="p-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Логи воркера</h3>
+            {% if status.logSize is defined %}
+                <p class="text-sm text-gray-500 mt-1">Размер файла: {{ (status.logSize / 1024)|number_format(1) }} KB</p>
+            {% endif %}
+        </div>
+        
+        <div class="p-4">
+            {% if logs %}
+                <pre class="bg-gray-900 text-green-400 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-[600px] overflow-y-auto whitespace-pre-wrap">{{ logs }}</pre>
+            {% else %}
+                <div class="text-center py-12 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <p>Логи пусты</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

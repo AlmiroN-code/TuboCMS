@@ -1,0 +1,297 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Управление рекламой{% endblock %}
+{% block page_title %}Управление рекламой{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-md shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+                <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Всего объявлений</dt>
+                    <dd class="text-lg font-medium text-gray-900">{{ stats.totalAds ?? 0 }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-md shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+                <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Активных</dt>
+                    <dd class="text-lg font-medium text-gray-900">{{ stats.activeAds ?? 0 }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-md shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+                <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Показы</dt>
+                    <dd class="text-lg font-medium text-gray-900">{{ stats.totalImpressions|number_format }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-md shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+                <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">Клики</dt>
+                    <dd class="text-lg font-medium text-gray-900">{{ stats.totalClicks|number_format }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Последние объявления</h3>
+        </div>
+        <div class="p-6">
+            {% if recentAds is not empty %}
+                <div class="space-y-4">
+                    {% for ad in recentAds %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">{{ ad.name }}</p>
+                                <p class="text-xs text-gray-500">{{ ad.placement.name }}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if ad.status == 'active' %}bg-green-100 text-green-800
+                                    {% elseif ad.status == 'paused' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ ad.status|title }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <a href="{{ path('admin_ads_list') }}" class="text-sm text-blue-600 hover:text-blue-500">
+                        Посмотреть все →
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-gray-500">Нет объявлений</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Активные кампании</h3>
+        </div>
+        <div class="p-6">
+            {% if activeCampaigns is not empty %}
+                <div class="space-y-4">
+                    {% for campaign in activeCampaigns %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">{{ campaign.name }}</p>
+                                <p class="text-xs text-gray-500">
+                                    Бюджет: {{ campaign.totalBudget ? (campaign.totalBudget ~ ' руб.') : 'Не ограничен' }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-900">{{ campaign.totalImpressions|number_format }}</p>
+                                <p class="text-xs text-gray-500">показов</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <a href="{{ path('admin_ads_campaigns') }}" class="text-sm text-blue-600 hover:text-blue-500">
+                        Посмотреть все →
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-gray-500">Нет активных кампаний</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Статистика за 30 дней</h3>
+        </div>
+        <div class="p-6">
+            {% if dailyStats is not empty %}
+                <canvas id="statsChart" width="400" height="200"></canvas>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ctx = document.getElementById('statsChart').getContext('2d');
+                    const data = {
+                        labels: [
+                            {% for stat in dailyStats %}
+                                '{{ stat.date.format('d.m') }}'{% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        ],
+                        datasets: [{
+                            label: 'Показы',
+                            data: [
+                                {% for stat in dailyStats %}
+                                    {{ stat.impressions }}{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.1
+                        }, {
+                            label: 'Клики',
+                            data: [
+                                {% for stat in dailyStats %}
+                                    {{ stat.clicks }}{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ],
+                            borderColor: 'rgb(16, 185, 129)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.1
+                        }]
+                    };
+                    
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                });
+                </script>
+            {% else %}
+                <p class="text-gray-500">Нет данных для отображения</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Быстрые действия</h3>
+        </div>
+        <div class="p-6 space-y-3">
+            <a href="{{ path('admin_ads_new') }}" 
+               class="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Создать объявление
+            </a>
+            
+            <a href="{{ path('admin_ads_campaigns_new') }}" 
+               class="w-full bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                Создать кампанию
+            </a>
+            
+            <a href="{{ path('admin_ads_placements_new') }}" 
+               class="w-full bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Место размещения
+            </a>
+            
+            <a href="{{ path('admin_ads_abtests_new') }}" 
+               class="w-full bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-700 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                A/B тест
+            </a>
+            
+            <hr class="my-4">
+            
+            <a href="{{ path('admin_ads_statistics') }}" 
+               class="w-full text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Подробная статистика
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if runningTests is not empty %}
+<div class="mt-8 bg-white rounded-md shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Запущенные A/B тесты</h3>
+    </div>
+    <div class="p-6">
+        <div class="space-y-4">
+            {% for test in runningTests %}
+                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-md">
+                    <div>
+                        <h4 class="font-medium text-gray-900">{{ test.name }}</h4>
+                        <p class="text-sm text-gray-500">{{ test.description }}</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-900">{{ test.trafficSplitA }}%</p>
+                            <p class="text-xs text-gray-500">Вариант A</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-900">{{ test.trafficSplitB }}%</p>
+                            <p class="text-xs text-gray-500">Вариант B</p>
+                        </div>
+                        <a href="{{ path('admin_ads_abtests_results', {id: test.id}) }}" 
+                           class="text-blue-600 hover:text-blue-500 text-sm">
+                            Результаты
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}

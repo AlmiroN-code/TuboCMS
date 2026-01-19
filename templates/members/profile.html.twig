@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'nav.community'|trans, 'url': path('app_members')},
+    {'label': user.username, 'url': ''}
+] %}
+
+{% block title %}{{ 'members.profile_title'|trans({'%username%': user.username}) }}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Profile Cover -->
+    <div class="relative h-64 bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden">
+        {% if user.coverImage %}
+            {{ lazy_img(asset('media/covers/' ~ user.coverImage), 'Profile cover', 'w-full h-full object-cover') }}
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- User Information -->
+        <div class="relative -mt-32 mb-4">
+            <div class="bg-white rounded-md shadow p-6">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                    <!-- Avatar and Main Info -->
+                    <div class="flex flex-col md:flex-row md:items-end gap-6">
+                        <!-- Avatar -->
+                        <div class="flex-shrink-0">
+                            {% if user.avatar %}
+                                {{ lazy_img(asset('media/avatars/' ~ user.avatar), user.username, 'w-40 h-40 rounded-full border-4 border-white object-cover shadow-lg', 160, 160, true) }}
+                            {% else %}
+                                <div class="w-40 h-40 rounded-full border-4 border-white bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-5xl shadow-lg">
+                                    {{ user.username|slice(0, 1)|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Info -->
+                        <div class="flex-1">
+                            <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ user.username }}</h1>
+                            <p class="text-gray-600 mb-4">{{ user.email }}</p>
+                            
+                            <!-- Badges -->
+                            <div class="flex flex-wrap gap-2">
+                                {% if user.isVerified %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                        {{ 'members.verified'|trans }}
+                                    </span>
+                                {% endif %}
+                                {% if user.isPremium %}
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        {{ 'members.premium'|trans }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        {% if app.user and app.user.id == user.id %}
+                            <a href="{{ path('app_member_edit', {'username': user.username}) }}" class="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                {{ 'members.edit'|trans }}
+                            </a>
+                        {% elseif app.user %}
+                            {% include 'partials/_subscribe_button.html.twig' with {'channel': user, 'is_subscribed': is_subscribed|default(false)} %}
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">{{ 'members.subscribe'|trans }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                {% if user.bio %}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-2">{{ 'members.about'|trans }}</h3>
+                        <p class="text-gray-600 leading-relaxed">{{ user.bio }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="bg-white rounded-md shadow p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-1">{{ user.videosCount }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.stats.videos'|trans }}</div>
+            </div>
+            <div class="bg-white rounded-md shadow p-6 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-1">{{ user.subscribersCount }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.stats.subscribers'|trans }}</div>
+            </div>
+            <div class="bg-white rounded-md shadow p-6 text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-1">{{ user.totalViews|locale_number }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.stats.views'|trans }}</div>
+            </div>
+            <div class="bg-white rounded-md shadow p-6 text-center">
+                <div class="text-3xl font-bold text-orange-600 mb-1">{{ user.createdAt|locale_date('short') }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.stats.member_since'|trans }}</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <!-- Recent Videos -->
+                {% if recent_videos|length > 0 %}
+                    <div class="bg-white rounded-md shadow p-6 mb-4">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ 'members.recent_videos'|trans }}</h2>
+                        <div class="video-grid">
+                            {% for video in recent_videos %}
+                                {% include 'video/_card.html.twig' with {'video': video} %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Activity -->
+                <div class="bg-white rounded-md shadow p-6 mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ 'members.activity'|trans }}</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            <span>{{ 'members.registered'|trans({'%date%': user.createdAt|locale_date('short')}) }}</span>
+                        </div>
+                        {% if user.updatedAt != user.createdAt %}
+                            <div class="flex items-center gap-3 text-sm text-gray-600">
+                                <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                                <span>{{ 'members.last_activity'|trans({'%date%': user.updatedAt|locale_date('short')}) }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Profile Information -->
+                <div class="bg-white rounded-md shadow p-6">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">{{ 'members.information'|trans }}</h2>
+                    <div class="space-y-4">
+                        {% if user.country %}
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">{{ 'members.country'|trans }}</p>
+                                <p class="text-gray-900 font-medium">{{ user.country }}</p>
+                            </div>
+                        {% endif %}
+                        {% if user.city %}
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">{{ 'members.city'|trans }}</p>
+                                <p class="text-gray-900 font-medium">{{ user.city }}</p>
+                            </div>
+                        {% endif %}
+                        {% if user.gender %}
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">{{ 'members.gender'|trans }}</p>
+                                <p class="text-gray-900 font-medium">
+                                    {% if user.gender == 'male' %}{{ 'members.gender_male'|trans }}{% elseif user.gender == 'female' %}{{ 'members.gender_female'|trans }}{% else %}{{ user.gender }}{% endif %}
+                                </p>
+                            </div>
+                        {% endif %}
+                        {% if user.age %}
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">{{ 'members.age'|trans }}</p>
+                                <p class="text-gray-900 font-medium">{{ 'members.age_years'|trans({'%age%': user.age}) }}</p>
+                            </div>
+                        {% endif %}
+                        {% if user.maritalStatus %}
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">{{ 'members.marital_status'|trans }}</p>
+                                <p class="text-gray-900 font-medium">
+                                    {% if user.maritalStatus == 'single' %}{{ 'members.marital_single'|trans }}
+                                    {% elseif user.maritalStatus == 'in_relationship' %}{{ 'members.marital_in_relationship'|trans }}
+                                    {% elseif user.maritalStatus == 'engaged' %}{{ 'members.marital_engaged'|trans }}
+                                    {% elseif user.maritalStatus == 'married' %}{{ 'members.marital_married'|trans }}
+                                    {% elseif user.maritalStatus == 'divorced' %}{{ 'members.marital_divorced'|trans }}
+                                    {% elseif user.maritalStatus == 'widowed' %}{{ 'members.marital_widowed'|trans }}
+                                    {% else %}{{ user.maritalStatus }}{% endif %}
+                                </p>
+                            </div>
+                        {% endif %}
+                        {% if user.orientation %}
+                            <div>
+                                <p class="text-xs font-semibold text-gray-500 uppercase">{{ 'members.orientation'|trans }}</p>
+                                <p class="text-gray-900 font-medium">
+                                    {% if user.orientation == 'heterosexual' %}{{ 'members.orientation_heterosexual'|trans }}
+                                    {% elseif user.orientation == 'homosexual' %}{{ 'members.orientation_homosexual'|trans }}
+                                    {% elseif user.orientation == 'bisexual' %}{{ 'members.orientation_bisexual'|trans }}
+                                    {% elseif user.orientation == 'other' %}{{ 'members.orientation_other'|trans }}
+                                    {% else %}{{ user.orientation }}{% endif %}
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                {% if user.isVerified or user.isPremium or user.videosCount > 10 %}
+                    <div class="bg-white rounded-md shadow p-6">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4">{{ 'members.achievements'|trans }}</h2>
+                        <div class="space-y-3">
+                            {% if user.isVerified %}
+                                <div class="flex items-center gap-2 text-sm text-blue-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    <span>{{ 'members.achievement_verified'|trans }}</span>
+                                </div>
+                            {% endif %}
+                            {% if user.isPremium %}
+                                <div class="flex items-center gap-2 text-sm text-yellow-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <span>{{ 'members.achievement_premium'|trans }}</span>
+                                </div>
+                            {% endif %}
+                            {% if user.videosCount > 10 %}
+                                <div class="flex items-center gap-2 text-sm text-green-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    <span>{{ 'members.achievement_creator'|trans }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

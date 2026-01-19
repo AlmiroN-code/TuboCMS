@@ -1,0 +1,578 @@
+# English translations - Main messages
+# Requirements: 7.1, 7.2
+
+# Search (Live Component)
+search:
+    placeholder: "Search videos..."
+    view_all_results: "View all results"
+    no_results: "No results found"
+    try_full_search: "Try full search"
+    try_different_query: "Try a different query"
+    videos: "Videos"
+    categories: "Categories"
+    tags: "Tags"
+    models: "Models"
+
+# Navigation
+nav:
+    home: "Home"
+    videos: "Videos"
+    categories: "Categories"
+    tags: "Tags"
+    models: "Models"
+    community: "Community"
+    popular: "Popular"
+    trending: "Trending"
+
+# Authentication
+auth:
+    login: "Login"
+    logout: "Logout"
+    register: "Sign Up"
+    my_profile: "My Profile"
+    my_videos: "My Videos"
+    admin_panel: "Admin Panel"
+    # Login page
+    login_page:
+        title: "Login"
+        heading: "Sign in to your account"
+        email: "Email"
+        password: "Password"
+        submit: "Sign in"
+        no_account: "Don't have an account?"
+        sign_up_link: "Sign up"
+    # Registration page
+    register_page:
+        title: "Sign Up"
+        heading: "Create an account"
+        username: "Username"
+        email: "Email"
+        password: "Password"
+        submit: "Sign up"
+        have_account: "Already have an account?"
+        sign_in_link: "Sign in"
+    # Error messages
+    errors:
+        invalid_credentials: "Invalid credentials"
+        account_disabled: "Your account has been disabled"
+        account_locked: "Your account is locked"
+        email_not_verified: "Please verify your email address"
+
+# Video
+video:
+    all_videos: "All Videos"
+    popular_videos: "Popular Videos"
+    trending_videos: "Trending Videos"
+    newest_videos: "Newest Videos"
+    my_videos: "My Videos"
+    related_videos: "Related Videos"
+    performers: "Models in this video"
+    categories: "Categories"
+    tags: "Tags"
+    upload: "Upload Video"
+    upload_new: "Upload new video"
+    views: "{0} views|{1} view|]1,Inf[ %count% views"
+    views_count: "%count% views"
+    views_short: "views"
+    videos_count: "videos"
+    no_videos: "No videos found"
+    no_videos_query: "No videos found for \"%query%\""
+    load_more: "Load more"
+    search_placeholder: "Search videos..."
+    search: "Search"
+    search_results: "Search results: \"%query%\""
+    search_videos: "Search videos"
+    enter_search_query: "Enter a search query"
+    show_all_results: "Show all results"
+    try_full_search: "Try full search"
+    browser_not_supported: "Your browser does not support video."
+    quality: "Quality"
+    subscribers: "%count% subscribers"
+    loading_comments: "Loading comments..."
+    watch_later: "Watch Later"
+    added_to_playlist: "Video added to playlist"
+    # Share
+    share:
+        copy: "Copy"
+        copy_link: "Copy link"
+        copied: "Copied!"
+        twitter: "Share on Twitter"
+        facebook: "Share on Facebook"
+        telegram: "Share on Telegram"
+        whatsapp: "Share on WhatsApp"
+        reddit: "Share on Reddit"
+        pinterest: "Share on Pinterest"
+        embed: "Embed code"
+        embed_copied: "Embed code copied!"
+    # Video statuses
+    status:
+        published: "Published"
+        processing: "Processing"
+        draft: "Draft"
+        error: "Error"
+    # Processing messages
+    processing:
+        in_progress: "Video is processing..."
+        waiting: "Video is waiting for processing..."
+        error: "Video processing error"
+    # My videos table
+    table:
+        video: "Video"
+        status: "Status"
+        views: "Views"
+        date: "Date"
+        actions: "Actions"
+        view: "View"
+    # Empty state
+    empty:
+        title: "No videos"
+        description: "Start by uploading your first video"
+        upload: "Upload video"
+    # Upload page
+    upload_page:
+        title: "Upload Video"
+        video_title: "Video Title"
+        description: "Description"
+        category: "Category"
+        tags: "Tags"
+        video_file: "Video File"
+        supported_formats: "Supported formats: MP4, AVI, MOV. Maximum size: 2GB"
+        cancel: "Cancel"
+        submit: "Upload Video"
+        info_title: "Upload Information"
+        info_processing: "After upload, the video will be processed and converted"
+        info_time: "Processing may take several minutes"
+        info_notification: "You will be notified when the video is ready"
+        info_rights: "Make sure you have the rights to the uploaded content"
+
+# Pagination
+pagination:
+    previous: "Previous"
+    next: "Next"
+    page: "Page %page%"
+    page_of: "Page %page% of %pages%"
+
+# Category
+category:
+    title: "Categories"
+    all_categories: "All Categories"
+    videos_count: "%count% videos"
+    no_categories: "No categories found"
+    no_videos_in_category: "No videos in this category yet"
+
+# Home page
+home:
+    featured: "Featured"
+    new_videos: "New Videos"
+    popular_videos: "Popular Videos"
+    recently_watched: "Recently Watched"
+    view_all: "View all →"
+
+# Sidebar
+sidebar:
+    trending: "Trending"
+    all_videos: "All videos"
+    top_views: "Top views"
+    new: "New"
+    categories: "Categories"
+    show_all: "Show all"
+    hide: "Hide"
+    all_categories: "All categories →"
+    no_categories: "No categories found"
+    my_profile: "My profile"
+    my_videos: "My videos"
+    upload_video: "Upload video"
+
+# Members / Community
+members:
+    title: "Community"
+    description: "Meet our members! Here you'll find content creators, active users, and everyone who makes our community special."
+    total: "Members"
+    creators: "Creators"
+    verified: "Verified"
+    premium: "Premium"
+    search_placeholder: "Search by username..."
+    sort:
+        newest: "New members"
+        oldest: "Oldest members"
+        popular: "Popular"
+        active: "Active"
+    search_button: "Search"
+    reset: "Reset"
+    videos: "Videos:"
+    subscribers: "Subscribers:"
+    member_since: "Member since:"
+    profile: "Profile"
+    no_users: "No users found"
+    no_users_search: "Try changing your search query or reset filters."
+    no_users_empty: "There are no members in the community yet."
+    # Profile page
+    profile_title: "%username% - Profile"
+    edit: "Edit"
+    subscribe: "Subscribe"
+    about: "About"
+    recent_videos: "Recent Videos"
+    activity: "Activity"
+    registered: "Registered %date%"
+    last_activity: "Last activity %date%"
+    information: "Information"
+    country: "Country"
+    city: "City"
+    gender: "Gender"
+    gender_male: "Male"
+    gender_female: "Female"
+    age: "Age"
+    age_years: "%age% years"
+    marital_status: "Marital Status"
+    marital_single: "Single"
+    marital_in_relationship: "In a relationship"
+    marital_engaged: "Engaged"
+    marital_married: "Married"
+    marital_divorced: "Divorced"
+    marital_widowed: "Widowed"
+    orientation: "Orientation"
+    orientation_heterosexual: "Heterosexual"
+    orientation_homosexual: "Homosexual"
+    orientation_bisexual: "Bisexual"
+    orientation_other: "Other"
+    achievements: "Achievements"
+    achievement_verified: "Verified user"
+    achievement_premium: "Premium member"
+    achievement_creator: "Active creator"
+    stats:
+        videos: "Videos"
+        subscribers: "Subscribers"
+        views: "Views"
+        member_since: "Member since"
+
+# Footer
+footer:
+    site_name: "RexTube"
+    description: "The best video hosting for uploading and watching video content."
+    navigation: "Navigation"
+    information: "Information"
+    about_us: "About Us"
+    terms: "Terms"
+    contact: "Contact"
+    copyright: "© %year% RexTube. All rights reserved."
+
+# Common
+common:
+    save: "Save"
+    cancel: "Cancel"
+    delete: "Delete"
+    edit: "Edit"
+    create: "Create"
+    search: "Search"
+    select: "Select..."
+    yes: "Yes"
+    no: "No"
+    cm: "cm"
+    kg: "kg"
+    url: "URL"
+    error: "An error occurred"
+    view: "View"
+
+# Profile
+profile:
+    avatar: "Avatar"
+    cover: "Cover Image"
+    birth_date: "Birth Date"
+    bio_placeholder: "Tell us about yourself..."
+
+# Models section
+models:
+    title: "Models"
+    meta_description: "Browse our collection of models and performers"
+    total_count: "%count% models"
+    search: "Search"
+    search_placeholder: "Search by name..."
+    sort:
+        label: "Sort by"
+        popular: "Popular"
+        newest: "Newest"
+        alphabetical: "A-Z"
+        videos: "Most videos"
+    filter:
+        gender: "Gender"
+        all: "All"
+        female: "Female"
+        male: "Male"
+        trans: "Trans"
+        apply: "Apply"
+        reset: "Reset"
+    no_models: "No models found"
+
+model:
+    verified: "Verified"
+    premium: "Premium"
+    bio: "Biography"
+    videos_title: "Videos (%count%)"
+    no_videos: "No videos yet"
+    meta_description: "%name% - %videos% videos on our platform"
+    subscribe: "Subscribe"
+    unsubscribe: "Unsubscribe"
+    stats:
+        views: "Views"
+        subscribers: "Subscribers"
+        videos: "Videos"
+        likes: "Likes"
+    info:
+        title: "Information"
+        aliases: "Also known as"
+        gender: "Gender"
+        age: "Age"
+        birth_date: "Birth Date"
+        zodiac: "Zodiac Sign"
+        country: "Country"
+        ethnicity: "Ethnicity"
+        career_start: "Career Start"
+        hair_color: "Hair Color"
+        eye_color: "Eye Color"
+        tattoos: "Tattoos"
+        piercings: "Piercings"
+        breast_size: "Breast Size"
+        height: "Height"
+        weight: "Weight"
+        added: "Added"
+    gender:
+        female: "Female"
+        male: "Male"
+        trans: "Trans"
+    zodiac:
+        aries: "Aries"
+        taurus: "Taurus"
+        gemini: "Gemini"
+        cancer: "Cancer"
+        leo: "Leo"
+        virgo: "Virgo"
+        libra: "Libra"
+        scorpio: "Scorpio"
+        sagittarius: "Sagittarius"
+        capricorn: "Capricorn"
+        aquarius: "Aquarius"
+        pisces: "Pisces"
+
+
+# Playlist
+playlist:
+    my_playlists: "My Playlists"
+    create: "Create Playlist"
+    create_new: "Create Playlist"
+    edit: "Edit Playlist"
+    title: "Title"
+    description: "Description"
+    videos: "videos"
+    public: "Public"
+    private: "Private"
+    make_public: "Make public"
+    no_playlists: "You don't have any playlists yet"
+    create_first: "Create your first playlist"
+    no_videos: "No videos in this playlist"
+    add_video: "Add to playlist"
+
+# History
+history:
+    title: "Watch History"
+    empty: "Your watch history is empty"
+    clear_all: "Clear history"
+    confirm_clear: "Are you sure you want to clear all history?"
+
+# Bookmark
+bookmark:
+    title: "Favorites"
+    empty: "No favorites yet"
+    add: "Add to favorites"
+    remove: "Remove from favorites"
+
+# Watch Later
+watch_later:
+    title: "Watch Later"
+    description: "You have %count% videos in the list"
+    add: "Add to Watch Later"
+    remove: "Remove from Watch Later"
+    empty:
+        title: "Watch Later list is empty"
+        description: "Add videos to this list to watch them later"
+        browse_videos: "Browse videos"
+
+# Notification
+notification:
+    title: "Notifications"
+    empty: "No notifications"
+    mark_all_read: "Mark all as read"
+    new_video_text: "uploaded a new video"
+    reply_text: "replied to your comment"
+    mention_text: "mentioned you in a comment"
+    subscriber_text: "subscribed to you"
+
+# Series
+series:
+    my_series: "My Series"
+    create: "Create Series"
+    title: "Title"
+    description: "Description"
+    episodes: "episodes"
+    episode: "Episode"
+    no_series: "You don't have any series yet"
+    no_seasons: "No seasons in this series"
+    no_episodes: "No episodes in this season"
+    manage: "Manage Series"
+    season_title: "Season title (optional)"
+    add_season: "Add Season"
+
+# Video Filters
+filter:
+    duration: "Duration"
+    all: "All"
+    short: "Short"
+    medium: "Medium"
+    long: "Long"
+    min: "min"
+    sort: "Sort"
+    newest: "Newest"
+    oldest: "Oldest"
+    popular: "Popular"
+    rating: "By rating"
+    reset: "Reset"
+
+# Tag
+tag:
+    videos_with_tag: "Videos tagged with %tag%"
+    meta_description: "Watch %count% videos tagged with %tag%"
+    videos_count: "{0} No videos|{1} %count% video|[2,Inf[ %count% videos"
+    no_videos: "No videos with this tag"
+    no_videos_description: "No videos tagged with \"%tag%\" yet"
+    browse_all_videos: "Browse all videos"
+    total_count: "%count% tags"
+    no_tags: "No tags found"
+    sort:
+        alphabetical: "Alphabetical"
+        popular: "Popular"
+
+
+# Toast Notifications
+toast:
+    # Watch Later
+    watch_later_added: "Video added to Watch Later"
+    watch_later_removed: "Video removed from Watch Later"
+    
+    # Bookmarks
+    bookmark_added: "Added to favorites"
+    bookmark_removed: "Removed from favorites"
+    bookmark_error: "Failed to update bookmark"
+    
+    # Playlists
+    playlist_added: "Video added to playlist"
+    playlist_removed: "Video removed from playlist"
+    playlist_error: "Failed to add to playlist"
+    playlist_remove_error: "Failed to remove video"
+    playlist_in_development: "Playlist feature is under development"
+    
+    # Subscriptions
+    subscribed: "You subscribed to the channel"
+    unsubscribed: "You unsubscribed from the channel"
+    subscription_error: "Failed to change subscription"
+    
+    # Ratings/Votes
+    vote_success: "Your vote has been counted"
+    vote_removed: "Vote removed"
+    vote_error: "Failed to vote"
+    rating_success: "Thank you for your rating!"
+    rating_error: "Failed to rate"
+    
+    # Generic
+    success: "Operation completed successfully"
+    error: "An error occurred"
+    error_generic: "An error occurred while processing the request"
+    confirm_delete: "Are you sure you want to delete?"
+
+
+# Breadcrumbs
+breadcrumb:
+    home: "Home"
+    videos: "Videos"
+    categories: "Categories"
+    models: "Models"
+    community: "Community"
+    admin: "Admin Panel"
+
+
+# SEO Auto-generation templates
+seo:
+    category:
+        auto_title: "%name% — %count% videos"
+        auto_description: "Watch %count% videos in category %name%. Best collection online free in high quality."
+    model:
+        auto_title: "%name% — %count% videos"
+        auto_description: "%name% — %videos% videos, %views% views. Watch all videos online for free."
+    tag:
+        auto_title: "%name% — %count% videos"
+        auto_description: "Videos tagged with %name%: %count% clips. Watch online free in high quality."
+    video:
+        auto_description: "%title%. %duration% %categories%. %views% views."
+    keywords:
+        video: "video"
+        watch: "watch"
+        model: "model"
+        tag: "tag"
+        category: "category"
+    admin:
+        generate_seo: "Generate SEO"
+        generating: "Generating..."
+        generated: "SEO generated"
+        error: "Generation error"
+
+
+# Admin - Content Protection
+admin:
+    content_protection:
+        title: "Content Protection Settings"
+        hotlink:
+            title: "Hotlink Protection"
+            enable: "Enable hotlink protection"
+            description: "Prevents loading media files from other websites. Checks HTTP Referer."
+            allowed_domains: "Allowed domains"
+            domains_help: "One domain per line. These domains will be able to load your media files."
+        user_agent:
+            title: "User-Agent Filtering"
+            enable: "Enable User-Agent filtering"
+            description: "Blocks known downloaders and bots (wget, curl, youtube-dl, yt-dlp, etc.)"
+            blocked_agents: "Additional blocked User-Agents"
+            agents_help: "One User-Agent per line. Will be added to the default list."
+        signed_urls:
+            title: "Signed URLs"
+            enable: "Enable signed URLs"
+            description: "Generates temporary tokens for media file access. URL is valid for a limited time."
+            token_lifetime: "Token lifetime"
+            seconds: "seconds"
+            lifetime_help: "Time in seconds the URL remains valid (60-86400)"
+        rate_limit:
+            title: "Rate Limiting"
+            description: "Limits the number of requests from a single IP address"
+            per_hour: "Maximum requests per hour"
+            requests: "requests"
+            help: "Number of media file requests from one IP per hour (10-10000)"
+        watermark:
+            title: "Watermark"
+            enable: "Enable watermark"
+            description: "Adds a watermark to videos to protect against content theft"
+            text: "Watermark text"
+            text_help: "Text to be displayed on the video. You can use {username} for the username."
+            position: "Position"
+            position_top_left: "Top left"
+            position_top_right: "Top right"
+            position_bottom_left: "Bottom left"
+            position_bottom_right: "Bottom right"
+            position_center: "Center"
+            opacity: "Opacity"
+        info:
+            title: "Information"
+            how_it_works: "How it works:"
+            hotlink_desc: "Checks HTTP Referer and blocks requests from unauthorized domains"
+            user_agent_desc: "Blocks requests from known downloaders and bots by User-Agent"
+            signed_urls_desc: "Generates temporary signed URLs with tokens tied to IP and session"
+            rate_limit_desc: "Limits the number of requests from one IP to prevent mass downloading"
+            watermark_desc: "Adds a visible watermark to videos (requires re-encoding)"
+            warning: "Warning"
+            warning_text: "Too strict settings may block legitimate users. It's recommended to start with soft settings and gradually tighten them."

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
+    <title>{% block title %}{% endblock %}{% if setting('append_site_name_to_title') %} on {{ site_name() }}{% endif %}</title>
+    
+    {% set seo_home_only = setting('seo_home_only', false) %}
+    {% set is_home = app.request.attributes.get('_route') == 'home' %}
+    {% set use_seo_settings = is_home or not seo_home_only %}
+    
+    <meta name="description" content="{% block meta_description %}{% if use_seo_settings and setting('seo_home_description') %}{{ setting('seo_home_description') }}{% else %}{{ setting('site_description') }}{% endif %}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{% if use_seo_settings and setting('seo_home_keywords') %}{{ setting('seo_home_keywords') }}{% else %}{{ setting('site_keywords') }}{% endif %}{% endblock %}">
+    
+    {# Open Graph meta tags #}
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ app.request.uri }}">
+    {% block og_image %}{% endblock %}
+    
+    {# Canonical URL #}
+    <link rel="canonical" href="{% block canonical_url %}{{ canonical_url() }}{% endblock %}">
+    
+    {# Pagination SEO: rel="prev" and rel="next" #}
+    {% block pagination_seo %}{% endblock %}
+    
+    {# Noindex for filtered/deep pages #}
+    {% if should_noindex() %}
+    <meta name="robots" content="noindex, follow">
+    {% endif %}
+    
+    {# Alternate language versions (hreflang) #}
+    {% set current_locale = app.request.locale %}
+    {% set current_path = app.request.pathInfo %}
+    {% set current_query = app.request.queryString ? '?' ~ app.request.queryString : '' %}
+    <link rel="alternate" hreflang="en" href="{{ app.request.schemeAndHttpHost }}{{ current_path }}{{ current_query }}">
+    <link rel="alternate" hreflang="ru" href="{{ app.request.schemeAndHttpHost }}{{ current_path }}{{ current_query }}">
+    <link rel="alternate" hreflang="x-default" href="{{ app.request.schemeAndHttpHost }}{{ current_path }}{{ current_query }}">
+    
+    {% if site_favicon() %}
+        <link rel="icon" type="image/x-icon" href="{{ site_favicon() }}">
+        <link rel="shortcut icon" type="image/x-icon" href="{{ site_favicon() }}">
+    {% endif %}
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Prevent flash on theme load */
+        html { visibility: hidden; }
+        html.theme-loaded { visibility: visible; }
+    </style>
+    
+    <script>
+        // Apply theme before CSS loads to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const theme = savedTheme || systemTheme;
+            
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Show page after theme is applied
+            document.documentElement.classList.add('theme-loaded');
+        })();
+    </script>
+    
+    {% block stylesheets %}{% endblock %}
+    {{ encore_entry_link_tags('app') }}
+    
+    {# Meta tag for dark theme support in browsers #}
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+    
+    {{ encore_entry_script_tags('app') }}
+    
+    {# Structured Data (JSON-LD) #}
+    {% block structured_data %}{% endblock %}
+    
+    {# oEmbed discovery link #}
+    {% if app.request.attributes.get('_route') == 'video_detail' %}
+        <link rel="alternate" type="application/json+oembed" href="{{ oembed_url(video) }}" title="{{ video.title }}">
+    {% endif %}
+    
+    {# Google Search Console verification #}
+    {% if google_search_console_code() %}
+        <meta name="google-site-verification" content="{{ google_search_console_code() }}">
+    {% endif %}
+    
+    {# Google Analytics #}
+    {% if google_analytics_id() %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_id() }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ google_analytics_id() }}', {
+                'page_path': '{{ app.request.pathInfo }}',
+                'page_title': document.title
+            });
+        </script>
+    {% endif %}
+    
+    {# Яндекс.Метрика #}
+    {% if yandex_metrika_id() %}
+        <script type="text/javascript">
+            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+            (window, document, "script", "https://mc.yandex.ru/metrica/tag.js", "ym");
+            
+            ym({{ yandex_metrika_id() }}, "init", {
+                clickmap:true,
+                trackLinks:true,
+                accurateTrackBounce:true,
+                webvisor:true
+            });
+        </script>
+        <noscript><div><img src="https://mc.yandex.ru/watch/{{ yandex_metrika_id() }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    {% endif %}
+    
+    {# Facebook Pixel #}
+    {% if facebook_pixel_id() %}
+        <script>
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '{{ facebook_pixel_id() }}');
+            fbq('track', 'PageView');
+        </script>
+        <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ facebook_pixel_id() }}&ev=PageView&noscript=1" /></noscript>
+    {% endif %}
+</head>
+<body class="bg-gray-100 text-gray-600" {% if app.user %}data-watch-later-ids="{{ watch_later_video_ids()|json_encode|e('html_attr') }}"{% endif %}>
+    {% include 'partials/_header.html.twig' ignore missing %}
+    
+    <main class="min-h-screen">
+        {% block body %}{% endblock %}
+    </main>
+    
+    {% include 'partials/_footer.html.twig' ignore missing %}
+    
+    {% block javascripts %}{% endblock %}
+    
+    <script>
+        // Global function to toggle comment reply form
+        function toggleReplyForm(commentId) {
+            const form = document.getElementById('reply-form-' + commentId);
+            if (form) {
+                form.classList.toggle('hidden');
+            }
+        }
+        
+        // Hide search suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            const searchInput = document.getElementById('search-input');
+            const searchSuggestions = document.getElementById('search-suggestions');
+            
+            if (searchInput && searchSuggestions) {
+                if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                    searchSuggestions.innerHTML = '';
+                }
+            }
+        });
+        
+        // Clear search suggestions on form submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.querySelector('form[action*="video_search"]');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function() {
+                    const searchSuggestions = document.getElementById('search-suggestions');
+                    if (searchSuggestions) {
+                        searchSuggestions.innerHTML = '';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

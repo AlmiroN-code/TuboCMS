@@ -1,0 +1,714 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ video.id ? 'Edit Video' : 'New Video' }}{% endblock %}
+{% block page_title %}{{ video.id ? 'Edit Video' : 'New Video' }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-md shadow p-6">
+    <form method="post" enctype="multipart/form-data" id="video-form" data-turbo="false">
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <input type="text" name="title" value="{{ video.title }}" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description" rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">{{ video.description }}</textarea>
+            </div>
+
+            {# Категории - мультивыбор #}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Категории</label>
+                <div class="tag-selector" data-type="multiple" data-name="categories[]" data-allow-create="true" data-create-url="{{ path('admin_categories_create_ajax') }}">
+                    <div class="selected-tags flex flex-wrap gap-2 mb-2">
+                        {% for category in video.categories %}
+                        <span class="tag-item inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm" data-id="{{ category.id }}">
+                            {{ category.name }}
+                            <button type="button" class="tag-remove hover:text-blue-600">&times;</button>
+                            <input type="hidden" name="categories[]" value="{{ category.id }}">
+                        </span>
+                        {% endfor %}
+                    </div>
+                    <div class="relative">
+                        <input type="text" class="tag-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                               placeholder="Введите название категории и нажмите Enter для создания новой...">
+                        <button type="button" class="tag-dropdown-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="tag-suggestions hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <div class="tag-create-option hidden px-3 py-2 bg-blue-50 hover:bg-blue-100 cursor-pointer text-blue-700 border-b border-gray-200">
+                                <span class="text-sm">+ Создать категорию: </span><strong class="new-tag-name"></strong>
+                            </div>
+                            {% for category in categories %}
+                            <div class="tag-option px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between {{ video.categories.contains(category) ? 'bg-blue-50' : '' }}" 
+                                 data-id="{{ category.id }}" data-name="{{ category.name }}" data-selected="{{ video.categories.contains(category) ? '1' : '0' }}">
+                                <span>{{ category.name }}</span>
+                                <span class="check-icon {{ video.categories.contains(category) ? '' : 'hidden' }} text-blue-600">✓</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Выбрано: <span class="tags-count">{{ video.categories|length }}</span> • Enter для создания новой категории</p>
+            </div>
+
+            {# Теги - мультивыбор #}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Теги</label>
+                <div class="tag-selector" data-type="multiple" data-name="tags[]" data-allow-create="true" data-create-url="{{ path('admin_tags_create_ajax') }}">
+                    <div class="selected-tags flex flex-wrap gap-2 mb-2">
+                        {% for tag in video.tags %}
+                        <span class="tag-item inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm" data-id="{{ tag.id }}">
+                            {{ tag.name }}
+                            <button type="button" class="tag-remove hover:text-green-600">&times;</button>
+                            <input type="hidden" name="tags[]" value="{{ tag.id }}">
+                        </span>
+                        {% endfor %}
+                    </div>
+                    <div class="relative">
+                        <input type="text" class="tag-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                               placeholder="Введите тег и нажмите Enter для создания нового...">
+                        <button type="button" class="tag-dropdown-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="tag-suggestions hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <div class="tag-create-option hidden px-3 py-2 bg-blue-50 hover:bg-blue-100 cursor-pointer text-blue-700 border-b border-gray-200">
+                                <span class="text-sm">+ Создать тег: </span><strong class="new-tag-name"></strong>
+                            </div>
+                            {% for tag in tags %}
+                            <div class="tag-option px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between {{ video.tags.contains(tag) ? 'bg-green-50' : '' }}" 
+                                 data-id="{{ tag.id }}" data-name="{{ tag.name }}" data-selected="{{ video.tags.contains(tag) ? '1' : '0' }}">
+                                <span>{{ tag.name }}</span>
+                                <span class="check-icon {{ video.tags.contains(tag) ? '' : 'hidden' }} text-green-600">✓</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Выбрано: <span class="tags-count">{{ video.tags|length }}</span> • Enter для создания нового тега</p>
+            </div>
+
+            {# Модели-участники - улучшенный контрол #}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Модели-участники</label>
+                <div class="tag-selector" data-type="multiple" data-name="performers[]" data-allow-create="true" data-create-url="{{ path('admin_models_create_ajax') }}">
+                    <div class="selected-tags flex flex-wrap gap-2 mb-2">
+                        {% for performer in video.performers %}
+                        <span class="tag-item inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm" data-id="{{ performer.id }}">
+                            {{ performer.displayName }}{% if performer.gender %} ({{ performer.gender }}){% endif %}
+                            <button type="button" class="tag-remove hover:text-purple-600">&times;</button>
+                            <input type="hidden" name="performers[]" value="{{ performer.id }}">
+                        </span>
+                        {% endfor %}
+                    </div>
+                    <div class="relative">
+                        <input type="text" class="tag-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                               placeholder="Введите имя модели и нажмите Enter для создания новой...">
+                        <button type="button" class="tag-dropdown-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="tag-suggestions hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <div class="tag-create-option hidden px-3 py-2 bg-purple-50 hover:bg-purple-100 cursor-pointer text-purple-700 border-b border-gray-200">
+                                <span class="text-sm">+ Создать модель: </span><strong class="new-tag-name"></strong>
+                            </div>
+                            {% for model in models %}
+                            <div class="tag-option px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between {{ video.performers.contains(model) ? 'bg-purple-50' : '' }}" 
+                                 data-id="{{ model.id }}" data-name="{{ model.displayName }}{% if model.gender %} ({{ model.gender }}){% endif %}" data-selected="{{ video.performers.contains(model) ? '1' : '0' }}">
+                                <div class="flex items-center gap-2">
+                                    {% if model.avatar %}
+                                    <img src="/media/{{ model.avatar }}" class="w-6 h-6 rounded-full object-cover">
+                                    {% else %}
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">{{ model.displayName|slice(0,1)|upper }}</div>
+                                    {% endif %}
+                                    <span>{{ model.displayName }}</span>
+                                    {% if model.gender %}<span class="text-xs text-gray-400">({{ model.gender }})</span>{% endif %}
+                                </div>
+                                <span class="check-icon {{ video.performers.contains(model) ? '' : 'hidden' }} text-purple-600">✓</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Выбрано: <span class="tags-count">{{ video.performers|length }}</span> • Enter для создания новой модели</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="draft" {{ video.status == 'draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="processing" {{ video.status == 'processing' ? 'selected' : '' }}>Processing</option>
+                    <option value="published" {{ video.status == 'published' ? 'selected' : '' }}>Published</option>
+                    <option value="private" {{ video.status == 'private' ? 'selected' : '' }}>Private</option>
+                    <option value="rejected" {{ video.status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                </select>
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox" name="is_featured" value="1" id="is_featured" 
+                       {{ video.isFeatured ? 'checked' : '' }}
+                       class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="is_featured" class="ml-2 text-sm font-medium text-gray-700">
+                    Отметить как рекомендуемое видео (Featured)
+                </label>
+            </div>
+
+            {# Постер и превью #}
+            {% if video.id and (video.poster or video.preview or video.animatedPreview) %}
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Медиа-файлы</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {# Постер #}
+                    {% if video.poster %}
+                    {% set posterUrl = video.poster starts with '/' or video.poster starts with 'http' ? video.poster : '/media/' ~ video.poster %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Постер</label>
+                        <img src="{{ posterUrl }}" alt="Постер видео" 
+                             class="w-full h-48 object-cover rounded-md border border-gray-200 mb-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs text-gray-500 truncate flex-1" title="{{ video.poster }}">{{ video.poster|split('/')|last }}</p>
+                            <a href="{{ posterUrl }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 ml-2">Открыть</a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Превью (видео) #}
+                    {% if video.preview %}
+                    {% set previewUrl = video.preview starts with '/' or video.preview starts with 'http' ? video.preview : '/media/' ~ video.preview %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Превью (видео)</label>
+                        <video src="{{ previewUrl }}" 
+                               class="w-full h-48 object-cover rounded-md border border-gray-200 mb-2"
+                               controls muted loop playsinline></video>
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs text-gray-500 truncate flex-1" title="{{ video.preview }}">{{ video.preview|split('/')|last }}</p>
+                            <a href="{{ previewUrl }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 ml-2">Открыть</a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Анимированное превью #}
+                    {% if video.animatedPreview %}
+                    {% set animatedUrl = video.animatedPreview starts with '/' or video.animatedPreview starts with 'http' ? video.animatedPreview : '/media/' ~ video.animatedPreview %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Превью (анимированное)</label>
+                        {% if video.animatedPreview ends with '.webm' or video.animatedPreview ends with '.mp4' %}
+                        <video src="{{ animatedUrl }}" 
+                               class="w-full h-48 object-cover rounded-md border border-gray-200 mb-2"
+                               controls muted loop playsinline></video>
+                        {% else %}
+                        <img src="{{ animatedUrl }}" alt="Анимированное превью" 
+                             class="w-full h-48 object-cover rounded-md border border-gray-200 mb-2">
+                        {% endif %}
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs text-gray-500 truncate flex-1" title="{{ video.animatedPreview }}">{{ video.animatedPreview|split('/')|last }}</p>
+                            <a href="{{ animatedUrl }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 ml-2">Открыть</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Video file</label>
+                <input type="file" name="video_file" accept="video/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                
+                {% if video.encodedFiles|length > 0 %}
+                    <div class="mt-2">
+                        <p class="text-sm font-medium text-gray-700 mb-1">Encoded files:</p>
+                        {% for encodedFile in video.encodedFiles %}
+                            <div class="text-sm text-gray-600 flex items-center gap-2">
+                                <span class="px-2 py-1 bg-gray-100 rounded text-xs">{{ encodedFile.profile.name }}</span>
+                                <span>{{ encodedFile.file }}</span>
+                                {% if encodedFile.primary %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">Primary</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elseif video.tempVideoFile %}
+                    <p class="mt-1 text-sm text-gray-500">Temporary file: {{ video.tempVideoFile }}</p>
+                {% endif %}
+                
+                {% if video.processingStatus %}
+                    <div class="mt-2">
+                        <span class="text-sm font-medium text-gray-700">Processing status:</span>
+                        <span class="ml-2 px-2 py-1 text-xs rounded
+                            {% if video.processingStatus == 'completed' %}bg-green-100 text-green-800
+                            {% elseif video.processingStatus == 'processing' %}bg-blue-100 text-blue-800
+                            {% elseif video.processingStatus == 'error' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ video.processingStatus }}
+                        </span>
+                        {% if video.processingProgress > 0 %}
+                            <span class="ml-2 text-sm text-gray-600">({{ video.processingProgress }}%)</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+                    Save
+                </button>
+                <a href="{{ path('admin_videos') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function() {
+    'use strict';
+    
+    console.log('Tag selector script loaded');
+    
+    function initTagSelectors() {
+        var selectors = document.querySelectorAll('.tag-selector');
+        console.log('Found', selectors.length, 'tag selectors');
+        for (var i = 0; i < selectors.length; i++) {
+            initTagSelector(selectors[i]);
+        }
+    }
+    
+    function initTagSelector(selector) {
+        // Проверяем, не инициализирован ли уже
+        if (selector.dataset.initialized === 'true') {
+            console.log('Selector already initialized:', selector.dataset.name);
+            return;
+        }
+        selector.dataset.initialized = 'true';
+        
+        var type = selector.dataset.type;
+        var name = selector.dataset.name;
+        var allowCreate = selector.dataset.allowCreate === 'true';
+        var createUrl = selector.dataset.createUrl;
+        var input = selector.querySelector('.tag-input');
+        var suggestions = selector.querySelector('.tag-suggestions');
+        var selectedTags = selector.querySelector('.selected-tags');
+        var dropdownBtn = selector.querySelector('.tag-dropdown-btn');
+        var tagsCount = selector.parentElement ? selector.parentElement.querySelector('.tags-count') : null;
+        var createOption = selector.querySelector('.tag-create-option');
+        var newTagNameEl = createOption ? createOption.querySelector('.new-tag-name') : null;
+        
+        console.log('Init selector:', name, 'type:', type, 'allowCreate:', allowCreate, 'createUrl:', createUrl);
+        
+        var isOpen = false;
+        var clickedInside = false;
+        
+        var colorClass = name.indexOf('category') !== -1 ? 'blue' : 
+                         name.indexOf('tags') !== -1 ? 'green' : 'purple';
+        
+        function showSuggestions() {
+            suggestions.classList.remove('hidden');
+            isOpen = true;
+            filterSuggestions(input.value);
+        }
+        
+        function hideSuggestions() {
+            if (!clickedInside) {
+                suggestions.classList.add('hidden');
+                isOpen = false;
+            }
+        }
+        
+        function toggleSuggestions() {
+            if (isOpen) {
+                suggestions.classList.add('hidden');
+                isOpen = false;
+            } else {
+                showSuggestions();
+            }
+        }
+        
+        function filterSuggestions(query) {
+            var options = suggestions.querySelectorAll('.tag-option');
+            var lowerQuery = (query || '').toLowerCase().trim();
+            var hasExactMatch = false;
+            
+            console.log('Filtering suggestions for query:', query, 'allowCreate:', allowCreate);
+            
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                var optName = (option.dataset.name || '').toLowerCase();
+                var matches = lowerQuery === '' || optName.indexOf(lowerQuery) !== -1;
+                option.style.display = matches ? '' : 'none';
+                if (optName === lowerQuery) hasExactMatch = true;
+            }
+            
+            if (allowCreate && createOption && lowerQuery.length > 0) {
+                if (!hasExactMatch) {
+                    console.log('Showing create option for:', query);
+                    createOption.classList.remove('hidden');
+                    if (newTagNameEl) newTagNameEl.textContent = query.trim();
+                } else {
+                    console.log('Hiding create option - exact match found');
+                    createOption.classList.add('hidden');
+                }
+            } else if (createOption) {
+                createOption.classList.add('hidden');
+            }
+        }
+        
+        function createNewTag(tagName, callback) {
+            if (!createUrl) {
+                console.error('No create URL provided');
+                callback(null);
+                return;
+            }
+            
+            console.log('Creating new tag:', tagName, 'URL:', createUrl);
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', createUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    console.log('Response status:', xhr.status);
+                    console.log('Response text:', xhr.responseText);
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log('Parsed data:', data);
+                            var newItem = null;
+                            
+                            // Определяем тип создаваемого объекта по URL
+                            if (data.success) {
+                                if (data.tag) {
+                                    newItem = data.tag;
+                                } else if (data.category) {
+                                    newItem = data.category;
+                                } else if (data.model) {
+                                    newItem = data.model;
+                                }
+                                
+                                if (newItem) {
+                                    var newOption = document.createElement('div');
+                                    newOption.className = 'tag-option px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between';
+                                    newOption.dataset.id = newItem.id;
+                                    
+                                    // Для моделей используем name с gender, для остальных просто name
+                                    var displayName = newItem.name;
+                                    if (newItem.gender) {
+                                        displayName += ' (' + newItem.gender + ')';
+                                    }
+                                    newOption.dataset.name = displayName;
+                                    newOption.dataset.selected = '0';
+                                    
+                                    // Определяем цвет иконки по типу
+                                    var iconColor = 'text-green-600'; // теги
+                                    if (createUrl.indexOf('categories') !== -1) {
+                                        iconColor = 'text-blue-600';
+                                    } else if (createUrl.indexOf('models') !== -1) {
+                                        iconColor = 'text-purple-600';
+                                    }
+                                    
+                                    // Для моделей добавляем аватар
+                                    if (newItem.gender) {
+                                        newOption.innerHTML = 
+                                            '<div class="flex items-center gap-2">' +
+                                                '<div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">' + 
+                                                    newItem.name.charAt(0).toUpperCase() + 
+                                                '</div>' +
+                                                '<span>' + displayName + '</span>' +
+                                            '</div>' +
+                                            '<span class="check-icon hidden ' + iconColor + '">✓</span>';
+                                    } else {
+                                        newOption.innerHTML = '<span>' + displayName + '</span><span class="check-icon hidden ' + iconColor + '">✓</span>';
+                                    }
+                                    
+                                    if (createOption) {
+                                        createOption.parentNode.insertBefore(newOption, createOption.nextSibling);
+                                    } else {
+                                        suggestions.insertBefore(newOption, suggestions.firstChild);
+                                    }
+                                    
+                                    // Навешиваем обработчик на новую опцию
+                                    attachOptionHandler(newOption);
+                                    
+                                    callback(newItem);
+                                    return;
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Parse error:', e);
+                        }
+                    } else {
+                        console.error('HTTP error:', xhr.status, xhr.responseText);
+                    }
+                    callback(null);
+                }
+            };
+            xhr.send(JSON.stringify({ name: tagName }));
+        }
+        
+        function addTag(id, tagName) {
+            console.log('addTag called:', id, tagName, 'type:', type);
+            
+            if (type === 'single') {
+                selectedTags.innerHTML = '';
+            }
+            
+            if (selectedTags.querySelector('[data-id="' + id + '"]')) {
+                console.log('Tag already exists');
+                return;
+            }
+            
+            var tagEl = document.createElement('span');
+            tagEl.className = 'tag-item inline-flex items-center gap-1 px-3 py-1 bg-' + colorClass + '-100 text-' + colorClass + '-800 rounded-full text-sm';
+            tagEl.dataset.id = id;
+            
+            var nameSpan = document.createElement('span');
+            nameSpan.textContent = tagName;
+            tagEl.appendChild(nameSpan);
+            
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'tag-remove hover:text-' + colorClass + '-600 ml-1 font-bold cursor-pointer';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                removeTag(id);
+            });
+            tagEl.appendChild(removeBtn);
+            
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = type === 'single' ? name.replace('[]', '') : name;
+            hiddenInput.value = id;
+            tagEl.appendChild(hiddenInput);
+            
+            selectedTags.appendChild(tagEl);
+            
+            var option = suggestions.querySelector('[data-id="' + id + '"]');
+            if (option) {
+                option.dataset.selected = '1';
+                option.classList.add('bg-' + colorClass + '-50');
+                var checkIcon = option.querySelector('.check-icon');
+                if (checkIcon) checkIcon.classList.remove('hidden');
+            }
+            
+            updateCount();
+            input.value = '';
+            filterSuggestions('');
+            
+            if (type === 'single') {
+                suggestions.classList.add('hidden');
+                isOpen = false;
+            }
+            
+            console.log('Tag added successfully');
+        }
+        
+        function removeTag(id) {
+            console.log('removeTag called:', id);
+            var tagEl = selectedTags.querySelector('[data-id="' + id + '"]');
+            if (tagEl) {
+                tagEl.parentNode.removeChild(tagEl);
+            }
+            
+            var option = suggestions.querySelector('[data-id="' + id + '"]');
+            if (option) {
+                option.dataset.selected = '0';
+                option.classList.remove('bg-' + colorClass + '-50');
+                var checkIcon = option.querySelector('.check-icon');
+                if (checkIcon) checkIcon.classList.add('hidden');
+            }
+            
+            updateCount();
+        }
+        
+        function updateCount() {
+            if (tagsCount) {
+                tagsCount.textContent = selectedTags.querySelectorAll('.tag-item').length;
+            }
+        }
+        
+        // Обработчик для одной опции
+        function attachOptionHandler(option) {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var id = this.dataset.id;
+                var optionName = this.dataset.name;
+                var isSelected = this.dataset.selected === '1';
+                
+                console.log('Option clicked:', id, optionName, 'selected:', isSelected, 'type:', type);
+                
+                if (type === 'multiple' && isSelected) {
+                    removeTag(id);
+                } else {
+                    addTag(id, optionName);
+                }
+                
+                if (type === 'multiple') {
+                    clickedInside = true;
+                    setTimeout(function() { 
+                        input.focus();
+                        clickedInside = false;
+                    }, 50);
+                }
+            });
+        }
+        
+        // Навешиваем обработчики на все опции
+        var allOptions = suggestions.querySelectorAll('.tag-option');
+        console.log('Found', allOptions.length, 'options for', name);
+        for (var i = 0; i < allOptions.length; i++) {
+            attachOptionHandler(allOptions[i]);
+        }
+        
+        // Обработчик для опции создания
+        if (createOption) {
+            createOption.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var query = input.value.trim();
+                console.log('Create option clicked, query:', query);
+                if (query.length > 0) {
+                    input.disabled = true;
+                    createNewTag(query, function(newTag) {
+                        input.disabled = false;
+                        if (newTag) {
+                            console.log('Successfully created:', newTag);
+                            addTag(newTag.id, newTag.name);
+                        } else {
+                            console.error('Failed to create new tag');
+                        }
+                        input.focus();
+                    });
+                }
+            });
+        }
+        
+        // События input
+        input.addEventListener('focus', showSuggestions);
+        
+        input.addEventListener('blur', function() {
+            setTimeout(hideSuggestions, 200);
+        });
+        
+        input.addEventListener('input', function() {
+            filterSuggestions(this.value);
+            showSuggestions();
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var query = input.value.trim();
+                console.log('Enter pressed, query:', query, 'allowCreate:', allowCreate);
+                
+                if (query.length > 0 && allowCreate) {
+                    var options = suggestions.querySelectorAll('.tag-option');
+                    var existingOption = null;
+                    for (var j = 0; j < options.length; j++) {
+                        if (options[j].dataset.name.toLowerCase() === query.toLowerCase()) {
+                            existingOption = options[j];
+                            break;
+                        }
+                    }
+                    
+                    if (existingOption) {
+                        console.log('Found existing option:', existingOption.dataset.name);
+                        addTag(existingOption.dataset.id, existingOption.dataset.name);
+                    } else {
+                        console.log('Creating new tag:', query);
+                        input.disabled = true;
+                        createNewTag(query, function(newTag) {
+                            input.disabled = false;
+                            if (newTag) {
+                                addTag(newTag.id, newTag.name);
+                            } else {
+                                console.error('Failed to create new tag via Enter');
+                            }
+                        });
+                    }
+                }
+            } else if (e.key === 'Escape') {
+                suggestions.classList.add('hidden');
+                isOpen = false;
+                input.blur();
+            }
+        });
+        
+        // Кнопка dropdown
+        dropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSuggestions();
+            if (isOpen) {
+                input.focus();
+            }
+        });
+        
+        // Предотвращаем закрытие при клике внутри suggestions
+        suggestions.addEventListener('mousedown', function(e) {
+            clickedInside = true;
+            setTimeout(function() { clickedInside = false; }, 300);
+        });
+        
+        // Закрытие по клику вне
+        document.addEventListener('click', function(e) {
+            if (!selector.contains(e.target)) {
+                suggestions.classList.add('hidden');
+                isOpen = false;
+            }
+        });
+        
+        // Инициализация обработчиков удаления для существующих тегов
+        var existingRemoveBtns = selectedTags.querySelectorAll('.tag-remove');
+        for (var k = 0; k < existingRemoveBtns.length; k++) {
+            (function(btn) {
+                var tagEl = btn.parentElement;
+                while (tagEl && !tagEl.classList.contains('tag-item')) {
+                    tagEl = tagEl.parentElement;
+                }
+                if (tagEl && tagEl.dataset.id) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeTag(tagEl.dataset.id);
+                    });
+                }
+            })(existingRemoveBtns[k]);
+        }
+    }
+    
+    // Инициализация при загрузке
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTagSelectors);
+    } else {
+        initTagSelectors();
+    }
+    
+    // Реинициализация после Turbo навигации
+    document.addEventListener('turbo:load', function() {
+        // Сбрасываем флаг инициализации
+        var selectors = document.querySelectorAll('.tag-selector');
+        for (var i = 0; i < selectors.length; i++) {
+            selectors[i].dataset.initialized = 'false';
+        }
+        initTagSelectors();
+    });
+})();
+</script>
+{% endblock %}
+{% endblock %}

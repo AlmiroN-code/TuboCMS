@@ -1,0 +1,15 @@
+<div id="model-subscribe-btn-{{ model.id }}">
+    {% if app.user %}
+        <button 
+            hx-post="{{ path('model_subscription_toggle', {id: model.id}) }}"
+            hx-target="#model-subscribe-btn-{{ model.id }}"
+            hx-swap="outerHTML"
+            class="px-4 py-2 rounded-md font-medium transition {{ is_subscribed ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' : 'bg-orange-600 text-white hover:bg-orange-700' }}">
+            {{ is_subscribed ? 'model.unsubscribe'|trans : 'model.subscribe'|trans }}
+        </button>
+    {% else %}
+        <a href="{{ path('app_login') }}" class="px-4 py-2 bg-orange-600 text-white rounded-md font-medium hover:bg-orange-700 transition">
+            {{ 'model.subscribe'|trans }}
+        </a>
+    {% endif %}
+</div>

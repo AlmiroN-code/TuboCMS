@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'bookmark.title'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ 'bookmark.title'|trans }} - {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl text-gray-900 dark:text-gray-100">{{ 'bookmark.title'|trans }}</h1>
+    {% if bookmarks is empty %}
+        <div class="text-center py-12">
+            <p class="text-gray-400">{{ 'bookmark.empty'|trans }}</p>
+        </div>
+    {% else %}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {% for bookmark in bookmarks %}
+                {% include 'video/_card.html.twig' with {video: bookmark.video} %}
+            {% endfor %}
+        </div>
+
+        {% if totalPages > 1 %}
+            <div class="flex justify-center mt-8 gap-2">
+                {% for i in 1..totalPages %}
+                    <a href="{{ path('app_bookmark_index', {page: i}) }}" 
+                       class="px-3 py-1 rounded {{ currentPage == i ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600' }}">
+                        {{ i }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

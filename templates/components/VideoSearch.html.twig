@@ -1,0 +1,160 @@
+<div {{ attributes.defaults({class: 'relative'}) }} data-turbo-permanent id="video-search-component">
+    <form method="GET" action="{{ path('video_search') }}" class="relative" data-turbo="false">
+        <input 
+            type="text"
+            name="q"
+            data-model="debounce(300)|query"
+            value="{{ query }}"
+            placeholder="{{ 'video.search_placeholder'|trans }}"
+            autocomplete="off"
+            class="w-full px-4 py-2 pr-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        >
+        <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:scale-110 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </button>
+        
+        {# Loading indicator #}
+        <div data-loading class="absolute right-10 top-1/2 transform -translate-y-1/2 hidden">
+            <svg class="w-4 h-4 text-orange-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    </form>
+    
+    {# Search Results Dropdown #}
+    {% if query|length >= 2 %}
+        <div class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-[70vh] overflow-y-auto z-[100]">
+            {% if this.hasResults %}
+                
+                {# Видео #}
+                {% if this.hasVideos %}
+                    <div class="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {{ 'search.videos'|trans }}
+                        </span>
+                    </div>
+                    {% for video in this.videos %}
+                        <a href="{{ path('video_detail', {slug: video.slug}) }}" 
+                           data-turbo="false"
+                           class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700/50">
+                            {% if video.poster %}
+                                {{ lazy_img('/media/' ~ video.poster, video.title, 'w-20 h-12 object-cover rounded flex-shrink-0', 80, 48) }}
+                            {% else %}
+                                <div class="w-20 h-12 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ video.title }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ video.views|number_format }} {{ 'video.views_short'|trans }} • {{ video.duration }}
+                                </p>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+
+                {# Категории #}
+                {% if this.hasCategories %}
+                    <div class="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {{ 'search.categories'|trans }}
+                        </span>
+                    </div>
+                    {% for category in this.categories %}
+                        <a href="{{ path('app_category_show', {slug: category.slug}) }}" 
+                           data-turbo="false"
+                           class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700/50">
+                            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                {% if category.poster %}
+                                    {{ lazy_img('/media/categories/' ~ category.poster, category.name, 'w-full h-full object-cover', 40, 40) }}
+                                {% else %}
+                                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ category.name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ category.videoCount }} {{ 'video.videos_count'|trans }}
+                                </p>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+
+                {# Теги #}
+                {% if this.hasTags %}
+                    <div class="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {{ 'search.tags'|trans }}
+                        </span>
+                    </div>
+                    <div class="p-3 flex flex-wrap gap-2">
+                        {% for tag in this.tags %}
+                            <a href="{{ path('app_tag_show', {slug: tag.slug}) }}" 
+                               data-turbo="false"
+                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm hover:bg-green-200 dark:hover:bg-green-900/50 transition">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                                {{ tag.name }}
+                                <span class="text-xs text-green-600 dark:text-green-500">({{ tag.videoCount }})</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# Модели #}
+                {% if this.hasModels %}
+                    <div class="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {{ 'search.models'|trans }}
+                        </span>
+                    </div>
+                    {% for model in this.models %}
+                        <a href="{{ path('app_model_show', {slug: model.slug}) }}" 
+                           data-turbo="false"
+                           class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700/50">
+                            {% if model.avatar %}
+                                {{ lazy_img('/media/avatars/' ~ model.avatar, model.name, 'w-10 h-10 object-cover rounded-full flex-shrink-0', 40, 40, true) }}
+                            {% else %}
+                                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ model.name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ model.videoCount }} {{ 'video.videos_count'|trans }}
+                                </p>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+
+                {# Ссылка на полный поиск #}
+                <a href="{{ path('video_search', {q: query}) }}" 
+                   class="block p-3 text-center text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700 border-t border-gray-200 dark:border-gray-700">
+                    {{ 'search.view_all_results'|trans }}
+                </a>
+            {% else %}
+                <div class="p-6 text-center text-gray-500 dark:text-gray-400">
+                    <svg class="w-10 h-10 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm mb-1">{{ 'search.no_results'|trans }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">{{ 'search.try_different_query'|trans }}</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

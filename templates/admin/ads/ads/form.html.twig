@@ -1,0 +1,401 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ ad ? 'Редактировать объявление' : 'Создать объявление' }}{% endblock %}
+{% block page_title %}{{ ad ? 'Редактировать объявление' : 'Создать объявление' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <form method="POST" class="space-y-6">
+        <div class="bg-white shadow rounded-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Основная информация</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Название</label>
+                        <input type="text" name="name" id="name" required
+                               value="{{ ad ? ad.name : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700">Статус</label>
+                        <select name="status" id="status" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="draft" {{ ad and ad.status == 'draft' ? 'selected' : '' }}>Черновик</option>
+                            <option value="pending" {{ ad and ad.status == 'pending' ? 'selected' : '' }}>На модерации</option>
+                            <option value="active" {{ ad and ad.status == 'active' ? 'selected' : '' }}>Активна</option>
+                            <option value="paused" {{ ad and ad.status == 'paused' ? 'selected' : '' }}>Приостановлена</option>
+                            <option value="completed" {{ ad and ad.status == 'completed' ? 'selected' : '' }}>Завершена</option>
+                            <option value="rejected" {{ ad and ad.status == 'rejected' ? 'selected' : '' }}>Отклонена</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">Описание</label>
+                    <textarea name="description" id="description" rows="3"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ ad ? ad.description : '' }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="placement_id" class="block text-sm font-medium text-gray-700">Место размещения</label>
+                        <select name="placement_id" id="placement_id" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Выберите место размещения</option>
+                            {% for placement in placements %}
+                                <option value="{{ placement.id }}" 
+                                        {{ ad and ad.placement and ad.placement.id == placement.id ? 'selected' : '' }}>
+                                    {{ placement.name }} ({{ placement.type }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="campaign_id" class="block text-sm font-medium text-gray-700">Кампания (опционально)</label>
+                        <select name="campaign_id" id="campaign_id"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Без кампании</option>
+                            {% for campaign in campaigns %}
+                                <option value="{{ campaign.id }}" 
+                                        {{ ad and ad.campaign and ad.campaign.id == campaign.id ? 'selected' : '' }}>
+                                    {{ campaign.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Формат и контент</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="format" class="block text-sm font-medium text-gray-700">Формат</label>
+                    <select name="format" id="format" required onchange="toggleFormatFields()"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="image" {{ ad and ad.format == 'image' ? 'selected' : '' }}>Изображение</option>
+                        <option value="html" {{ ad and ad.format == 'html' ? 'selected' : '' }}>HTML</option>
+                        <option value="video" {{ ad and ad.format == 'video' ? 'selected' : '' }}>Видео</option>
+                        <option value="vast" {{ ad and ad.format == 'vast' ? 'selected' : '' }}>VAST</option>
+                        <option value="script" {{ ad and ad.format == 'script' ? 'selected' : '' }}>Скрипт</option>
+                    </select>
+                </div>
+
+                <div id="image-fields" class="format-fields">
+                    <label for="image_url" class="block text-sm font-medium text-gray-700">URL изображения</label>
+                    <input type="url" name="image_url" id="image_url"
+                           value="{{ ad ? ad.imageUrl : '' }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div id="video-fields" class="format-fields hidden">
+                    <label for="video_url" class="block text-sm font-medium text-gray-700">URL видео</label>
+                    <input type="url" name="video_url" id="video_url"
+                           value="{{ ad ? ad.videoUrl : '' }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div id="vast-fields" class="format-fields hidden">
+                    <label for="vast_url" class="block text-sm font-medium text-gray-700">VAST URL</label>
+                    <input type="url" name="vast_url" id="vast_url"
+                           value="{{ ad ? ad.vastUrl : '' }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div id="html-fields" class="format-fields hidden">
+                    <label for="html_content" class="block text-sm font-medium text-gray-700">HTML контент</label>
+                    <textarea name="html_content" id="html_content" rows="6"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm">{{ ad ? ad.htmlContent : '' }}</textarea>
+                </div>
+
+                <div id="script-fields" class="format-fields hidden">
+                    <label for="script_code" class="block text-sm font-medium text-gray-700">JavaScript код</label>
+                    <textarea name="script_code" id="script_code" rows="6"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono text-sm">{{ ad ? ad.scriptCode : '' }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="click_url" class="block text-sm font-medium text-gray-700">URL для перехода</label>
+                        <input type="url" name="click_url" id="click_url"
+                               value="{{ ad ? ad.clickUrl : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="alt_text" class="block text-sm font-medium text-gray-700">Alt текст</label>
+                        <input type="text" name="alt_text" id="alt_text"
+                               value="{{ ad ? ad.altText : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="is_active" id="is_active" value="1"
+                               {{ ad and ad.isActive ? 'checked' : (not ad ? 'checked' : '') }}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="is_active" class="ml-2 block text-sm text-gray-900">Активно</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" name="open_in_new_tab" id="open_in_new_tab" value="1"
+                               {{ ad and ad.openInNewTab ? 'checked' : (not ad ? 'checked' : '') }}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="open_in_new_tab" class="ml-2 block text-sm text-gray-900">Открывать в новой вкладке</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white shadow rounded-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Настройки показа</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700">Приоритет</label>
+                        <input type="number" name="priority" id="priority" min="0" max="100"
+                               value="{{ ad ? ad.priority : 0 }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="weight" class="block text-sm font-medium text-gray-700">Вес</label>
+                        <input type="number" name="weight" id="weight" min="1" max="1000"
+                               value="{{ ad ? ad.weight : 100 }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">Дата начала</label>
+                        <input type="datetime-local" name="start_date" id="start_date"
+                               value="{{ ad and ad.startDate ? ad.startDate.format('Y-m-d\\TH:i') : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">Дата окончания</label>
+                        <input type="datetime-local" name="end_date" id="end_date"
+                               value="{{ ad and ad.endDate ? ad.endDate.format('Y-m-d\\TH:i') : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Бюджет и лимиты</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="budget" class="block text-sm font-medium text-gray-700">Бюджет (руб.)</label>
+                        <input type="number" name="budget" id="budget" step="0.01" min="0"
+                               value="{{ ad ? ad.budget : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="cpm" class="block text-sm font-medium text-gray-700">CPM (руб.)</label>
+                        <input type="number" name="cpm" id="cpm" step="0.0001" min="0"
+                               value="{{ ad ? ad.cpm : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="cpc" class="block text-sm font-medium text-gray-700">CPC (руб.)</label>
+                        <input type="number" name="cpc" id="cpc" step="0.0001" min="0"
+                               value="{{ ad ? ad.cpc : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="impression_limit" class="block text-sm font-medium text-gray-700">Лимит показов</label>
+                        <input type="number" name="impression_limit" id="impression_limit" min="0"
+                               value="{{ ad ? ad.impressionLimit : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="click_limit" class="block text-sm font-medium text-gray-700">Лимит кликов</label>
+                        <input type="number" name="click_limit" id="click_limit" min="0"
+                               value="{{ ad ? ad.clickLimit : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="daily_impression_limit" class="block text-sm font-medium text-gray-700">Дневной лимит показов</label>
+                        <input type="number" name="daily_impression_limit" id="daily_impression_limit" min="0"
+                               value="{{ ad ? ad.dailyImpressionLimit : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="daily_click_limit" class="block text-sm font-medium text-gray-700">Дневной лимит кликов</label>
+                        <input type="number" name="daily_click_limit" id="daily_click_limit" min="0"
+                               value="{{ ad ? ad.dailyClickLimit : '' }}"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Таргетинг</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Гео-таргетинг</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {% set geoTargeting = ad ? ad.geoTargeting.countries|default([]) : [] %}
+                        {% for country in ['RU', 'UA', 'BY', 'KZ', 'US', 'DE', 'FR', 'GB'] %}
+                            <label class="flex items-center">
+                                <input type="checkbox" name="geo_countries[]" value="{{ country }}"
+                                       {{ country in geoTargeting ? 'checked' : '' }}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">{{ country }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Временной таргетинг</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-2">Часы (0-23)</label>
+                            <div class="grid grid-cols-6 md:grid-cols-12 gap-1">
+                                {% set timeTargeting = ad ? ad.timeTargeting.hours|default([]) : [] %}
+                                {% for hour in 0..23 %}
+                                    <label class="flex items-center justify-center">
+                                        <input type="checkbox" name="time_hours[]" value="{{ hour }}"
+                                               {{ hour in timeTargeting ? 'checked' : '' }}
+                                               class="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <span class="ml-1 text-xs text-gray-700">{{ hour }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-2">Дни недели</label>
+                            <div class="grid grid-cols-7 gap-2">
+                                {% set timeDays = ad ? ad.timeTargeting.days|default([]) : [] %}
+                                {% set dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] %}
+                                {% for day in 1..7 %}
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="time_days[]" value="{{ day }}"
+                                               {{ day in timeDays ? 'checked' : '' }}
+                                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">{{ dayNames[day-1] }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Устройства</h4>
+                    <div class="grid grid-cols-3 gap-4">
+                        {% set deviceTargeting = ad ? ad.deviceTargeting|default([]) : [] %}
+                        {% for device in ['desktop', 'mobile', 'tablet'] %}
+                            <label class="flex items-center">
+                                <input type="checkbox" name="devices[]" value="{{ device }}"
+                                       {{ device in deviceTargeting ? 'checked' : '' }}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700 capitalize">{{ device }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Категории контента</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                        {% set categoryTargeting = ad ? ad.categoryTargeting|default([]) : [] %}
+                        {% for category in categories %}
+                            <label class="flex items-center">
+                                <input type="checkbox" name="category_targeting[]" value="{{ category.id }}"
+                                       {{ category.id in categoryTargeting ? 'checked' : '' }}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">{{ category.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">Сегменты аудитории</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                        {% for segment in segments %}
+                            <label class="flex items-center">
+                                <input type="checkbox" name="segments[]" value="{{ segment.id }}"
+                                       {{ ad and segment in ad.segments ? 'checked' : '' }}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">{{ segment.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+            <a href="{{ path('admin_ads_list') }}" 
+               class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Отмена
+            </a>
+            <button type="submit" 
+                    class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                {{ ad ? 'Сохранить изменения' : 'Создать объявление' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleFormatFields() {
+    const format = document.getElementById('format').value;
+    const fields = document.querySelectorAll('.format-fields');
+    
+    fields.forEach(field => field.classList.add('hidden'));
+    
+    switch(format) {
+        case 'image':
+            document.getElementById('image-fields').classList.remove('hidden');
+            break;
+        case 'video':
+            document.getElementById('video-fields').classList.remove('hidden');
+            break;
+        case 'vast':
+            document.getElementById('vast-fields').classList.remove('hidden');
+            break;
+        case 'html':
+        case 'text':
+            document.getElementById('html-fields').classList.remove('hidden');
+            break;
+        case 'script':
+            document.getElementById('script-fields').classList.remove('hidden');
+            break;
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    toggleFormatFields();
+});
+</script>
+{% endblock %}

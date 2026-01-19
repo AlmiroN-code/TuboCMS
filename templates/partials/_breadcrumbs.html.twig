@@ -1,0 +1,22 @@
+{% if breadcrumbs is defined and breadcrumbs|length > 0 %}
+<nav class="px-4 py-3 wrap mx-auto mt-2 dark:bg-gray-900 bg-white text-sm rounded-md shadow" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+        {% for breadcrumb in breadcrumbs %}
+            {% if not loop.last %}
+                <li class="flex items-center">
+                    <a href="{{ breadcrumb.url }}" class="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                        {{ breadcrumb.label }}
+                    </a>
+                    <svg class="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </li>
+            {% else %}
+                <li class="text-gray-900 dark:text-gray-100 font-medium" aria-current="page">
+                    {{ breadcrumb.label }}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>
+{% endif %}

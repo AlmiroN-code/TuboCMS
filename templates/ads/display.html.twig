@@ -1,0 +1,108 @@
+{# Отображение одного рекламного объявления #}
+{% if ad %}
+    <div class="ad-container" data-ad-id="{{ ad.id }}" data-placement="{{ placement }}">
+        {% if ad.format == 'image' %}
+            {# Баннер-изображение #}
+            <div class="ad-banner">
+                {% if ad.clickUrl %}
+                    <a href="{{ path('ad_click', {id: ad.id}) }}" 
+                       {% if ad.openInNewTab %}target="_blank" rel="noopener"{% endif %}
+                       class="block">
+                {% endif %}
+                
+                <img src="{{ ad.imageUrl }}" 
+                     alt="{{ ad.altText ?: ad.name }}"
+                     class="w-full h-auto rounded-md shadow-sm hover:shadow-md transition-shadow"
+                     loading="lazy">
+                
+                {% if ad.clickUrl %}
+                    </a>
+                {% endif %}
+            </div>
+            
+        {% elseif ad.format == 'html' %}
+            {# HTML контент #}
+            <div class="ad-html">
+                {{ ad.htmlContent|raw }}
+            </div>
+            
+        {% elseif ad.format == 'video' %}
+            {# Видео реклама #}
+            <div class="ad-video">
+                {% if ad.clickUrl %}
+                    <a href="{{ path('ad_click', {id: ad.id}) }}" 
+                       {% if ad.openInNewTab %}target="_blank" rel="noopener"{% endif %}>
+                {% endif %}
+                
+                <video controls class="w-full rounded-md">
+                    <source src="{{ ad.videoUrl }}" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+                
+                {% if ad.clickUrl %}
+                    </a>
+                {% endif %}
+            </div>
+            
+        {% elseif ad.format == 'vast' %}
+            {# VAST видео реклама #}
+            <div class="ad-vast" data-vast-url="{{ path('ad_vast', {id: ad.id}) }}">
+                <div class="vast-player-container bg-black rounded-md aspect-video flex items-center justify-center">
+                    <button class="play-vast-ad bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-4 transition-all">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+        {% elseif ad.format == 'script' %}
+            {# JavaScript код #}
+            <div class="ad-script">
+                {{ ad.scriptCode|raw }}
+            </div>
+            
+        {% elseif ad.format == 'text' %}
+            {# Текстовая реклама #}
+            <div class="ad-text p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-2">{{ ad.name }}</h3>
+                {% if ad.description %}
+                    <p class="text-gray-700 text-sm mb-3">{{ ad.description }}</p>
+                {% endif %}
+                {% if ad.clickUrl %}
+                    <a href="{{ path('ad_click', {id: ad.id}) }}" 
+                       {% if ad.openInNewTab %}target="_blank" rel="noopener"{% endif %}
+                       class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Подробнее
+                        <svg class="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        {# Отслеживание показа #}
+        <script>
+        (function() {
+            // Отслеживание показа рекламы
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        fetch('{{ path('ad_impression', {id: ad.id}) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            observer.observe(document.querySelector('[data-ad-id="{{ ad.id }}"]'));
+        })();
+        </script>
+    </div>
+{% endif %}

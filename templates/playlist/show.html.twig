@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'playlist.my_playlists'|trans, 'url': path('app_playlist_index')},
+    {'label': playlist.title, 'url': ''}
+] %}
+
+{% block title %}{{ playlist.title }} - {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-start mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-white">{{ playlist.title }}</h1>
+            {% if playlist.description %}
+                <p class="text-gray-400 mt-2">{{ playlist.description }}</p>
+            {% endif %}
+            <p class="text-sm text-gray-500 mt-2">
+                {{ playlist.videosCount }} {{ 'playlist.videos'|trans }} •
+                {% if playlist.isPublic %}{{ 'playlist.public'|trans }}{% else %}{{ 'playlist.private'|trans }}{% endif %}
+            </p>
+        </div>
+        {% if isOwner %}
+            <div class="flex gap-2">
+                <a href="{{ path('app_playlist_edit', {id: playlist.id}) }}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+                    {{ 'common.edit'|trans }}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if playlist.videos is empty %}
+        <div class="text-center py-12">
+            <p class="text-gray-400">{{ 'playlist.no_videos'|trans }}</p>
+        </div>
+    {% else %}
+        <div class="space-y-4" id="playlist-videos">
+            {% for playlistVideo in playlist.videos %}
+                {% set video = playlistVideo.video %}
+                <div class="flex gap-4 bg-gray-800 rounded-md p-4 hover:bg-gray-700 transition" data-video-id="{{ video.id }}">
+                    <a href="{{ path('video_detail', {slug: video.slug}) }}" class="flex-shrink-0">
+                        <div class="w-40 aspect-video bg-gray-700 rounded overflow-hidden">
+                            {% if video.poster %}
+                                {{ lazy_img(asset('media/posters/' ~ video.poster), video.title, 'w-full h-full object-cover', 160, 90) }}
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="flex-grow">
+                        <a href="{{ path('video_detail', {slug: video.slug}) }}" class="font-semibold text-white hover:text-red-500">
+                            {{ video.title }}
+                        </a>
+                        <p class="text-sm text-gray-400 mt-1">{{ video.viewsCount|number_format }} {{ 'video.views'|trans }}</p>
+                        <p class="text-sm text-gray-500">{{ video.durationFormatted }}</p>
+                    </div>
+                    {% if isOwner %}
+                        <button type="button" 
+                                class="text-gray-400 hover:text-red-500"
+                                onclick="removeFromPlaylist({{ playlist.id }}, {{ video.id }})">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+{% if isOwner %}
+{# Функция removeFromPlaylist теперь глобальная в assets/js/interactions.js #}
+{% endif %}
+{% endblock %}

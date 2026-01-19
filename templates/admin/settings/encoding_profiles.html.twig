@@ -1,0 +1,52 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Профили кодирования{% endblock %}
+{% block page_title %}Профили кодирования{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-end">
+    <a href="{{ path('admin_encoding_profiles_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Добавить профиль
+    </a>
+</div>
+
+<div class="bg-white rounded-md shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Название</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Разрешение</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Битрейт</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Кодек</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Формат</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Активен</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Действия</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for profile in profiles %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ profile.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.resolution }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.bitrate }} kbps</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.codec }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">MP4</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded {{ profile.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ profile.active ? 'Да' : 'Нет' }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                    <a href="{{ path('admin_encoding_profiles_edit', {id: profile.id}) }}" class="text-indigo-600 hover:text-indigo-900">Редактировать</a>
+                    <form method="post" action="{{ path('admin_encoding_profiles_delete', {id: profile.id}) }}" class="inline" onsubmit="return confirm('Удалить профиль?')">
+                        <button type="submit" class="text-red-600 hover:text-red-900">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ 'admin.content_protection.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-6">{{ 'admin.content_protection.title'|trans }}</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <form method="post" action="{{ path('admin_content_protection_save') }}" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {# Hotlink Protection #}
+            <div class="bg-white rounded-md shadow p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    <h2 class="text-xl font-semibold">{{ 'admin.content_protection.hotlink.title'|trans }}</h2>
+                </div>
+                
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="hotlink_protection_enabled" name="hotlink_protection_enabled" value="1"
+                           {{ settings.hotlink_protection_enabled ? 'checked' : '' }}
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="hotlink_protection_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                        {{ 'admin.content_protection.hotlink.enable'|trans }}
+                    </label>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">{{ 'admin.content_protection.hotlink.description'|trans }}</p>
+
+                <div>
+                    <label for="allowed_domains" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.hotlink.allowed_domains'|trans }}
+                    </label>
+                    <textarea id="allowed_domains" name="allowed_domains" rows="4"
+                              placeholder="example.com&#10;partner.com"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ settings.allowed_domains|join("\n") }}</textarea>
+                    <p class="text-sm text-gray-500 mt-1">{{ 'admin.content_protection.hotlink.domains_help'|trans }}</p>
+                </div>
+            </div>
+
+            {# User-Agent Filtering #}
+            <div class="bg-white rounded-md shadow p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <h2 class="text-xl font-semibold">{{ 'admin.content_protection.user_agent.title'|trans }}</h2>
+                </div>
+                
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="user_agent_filtering_enabled" name="user_agent_filtering_enabled" value="1"
+                           {{ settings.user_agent_filtering_enabled ? 'checked' : '' }}
+                           class="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                    <label for="user_agent_filtering_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                        {{ 'admin.content_protection.user_agent.enable'|trans }}
+                    </label>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">{{ 'admin.content_protection.user_agent.description'|trans }}</p>
+
+                <div>
+                    <label for="blocked_user_agents" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.user_agent.blocked_agents'|trans }}
+                    </label>
+                    <textarea id="blocked_user_agents" name="blocked_user_agents" rows="4"
+                              placeholder="custom-bot&#10;scraper"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent">{{ settings.blocked_user_agents|join("\n") }}</textarea>
+                    <p class="text-sm text-gray-500 mt-1">{{ 'admin.content_protection.user_agent.agents_help'|trans }}</p>
+                </div>
+            </div>
+
+            {# Signed URLs #}
+            <div class="bg-white rounded-md shadow p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                    </svg>
+                    <h2 class="text-xl font-semibold">{{ 'admin.content_protection.signed_urls.title'|trans }}</h2>
+                </div>
+                
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="signed_urls_enabled" name="signed_urls_enabled" value="1"
+                           {{ settings.signed_urls_enabled ? 'checked' : '' }}
+                           class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                    <label for="signed_urls_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                        {{ 'admin.content_protection.signed_urls.enable'|trans }}
+                    </label>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">{{ 'admin.content_protection.signed_urls.description'|trans }}</p>
+
+                <div>
+                    <label for="token_lifetime" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.signed_urls.token_lifetime'|trans }}
+                    </label>
+                    <div class="flex">
+                        <input type="number" id="token_lifetime" name="token_lifetime" 
+                               value="{{ settings.token_lifetime }}" min="60" max="86400"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <span class="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-md text-gray-600">
+                            {{ 'admin.content_protection.signed_urls.seconds'|trans }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">{{ 'admin.content_protection.signed_urls.lifetime_help'|trans }}</p>
+                </div>
+            </div>
+
+            {# Rate Limiting #}
+            <div class="bg-white rounded-md shadow p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h2 class="text-xl font-semibold">{{ 'admin.content_protection.rate_limit.title'|trans }}</h2>
+                </div>
+                
+                <p class="text-sm text-gray-500 mb-4">{{ 'admin.content_protection.rate_limit.description'|trans }}</p>
+
+                <div>
+                    <label for="rate_limit_per_hour" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.rate_limit.per_hour'|trans }}
+                    </label>
+                    <div class="flex">
+                        <input type="number" id="rate_limit_per_hour" name="rate_limit_per_hour" 
+                               value="{{ settings.rate_limit_per_hour }}" min="10" max="10000"
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <span class="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-md text-gray-600">
+                            {{ 'admin.content_protection.rate_limit.requests'|trans }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">{{ 'admin.content_protection.rate_limit.help'|trans }}</p>
+                </div>
+            </div>
+        </div>
+
+        {# Watermark - Full Width #}
+        <div class="bg-white rounded-md shadow p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                </svg>
+                <h2 class="text-xl font-semibold">{{ 'admin.content_protection.watermark.title'|trans }}</h2>
+            </div>
+            
+            <div class="flex items-center mb-4">
+                <input type="checkbox" id="watermark_enabled" name="watermark_enabled" value="1"
+                       {{ settings.watermark_enabled ? 'checked' : '' }}
+                       class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                <label for="watermark_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                    {{ 'admin.content_protection.watermark.enable'|trans }}
+                </label>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">{{ 'admin.content_protection.watermark.description'|trans }}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="watermark_text" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.watermark.text'|trans }}
+                    </label>
+                    <input type="text" id="watermark_text" name="watermark_text" 
+                           value="{{ settings.watermark_text }}" placeholder="{{ setting('site_name') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <p class="text-sm text-gray-500 mt-1">{{ 'admin.content_protection.watermark.text_help'|trans }}</p>
+                </div>
+
+                <div>
+                    <label for="watermark_position" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.watermark.position'|trans }}
+                    </label>
+                    <select id="watermark_position" name="watermark_position"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="top-left" {{ settings.watermark_position == 'top-left' ? 'selected' : '' }}>
+                            {{ 'admin.content_protection.watermark.position_top_left'|trans }}
+                        </option>
+                        <option value="top-right" {{ settings.watermark_position == 'top-right' ? 'selected' : '' }}>
+                            {{ 'admin.content_protection.watermark.position_top_right'|trans }}
+                        </option>
+                        <option value="bottom-left" {{ settings.watermark_position == 'bottom-left' ? 'selected' : '' }}>
+                            {{ 'admin.content_protection.watermark.position_bottom_left'|trans }}
+                        </option>
+                        <option value="bottom-right" {{ settings.watermark_position == 'bottom-right' ? 'selected' : '' }}>
+                            {{ 'admin.content_protection.watermark.position_bottom_right'|trans }}
+                        </option>
+                        <option value="center" {{ settings.watermark_position == 'center' ? 'selected' : '' }}>
+                            {{ 'admin.content_protection.watermark.position_center'|trans }}
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="watermark_opacity" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'admin.content_protection.watermark.opacity'|trans }} (<span id="opacity_value">{{ settings.watermark_opacity }}</span>%)
+                    </label>
+                    <input type="range" id="watermark_opacity" name="watermark_opacity" 
+                           value="{{ settings.watermark_opacity }}" min="0" max="100" step="5"
+                           oninput="document.getElementById('opacity_value').textContent = this.value"
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+        </div>
+
+        {# Action Buttons #}
+        <div class="flex justify-between items-center">
+            <a href="{{ path('admin_settings') }}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                {{ 'common.back'|trans }}
+            </a>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                {{ 'common.save'|trans }}
+            </button>
+        </div>
+    </form>
+
+    {# Information Panel #}
+    <div class="bg-blue-50 border border-blue-200 rounded-md p-6 mt-6">
+        <div class="flex items-center gap-2 mb-4">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-lg font-semibold text-blue-800">{{ 'admin.content_protection.info.title'|trans }}</h3>
+        </div>
+        
+        <h4 class="font-medium text-blue-800 mb-2">{{ 'admin.content_protection.info.how_it_works'|trans }}</h4>
+        <ul class="list-disc list-inside text-sm text-blue-700 space-y-1 mb-4">
+            <li><span class="font-medium">Hotlink Protection:</span> {{ 'admin.content_protection.info.hotlink_desc'|trans }}</li>
+            <li><span class="font-medium">User-Agent Filtering:</span> {{ 'admin.content_protection.info.user_agent_desc'|trans }}</li>
+            <li><span class="font-medium">Signed URLs:</span> {{ 'admin.content_protection.info.signed_urls_desc'|trans }}</li>
+            <li><span class="font-medium">Rate Limiting:</span> {{ 'admin.content_protection.info.rate_limit_desc'|trans }}</li>
+            <li><span class="font-medium">Watermark:</span> {{ 'admin.content_protection.info.watermark_desc'|trans }}</li>
+        </ul>
+
+        <div class="bg-yellow-100 border border-yellow-300 rounded-md p-4">
+            <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <div>
+                    <span class="font-medium text-yellow-800">{{ 'admin.content_protection.info.warning'|trans }}:</span>
+                    <span class="text-yellow-700">{{ 'admin.content_protection.info.warning_text'|trans }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

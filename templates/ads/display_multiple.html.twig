@@ -1,0 +1,10 @@
+{# Отображение нескольких рекламных объявлений #}
+{% if ads is not empty %}
+    <div class="ads-container" data-placement="{{ placement }}">
+        {% for ad in ads %}
+            <div class="ad-item mb-4">
+                {{ include('ads/display.html.twig', {ad: ad, placement: placement}) }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

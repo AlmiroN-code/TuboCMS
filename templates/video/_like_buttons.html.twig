@@ -1,0 +1,57 @@
+{# Расчёт процента лайков для progress-bar #}
+{% set total_votes = video.likesCount + video.dislikesCount %}
+{% set like_percent = total_votes > 0 ? (video.likesCount / total_votes * 100)|round : 50 %}
+
+<div id="like-buttons" class="flex flex-col gap-2">
+    <div class="flex items-center gap-4">
+        {% if app.user %}
+            <button 
+                onclick="toggleVideoLike({{ video.id }}, 'like', this)"
+                data-turbo="false"
+                class="like-btn flex items-center gap-2 px-4 py-2 rounded-md transition {{ user_like and user_like.isLike ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-green-900' }}"
+                data-active="{{ user_like and user_like.isLike ? 'true' : 'false' }}">
+                <svg class="w-5 h-5" fill="{{ user_like and user_like.isLike ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                </svg>
+                <span class="likes-count">{{ video.likesCount|locale_number }}</span>
+            </button>
+            
+            <button 
+                onclick="toggleVideoLike({{ video.id }}, 'dislike', this)"
+                data-turbo="false"
+                class="dislike-btn flex items-center gap-2 px-4 py-2 rounded-md transition {{ user_like and user_like.isDislike ? 'bg-red-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-red-900' }}"
+                data-active="{{ user_like and user_like.isDislike ? 'true' : 'false' }}">
+                <svg class="w-5 h-5" fill="{{ user_like and user_like.isDislike ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path>
+                </svg>
+                <span class="dislikes-count">{{ video.dislikesCount|locale_number }}</span>
+            </button>
+        {% else %}
+            <a href="{{ path('app_login') }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                </svg>
+                <span>{{ video.likesCount|locale_number }}</span>
+            </a>
+            
+            <span class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path>
+                </svg>
+                <span>{{ video.dislikesCount|locale_number }}</span>
+            </span>
+        {% endif %}
+    </div>
+    
+    {# Progress-bar рейтинга like/dislike #}
+    <div id="like-progress" class="flex h-1 w-full rounded-full overflow-hidden {% if total_votes == 0 %}bg-gray-300 dark:bg-gray-600{% endif %}" 
+         title="{{ like_percent }}% {{ 'video.likes'|trans|default('нравится') }}"
+         data-likes="{{ video.likesCount }}" data-dislikes="{{ video.dislikesCount }}">
+        {% if total_votes > 0 %}
+            <div class="like-bar bg-green-500 h-full transition-all duration-300" style="width: {{ like_percent }}%"></div>
+            <div class="dislike-bar bg-red-500 h-full transition-all duration-300" style="width: {{ 100 - like_percent }}%"></div>
+        {% else %}
+            <div class="bg-gray-400 dark:bg-gray-500 h-full w-full"></div>
+        {% endif %}
+    </div>
+</div>

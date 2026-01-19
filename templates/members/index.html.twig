@@ -1,0 +1,226 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'nav.community'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ setting('seo_members_title') ?: 'members.title'|trans }}{% endblock %}
+
+{% block meta_description %}{{ setting('seo_members_description') ?: parent() }}{% endblock %}
+
+{% block meta_keywords %}{{ setting('seo_members_keywords') ?: parent() }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header and Description -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ 'members.title'|trans }}</h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            {{ 'members.description'|trans }}
+        </p>
+    </div>
+
+    <!-- Community Statistics -->
+    <div class="bg-white rounded-md shadow-sm p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div>
+                <div class="text-3xl font-bold text-blue-600">{{ total }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.total'|trans }}</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-green-600">{{ users|filter(u => u.videosCount > 0)|length }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.creators'|trans }}</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-purple-600">{{ users|filter(u => u.isVerified)|length }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.verified'|trans }}</div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-orange-600">{{ users|filter(u => u.isPremium)|length }}</div>
+                <div class="text-sm text-gray-600">{{ 'members.premium'|trans }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-md shadow-sm p-6 mb-8">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <!-- Search -->
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ search }}" 
+                       placeholder="{{ 'members.search_placeholder'|trans }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <!-- Sort -->
+            <div>
+                <select name="sort" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    <option value="newest" {{ sortBy == 'newest' ? 'selected' : '' }}>{{ 'members.sort.newest'|trans }}</option>
+                    <option value="oldest" {{ sortBy == 'oldest' ? 'selected' : '' }}>{{ 'members.sort.oldest'|trans }}</option>
+                    <option value="popular" {{ sortBy == 'popular' ? 'selected' : '' }}>{{ 'members.sort.popular'|trans }}</option>
+                    <option value="active" {{ sortBy == 'active' ? 'selected' : '' }}>{{ 'members.sort.active'|trans }}</option>
+                </select>
+            </div>
+            
+            <!-- Search Button -->
+            <div>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    {{ 'members.search_button'|trans }}
+                </button>
+            </div>
+            
+            <!-- Reset Filters -->
+            {% if search or sortBy != 'newest' %}
+            <div>
+                <a href="{{ path('app_members') }}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                    {{ 'members.reset'|trans }}
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Users Grid -->
+    {% if users|length > 0 %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+        {% for user in users %}
+        <div class="bg-white rounded-md shadow-sm hover:shadow-md transition-shadow p-4">
+            <!-- Avatar -->
+            <div class="text-center mb-4">
+                {% if user.avatar %}
+                {{ lazy_img(asset('media/avatars/' ~ user.avatar), user.username, 'w-16 h-16 rounded-full mx-auto object-cover', 64, 64, true) }}
+                {% else %}
+                <div class="w-16 h-16 rounded-full mx-auto bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+                    {{ user.username|slice(0, 1)|upper }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Username -->
+            <div class="text-center mb-3">
+                <h3 class="font-semibold text-gray-900 truncate">
+                    <a href="{{ path('app_member_profile', {username: user.username}) }}" 
+                       class="hover:text-blue-600 transition-colors">
+                        {{ user.username }}
+                    </a>
+                </h3>
+                
+                <!-- Badges -->
+                <div class="flex justify-center gap-1 mt-1">
+                    {% if user.isVerified %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800" title="{{ 'members.verified'|trans }}">
+                        ✓
+                    </span>
+                    {% endif %}
+                    {% if user.isPremium %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800" title="{{ 'members.premium'|trans }}">
+                        ★
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="text-xs text-gray-500 space-y-1">
+                {% if user.videosCount > 0 %}
+                <div class="flex justify-between">
+                    <span>{{ 'members.videos'|trans }}</span>
+                    <span class="font-medium">{{ user.videosCount }}</span>
+                </div>
+                {% endif %}
+                {% if user.subscribersCount > 0 %}
+                <div class="flex justify-between">
+                    <span>{{ 'members.subscribers'|trans }}</span>
+                    <span class="font-medium">{{ user.subscribersCount }}</span>
+                </div>
+                {% endif %}
+                <div class="flex justify-between">
+                    <span>{{ 'members.member_since'|trans }}</span>
+                    <span class="font-medium">{{ user.createdAt|locale_date('short') }}</span>
+                </div>
+            </div>
+            
+            <!-- Profile Button -->
+            <div class="mt-4">
+                <a href="{{ path('app_member_profile', {username: user.username}) }}" 
+                   class="block w-full text-center px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm">
+                    {{ 'members.profile'|trans }}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if totalPages > 1 %}
+    <div class="flex justify-center">
+        <nav class="flex items-center space-x-2">
+            <!-- Previous Page -->
+            {% if page > 1 %}
+            <a href="{{ path('app_members', {page: page - 1, search: search, sort: sortBy}) }}" 
+               class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                ← {{ 'pagination.previous'|trans }}
+            </a>
+            {% endif %}
+            
+            <!-- Page Numbers -->
+            {% set startPage = max(1, page - 2) %}
+            {% set endPage = min(totalPages, page + 2) %}
+            
+            {% if startPage > 1 %}
+            <a href="{{ path('app_members', {page: 1, search: search, sort: sortBy}) }}" 
+               class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">1</a>
+            {% if startPage > 2 %}
+            <span class="px-3 py-2">...</span>
+            {% endif %}
+            {% endif %}
+            
+            {% for pageNum in startPage..endPage %}
+            {% if pageNum == page %}
+            <span class="px-3 py-2 bg-blue-600 text-white rounded-md">{{ pageNum }}</span>
+            {% else %}
+            <a href="{{ path('app_members', {page: pageNum, search: search, sort: sortBy}) }}" 
+               class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">{{ pageNum }}</a>
+            {% endif %}
+            {% endfor %}
+            
+            {% if endPage < totalPages %}
+            {% if endPage < totalPages - 1 %}
+            <span class="px-3 py-2">...</span>
+            {% endif %}
+            <a href="{{ path('app_members', {page: totalPages, search: search, sort: sortBy}) }}" 
+               class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">{{ totalPages }}</a>
+            {% endif %}
+            
+            <!-- Next Page -->
+            {% if page < totalPages %}
+            <a href="{{ path('app_members', {page: page + 1, search: search, sort: sortBy}) }}" 
+               class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                {{ 'pagination.next'|trans }} →
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ 'members.no_users'|trans }}</h3>
+        <p class="text-gray-600">
+            {% if search %}
+            {{ 'members.no_users_search'|trans }}
+            {% else %}
+            {{ 'members.no_users_empty'|trans }}
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+</div>
+
+{# Рекламные блоки перед футером #}
+<div class="bg-gray-50 py-6">
+    <div class="wrap mx-auto px-4 sm:px-6 lg:px-8">
+        {# Горизонтальный баннер #}
+        <div class="ad-block mb-6">
+            {{ show_ad('footer_banner', {
+                'page': app.request.attributes.get('_route'),
+                'user_id': app.user ? app.user.id : null
+            }) }}
+        </div>
+        
+        {# Два квадратных баннера #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="ad-block">
+                {{ show_ad('footer_left', {
+                    'page': app.request.attributes.get('_route'),
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+            <div class="ad-block">
+                {{ show_ad('footer_right', {
+                    'page': app.request.attributes.get('_route'),
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-white border-t">
+    <div class="wrap mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+                    {% if site_logo() %}
+                        {{ lazy_img(site_logo(), site_name() ~ ' - ' ~ ('footer.logo'|trans), 'logo') }}
+                    {% else %}
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span>{{ 'footer.site_name'|trans }}</span>
+                    {% endif %}
+                    <p class="text-gray-600 text-sm mt-4">{{ 'footer.description'|trans }}</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'footer.navigation'|trans }}</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{{ path('app_home') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.home'|trans }}</a></li>
+                    <li><a href="{{ path('app_videos') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.videos'|trans }}</a></li>
+                    <li><a href="{{ path('app_categories') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.categories'|trans }}</a></li>
+                    <li><a href="{{ path('app_tags') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.tags'|trans }}</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'footer.information'|trans }}</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900">{{ 'footer.about_us'|trans }}</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900">{{ 'footer.terms'|trans }}</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-900">{{ 'footer.contact'|trans }}</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-8 border-t pt-8 text-center text-sm text-gray-500">
+            <p>{{ 'footer.copyright'|trans({'%year%': 'now'|date('Y')}) }}</p>
+        </div>
+    </div>
+</footer>

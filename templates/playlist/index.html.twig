@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'playlist.my_playlists'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ 'playlist.my_playlists'|trans }} - {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl text-gray-900 dark:text-gray-100">{{ 'playlist.my_playlists'|trans }}</h1>
+        <a href="{{ path('app_playlist_create') }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+            {{ 'playlist.create'|trans }}
+        </a>
+    </div>
+
+    {% if playlists is empty %}
+        <div class="text-center py-12">
+            <p class="text-gray-400 mb-4">{{ 'playlist.no_playlists'|trans }}</p>
+            <a href="{{ path('app_playlist_create') }}" class="text-red-500 hover:text-red-400">
+                {{ 'playlist.create_first'|trans }}
+            </a>
+        </div>
+    {% else %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for playlist in playlists %}
+                <a href="{{ path('app_playlist_show', {id: playlist.id}) }}" class="bg-gray-800 rounded-md overflow-hidden hover:bg-gray-700 transition">
+                    <div class="aspect-video bg-gray-700 flex items-center justify-center">
+                        {% if playlist.thumbnail %}
+                            {{ lazy_img(asset('media/playlists/' ~ playlist.thumbnail), playlist.title, 'w-full h-full object-cover') }}
+                        {% else %}
+                            <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-white truncate">{{ playlist.title }}</h3>
+                        <p class="text-sm text-gray-400">{{ playlist.videosCount }} {{ 'playlist.videos'|trans }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {% if playlist.isPublic %}
+                                {{ 'playlist.public'|trans }}
+                            {% else %}
+                                {{ 'playlist.private'|trans }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

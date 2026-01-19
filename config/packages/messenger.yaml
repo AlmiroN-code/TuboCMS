@@ -1,0 +1,28 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            # Async transport for video processing
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 60000
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
+                    delay: 1000
+                    max_delay: 0
+
+            # Failed messages
+            failed: 'doctrine://default?queue_name=failed'
+
+        routing:
+            # Route video processing messages to async transport
+            'App\Message\ProcessVideoEncodingMessage': async
+            'App\Message\UploadToStorageMessage': async
+            'App\Message\DeleteFromStorageMessage': async
+            'App\Message\GeneratePreviewMessage': async
+            'App\Message\SendNotificationMessage': async
+            'App\Message\MigrateFileMessage': async

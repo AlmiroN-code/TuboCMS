@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'video.my_videos'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ 'video.my_videos'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl text-gray-900 dark:text-gray-100">{{ 'video.my_videos'|trans }}</h1>
+        <a href="{{ path('video_upload') }}" class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+            {{ 'video.upload_new'|trans }}
+        </a>
+    </div>
+
+    {% if videos|length > 0 %}
+        <div class="bg-white dark:bg-gray-800 rounded-md shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'video.table.video'|trans }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'video.table.status'|trans }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'video.table.views'|trans }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'video.table.date'|trans }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'video.table.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for video in videos %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-16 w-24">
+                                        {% if video.poster %}
+                                            {{ lazy_img('/media/' ~ video.poster, video.title, 'h-16 w-24 object-cover rounded', 96, 64) }}
+                                        {% else %}
+                                            <div class="h-16 w-24 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ video.title }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ video.slug }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if video.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                    {% elseif video.status == 'processing' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                    {% elseif video.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                                    {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                                    {{ ('video.status.' ~ video.status)|trans }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ video.viewsCount }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ video.createdAt|locale_date('datetime') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{{ path('video_detail', {slug: video.slug}) }}" class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 mr-3">
+                                    {{ 'video.table.view'|trans }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-md shadow">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">{{ 'video.empty.title'|trans }}</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'video.empty.description'|trans }}</p>
+            <div class="mt-6">
+                <a href="{{ path('video_upload') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700">
+                    {{ 'video.empty.upload'|trans }}
+                </a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

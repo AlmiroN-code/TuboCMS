@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h2>Video Processed Successfully</h2>
+    <p>Hello {{ user.username }},</p>
+    <p>Your video "{{ video.title }}" has been successfully processed and is now available.</p>
+    <p><a href="{{ url('video_show', {id: video.id}) }}">View your video</a></p>
+</body>
+</html>

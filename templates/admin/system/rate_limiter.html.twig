@@ -1,0 +1,41 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Rate Limiter - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Rate Limiter Configuration</h1>
+    
+    <div class="grid grid-cols-1 gap-6">
+        {% for key, limiter in limiters %}
+        <div class="bg-white rounded-md shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">{{ limiter.name }}</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <span class="text-gray-600">Policy:</span>
+                    <span class="font-semibold">{{ limiter.policy }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Limit:</span>
+                    <span class="font-semibold">{{ limiter.limit }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Interval:</span>
+                    <span class="font-semibold">{{ limiter.interval }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Key:</span>
+                    <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ key }}</code>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mt-6">
+        <p class="text-sm text-blue-800">
+            <strong>Note:</strong> Rate limiter settings are configured in <code>config/packages/rate_limiter.yaml</code>
+        </p>
+    </div>
+</div>
+{% endblock %}

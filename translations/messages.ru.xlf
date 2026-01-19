@@ -1,0 +1,1838 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="ru" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="eLrezdb" resname="search.placeholder">
+        <source>search.placeholder</source>
+        <target>Поиск видео...</target>
+      </trans-unit>
+      <trans-unit id="6cF3V18" resname="search.view_all_results">
+        <source>search.view_all_results</source>
+        <target>Показать все результаты</target>
+      </trans-unit>
+      <trans-unit id="HFDRxsS" resname="search.no_results">
+        <source>search.no_results</source>
+        <target>Ничего не найдено</target>
+      </trans-unit>
+      <trans-unit id="Y5AiU23" resname="search.try_full_search">
+        <source>search.try_full_search</source>
+        <target>Попробовать полный поиск</target>
+      </trans-unit>
+      <trans-unit id="AF.qlip" resname="search.try_different_query">
+        <source>search.try_different_query</source>
+        <target>Попробуйте изменить запрос</target>
+      </trans-unit>
+      <trans-unit id="_YOUhcO" resname="search.videos">
+        <source>search.videos</source>
+        <target>Видео</target>
+      </trans-unit>
+      <trans-unit id="Ab8hLth" resname="search.categories">
+        <source>search.categories</source>
+        <target>Категории</target>
+      </trans-unit>
+      <trans-unit id="OsiANl_" resname="search.tags">
+        <source>search.tags</source>
+        <target>Теги</target>
+      </trans-unit>
+      <trans-unit id="cXcQZ3Z" resname="search.models">
+        <source>search.models</source>
+        <target>Модели</target>
+      </trans-unit>
+      <trans-unit id="LboHGOB" resname="nav.home">
+        <source>nav.home</source>
+        <target>Главная</target>
+      </trans-unit>
+      <trans-unit id="hX16ohC" resname="nav.videos">
+        <source>nav.videos</source>
+        <target>Видео</target>
+      </trans-unit>
+      <trans-unit id="uPYqAQT" resname="nav.categories">
+        <source>nav.categories</source>
+        <target>Категории</target>
+      </trans-unit>
+      <trans-unit id="0UVAM0C" resname="nav.tags">
+        <source>nav.tags</source>
+        <target>Теги</target>
+      </trans-unit>
+      <trans-unit id="ixdmVLo" resname="nav.models">
+        <source>nav.models</source>
+        <target>Модели</target>
+      </trans-unit>
+      <trans-unit id="RIh3Tr6" resname="nav.community">
+        <source>nav.community</source>
+        <target>Сообщество</target>
+      </trans-unit>
+      <trans-unit id="LndwEuF" resname="nav.popular">
+        <source>nav.popular</source>
+        <target>Популярное</target>
+      </trans-unit>
+      <trans-unit id="3H3KfYj" resname="nav.trending">
+        <source>nav.trending</source>
+        <target>В тренде</target>
+      </trans-unit>
+      <trans-unit id="kGa.Ppj" resname="auth.login">
+        <source>auth.login</source>
+        <target>Войти</target>
+      </trans-unit>
+      <trans-unit id="E7gA3ag" resname="auth.logout">
+        <source>auth.logout</source>
+        <target>Выйти</target>
+      </trans-unit>
+      <trans-unit id="I1cUD63" resname="auth.register">
+        <source>auth.register</source>
+        <target>Регистрация</target>
+      </trans-unit>
+      <trans-unit id="B_sm11q" resname="auth.my_profile">
+        <source>auth.my_profile</source>
+        <target>Мой профиль</target>
+      </trans-unit>
+      <trans-unit id="jC1Ruvx" resname="auth.my_videos">
+        <source>auth.my_videos</source>
+        <target>Мои видео</target>
+      </trans-unit>
+      <trans-unit id="CNf82o7" resname="auth.admin_panel">
+        <source>auth.admin_panel</source>
+        <target>Админ панель</target>
+      </trans-unit>
+      <trans-unit id="ojOTtV6" resname="auth.login_page.title">
+        <source>auth.login_page.title</source>
+        <target>Вход</target>
+      </trans-unit>
+      <trans-unit id="8co3g1K" resname="auth.login_page.heading">
+        <source>auth.login_page.heading</source>
+        <target>Войдите в свой аккаунт</target>
+      </trans-unit>
+      <trans-unit id="GpxTGlS" resname="auth.login_page.email">
+        <source>auth.login_page.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="mW2S5Qg" resname="auth.login_page.password">
+        <source>auth.login_page.password</source>
+        <target>Пароль</target>
+      </trans-unit>
+      <trans-unit id="UaVfqXf" resname="auth.login_page.submit">
+        <source>auth.login_page.submit</source>
+        <target>Войти</target>
+      </trans-unit>
+      <trans-unit id="3aQSf_o" resname="auth.login_page.no_account">
+        <source>auth.login_page.no_account</source>
+        <target>Нет аккаунта?</target>
+      </trans-unit>
+      <trans-unit id="Sh8sXH6" resname="auth.login_page.sign_up_link">
+        <source>auth.login_page.sign_up_link</source>
+        <target>Зарегистрироваться</target>
+      </trans-unit>
+      <trans-unit id="5soH3g2" resname="auth.register_page.title">
+        <source>auth.register_page.title</source>
+        <target>Регистрация</target>
+      </trans-unit>
+      <trans-unit id="4_fVhp4" resname="auth.register_page.heading">
+        <source>auth.register_page.heading</source>
+        <target>Создайте аккаунт</target>
+      </trans-unit>
+      <trans-unit id=".GjsQ8X" resname="auth.register_page.username">
+        <source>auth.register_page.username</source>
+        <target>Имя пользователя</target>
+      </trans-unit>
+      <trans-unit id="gLRDeP8" resname="auth.register_page.email">
+        <source>auth.register_page.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="CSnxsM2" resname="auth.register_page.password">
+        <source>auth.register_page.password</source>
+        <target>Пароль</target>
+      </trans-unit>
+      <trans-unit id="AOt8C9W" resname="auth.register_page.submit">
+        <source>auth.register_page.submit</source>
+        <target>Зарегистрироваться</target>
+      </trans-unit>
+      <trans-unit id="F85oU44" resname="auth.register_page.have_account">
+        <source>auth.register_page.have_account</source>
+        <target>Уже есть аккаунт?</target>
+      </trans-unit>
+      <trans-unit id="puMVEH1" resname="auth.register_page.sign_in_link">
+        <source>auth.register_page.sign_in_link</source>
+        <target>Войти</target>
+      </trans-unit>
+      <trans-unit id="7ZCVvo6" resname="auth.errors.invalid_credentials">
+        <source>auth.errors.invalid_credentials</source>
+        <target>Неверные учётные данные</target>
+      </trans-unit>
+      <trans-unit id="SB527eh" resname="auth.errors.account_disabled">
+        <source>auth.errors.account_disabled</source>
+        <target>Ваш аккаунт отключён</target>
+      </trans-unit>
+      <trans-unit id="6c1gU6Z" resname="auth.errors.account_locked">
+        <source>auth.errors.account_locked</source>
+        <target>Ваш аккаунт заблокирован</target>
+      </trans-unit>
+      <trans-unit id="S_WM5KJ" resname="auth.errors.email_not_verified">
+        <source>auth.errors.email_not_verified</source>
+        <target>Пожалуйста, подтвердите ваш email</target>
+      </trans-unit>
+      <trans-unit id="mShOSei" resname="video.all_videos">
+        <source>video.all_videos</source>
+        <target>Все видео</target>
+      </trans-unit>
+      <trans-unit id="S7RBlax" resname="video.popular_videos">
+        <source>video.popular_videos</source>
+        <target>Популярные видео</target>
+      </trans-unit>
+      <trans-unit id="RWeuU4a" resname="video.trending_videos">
+        <source>video.trending_videos</source>
+        <target>В тренде</target>
+      </trans-unit>
+      <trans-unit id="EyYyO8S" resname="video.newest_videos">
+        <source>video.newest_videos</source>
+        <target>Новые видео</target>
+      </trans-unit>
+      <trans-unit id="7.YNPu4" resname="video.my_videos">
+        <source>video.my_videos</source>
+        <target>Мои видео</target>
+      </trans-unit>
+      <trans-unit id="5hModnR" resname="video.related_videos">
+        <source>video.related_videos</source>
+        <target>Похожие видео</target>
+      </trans-unit>
+      <trans-unit id="EzmrVRo" resname="video.performers">
+        <source>video.performers</source>
+        <target>Модели в видео</target>
+      </trans-unit>
+      <trans-unit id="hYcqyUB" resname="video.categories">
+        <source>video.categories</source>
+        <target>Категории</target>
+      </trans-unit>
+      <trans-unit id="H3wh.Rb" resname="video.tags">
+        <source>video.tags</source>
+        <target>Теги</target>
+      </trans-unit>
+      <trans-unit id="NarSHL8" resname="video.upload">
+        <source>video.upload</source>
+        <target>Загрузить видео</target>
+      </trans-unit>
+      <trans-unit id="jw4VmVS" resname="video.upload_new">
+        <source>video.upload_new</source>
+        <target>Загрузить новое видео</target>
+      </trans-unit>
+      <trans-unit id="WAdq7B8" resname="video.views">
+        <source>video.views</source>
+        <target>{0} просмотров|{1} просмотр|[2,4] %count% просмотра|[5,Inf[ %count% просмотров</target>
+      </trans-unit>
+      <trans-unit id="CVYHRmu" resname="video.views_count">
+        <source>video.views_count</source>
+        <target>%count% просмотров</target>
+      </trans-unit>
+      <trans-unit id="bCz5ZQv" resname="video.views_short">
+        <source>video.views_short</source>
+        <target>просм.</target>
+      </trans-unit>
+      <trans-unit id="h.S.QtY" resname="video.videos_count">
+        <source>video.videos_count</source>
+        <target>видео</target>
+      </trans-unit>
+      <trans-unit id="df5ossn" resname="video.no_videos">
+        <source>video.no_videos</source>
+        <target>Видео не найдено</target>
+      </trans-unit>
+      <trans-unit id="QhOGgs5" resname="video.no_videos_query">
+        <source>video.no_videos_query</source>
+        <target>Видео по запросу "%query%" не найдено</target>
+      </trans-unit>
+      <trans-unit id="gKp1rSp" resname="video.load_more">
+        <source>video.load_more</source>
+        <target>Загрузить ещё</target>
+      </trans-unit>
+      <trans-unit id="MsSc6EX" resname="video.search_placeholder">
+        <source>video.search_placeholder</source>
+        <target>Поиск видео...</target>
+      </trans-unit>
+      <trans-unit id="OTBK9F9" resname="video.search">
+        <source>video.search</source>
+        <target>Поиск</target>
+      </trans-unit>
+      <trans-unit id="EEN4x94" resname="video.search_results">
+        <source>video.search_results</source>
+        <target>Результаты поиска: "%query%"</target>
+      </trans-unit>
+      <trans-unit id="bkHVRw0" resname="video.search_videos">
+        <source>video.search_videos</source>
+        <target>Поиск видео</target>
+      </trans-unit>
+      <trans-unit id="4GXuiL8" resname="video.enter_search_query">
+        <source>video.enter_search_query</source>
+        <target>Введите поисковый запрос</target>
+      </trans-unit>
+      <trans-unit id=".Hdbvve" resname="video.show_all_results">
+        <source>video.show_all_results</source>
+        <target>Показать все результаты</target>
+      </trans-unit>
+      <trans-unit id="_sxjKP7" resname="video.try_full_search">
+        <source>video.try_full_search</source>
+        <target>Попробовать полный поиск</target>
+      </trans-unit>
+      <trans-unit id="R4B839q" resname="video.browser_not_supported">
+        <source>video.browser_not_supported</source>
+        <target>Ваш браузер не поддерживает воспроизведение видео.</target>
+      </trans-unit>
+      <trans-unit id="E11b88A" resname="video.quality">
+        <source>video.quality</source>
+        <target>Качество</target>
+      </trans-unit>
+      <trans-unit id=".pBL3iF" resname="video.subscribers">
+        <source>video.subscribers</source>
+        <target>%count% подписчиков</target>
+      </trans-unit>
+      <trans-unit id="EIIG7S." resname="video.loading_comments">
+        <source>video.loading_comments</source>
+        <target>Загрузка комментариев...</target>
+      </trans-unit>
+      <trans-unit id="vWxIDD4" resname="video.watch_later">
+        <source>video.watch_later</source>
+        <target>Смотреть позже</target>
+      </trans-unit>
+      <trans-unit id="2nqtJge" resname="video.added_to_playlist">
+        <source>video.added_to_playlist</source>
+        <target>Видео добавлено в плейлист</target>
+      </trans-unit>
+      <trans-unit id="4DuCYkP" resname="video.share.copy">
+        <source>video.share.copy</source>
+        <target>Копировать</target>
+      </trans-unit>
+      <trans-unit id="nAl2A4A" resname="video.share.copy_link">
+        <source>video.share.copy_link</source>
+        <target>Копировать ссылку</target>
+      </trans-unit>
+      <trans-unit id="tkTC12j" resname="video.share.copied">
+        <source>video.share.copied</source>
+        <target>Скопировано!</target>
+      </trans-unit>
+      <trans-unit id="1fCuSM9" resname="video.share.twitter">
+        <source>video.share.twitter</source>
+        <target>Поделиться в Twitter</target>
+      </trans-unit>
+      <trans-unit id="yV8qpVQ" resname="video.share.facebook">
+        <source>video.share.facebook</source>
+        <target>Поделиться в Facebook</target>
+      </trans-unit>
+      <trans-unit id="y5n3Z5U" resname="video.share.telegram">
+        <source>video.share.telegram</source>
+        <target>Поделиться в Telegram</target>
+      </trans-unit>
+      <trans-unit id="nYuUKPl" resname="video.share.whatsapp">
+        <source>video.share.whatsapp</source>
+        <target>Поделиться в WhatsApp</target>
+      </trans-unit>
+      <trans-unit id="8TY6094" resname="video.share.reddit">
+        <source>video.share.reddit</source>
+        <target>Поделиться в Reddit</target>
+      </trans-unit>
+      <trans-unit id="hMnDuNb" resname="video.share.pinterest">
+        <source>video.share.pinterest</source>
+        <target>Поделиться в Pinterest</target>
+      </trans-unit>
+      <trans-unit id="lXkt_Ih" resname="video.share.embed">
+        <source>video.share.embed</source>
+        <target>Код для встраивания</target>
+      </trans-unit>
+      <trans-unit id="UhoEP87" resname="video.share.embed_copied">
+        <source>video.share.embed_copied</source>
+        <target>Код встраивания скопирован!</target>
+      </trans-unit>
+      <trans-unit id="6azm0uu" resname="video.status.published">
+        <source>video.status.published</source>
+        <target>Опубликовано</target>
+      </trans-unit>
+      <trans-unit id="8_Sl.6W" resname="video.status.processing">
+        <source>video.status.processing</source>
+        <target>Обработка</target>
+      </trans-unit>
+      <trans-unit id="EwBg6fM" resname="video.status.draft">
+        <source>video.status.draft</source>
+        <target>Черновик</target>
+      </trans-unit>
+      <trans-unit id="8dkoFCb" resname="video.status.error">
+        <source>video.status.error</source>
+        <target>Ошибка</target>
+      </trans-unit>
+      <trans-unit id="GnJnyyx" resname="video.processing.in_progress">
+        <source>video.processing.in_progress</source>
+        <target>Видео обрабатывается...</target>
+      </trans-unit>
+      <trans-unit id="phCElIq" resname="video.processing.waiting">
+        <source>video.processing.waiting</source>
+        <target>Видео ожидает обработки...</target>
+      </trans-unit>
+      <trans-unit id="w6YiCwJ" resname="video.processing.error">
+        <source>video.processing.error</source>
+        <target>Ошибка обработки видео</target>
+      </trans-unit>
+      <trans-unit id="GyisVf." resname="video.table.video">
+        <source>video.table.video</source>
+        <target>Видео</target>
+      </trans-unit>
+      <trans-unit id="tFzawA3" resname="video.table.status">
+        <source>video.table.status</source>
+        <target>Статус</target>
+      </trans-unit>
+      <trans-unit id="b6WYgAZ" resname="video.table.views">
+        <source>video.table.views</source>
+        <target>Просмотры</target>
+      </trans-unit>
+      <trans-unit id="B6.QcCU" resname="video.table.date">
+        <source>video.table.date</source>
+        <target>Дата</target>
+      </trans-unit>
+      <trans-unit id="3FRfCvE" resname="video.table.actions">
+        <source>video.table.actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="dFn_P2X" resname="video.table.view">
+        <source>video.table.view</source>
+        <target>Смотреть</target>
+      </trans-unit>
+      <trans-unit id="y4I1hRq" resname="video.empty.title">
+        <source>video.empty.title</source>
+        <target>Нет видео</target>
+      </trans-unit>
+      <trans-unit id="s6c7AjX" resname="video.empty.description">
+        <source>video.empty.description</source>
+        <target>Начните с загрузки вашего первого видео</target>
+      </trans-unit>
+      <trans-unit id="ajMMPSI" resname="video.empty.upload">
+        <source>video.empty.upload</source>
+        <target>Загрузить видео</target>
+      </trans-unit>
+      <trans-unit id="c7UAFba" resname="video.upload_page.title">
+        <source>video.upload_page.title</source>
+        <target>Загрузка видео</target>
+      </trans-unit>
+      <trans-unit id="OMHDTRF" resname="video.upload_page.video_title">
+        <source>video.upload_page.video_title</source>
+        <target>Название видео</target>
+      </trans-unit>
+      <trans-unit id="FjxlH7F" resname="video.upload_page.description">
+        <source>video.upload_page.description</source>
+        <target>Описание</target>
+      </trans-unit>
+      <trans-unit id="RUKpYzy" resname="video.upload_page.category">
+        <source>video.upload_page.category</source>
+        <target>Категория</target>
+      </trans-unit>
+      <trans-unit id="w01MVi2" resname="video.upload_page.tags">
+        <source>video.upload_page.tags</source>
+        <target>Теги</target>
+      </trans-unit>
+      <trans-unit id="dGj_VQI" resname="video.upload_page.video_file">
+        <source>video.upload_page.video_file</source>
+        <target>Видеофайл</target>
+      </trans-unit>
+      <trans-unit id="dV8n7tc" resname="video.upload_page.supported_formats">
+        <source>video.upload_page.supported_formats</source>
+        <target>Поддерживаемые форматы: MP4, AVI, MOV. Максимальный размер: 2 ГБ</target>
+      </trans-unit>
+      <trans-unit id="RqouYQV" resname="video.upload_page.cancel">
+        <source>video.upload_page.cancel</source>
+        <target>Отмена</target>
+      </trans-unit>
+      <trans-unit id="UpABfVe" resname="video.upload_page.submit">
+        <source>video.upload_page.submit</source>
+        <target>Загрузить видео</target>
+      </trans-unit>
+      <trans-unit id="o1h6KAX" resname="video.upload_page.info_title">
+        <source>video.upload_page.info_title</source>
+        <target>Информация о загрузке</target>
+      </trans-unit>
+      <trans-unit id="Krzsgu5" resname="video.upload_page.info_processing">
+        <source>video.upload_page.info_processing</source>
+        <target>После загрузки видео будет обработано и сконвертировано</target>
+      </trans-unit>
+      <trans-unit id="UD4tW_O" resname="video.upload_page.info_time">
+        <source>video.upload_page.info_time</source>
+        <target>Обработка может занять несколько минут</target>
+      </trans-unit>
+      <trans-unit id="Z92aupx" resname="video.upload_page.info_notification">
+        <source>video.upload_page.info_notification</source>
+        <target>Вы получите уведомление, когда видео будет готово</target>
+      </trans-unit>
+      <trans-unit id="ks_HdTc" resname="video.upload_page.info_rights">
+        <source>video.upload_page.info_rights</source>
+        <target>Убедитесь, что у вас есть права на загружаемый контент</target>
+      </trans-unit>
+      <trans-unit id="WqARhDm" resname="pagination.previous">
+        <source>pagination.previous</source>
+        <target>Назад</target>
+      </trans-unit>
+      <trans-unit id="8O85RAJ" resname="pagination.next">
+        <source>pagination.next</source>
+        <target>Вперёд</target>
+      </trans-unit>
+      <trans-unit id="QZc9Lww" resname="pagination.page">
+        <source>pagination.page</source>
+        <target>Страница %page%</target>
+      </trans-unit>
+      <trans-unit id="hxWIP0w" resname="pagination.page_of">
+        <source>pagination.page_of</source>
+        <target>Страница %page% из %pages%</target>
+      </trans-unit>
+      <trans-unit id="TKiGJLC" resname="category.title">
+        <source>category.title</source>
+        <target>Категории</target>
+      </trans-unit>
+      <trans-unit id="V9nWte_" resname="category.all_categories">
+        <source>category.all_categories</source>
+        <target>Все категории</target>
+      </trans-unit>
+      <trans-unit id="2xfH9AV" resname="category.videos_count">
+        <source>category.videos_count</source>
+        <target>%count% видео</target>
+      </trans-unit>
+      <trans-unit id="4RpN277" resname="category.no_categories">
+        <source>category.no_categories</source>
+        <target>Категории не найдены</target>
+      </trans-unit>
+      <trans-unit id="ZAKFTj7" resname="category.no_videos_in_category">
+        <source>category.no_videos_in_category</source>
+        <target>В этой категории пока нет видео</target>
+      </trans-unit>
+      <trans-unit id="h.VqngM" resname="home.featured">
+        <source>home.featured</source>
+        <target>Рекомендуемое</target>
+      </trans-unit>
+      <trans-unit id="ANkSyfj" resname="home.new_videos">
+        <source>home.new_videos</source>
+        <target>Новые видео</target>
+      </trans-unit>
+      <trans-unit id="D3.dufq" resname="home.popular_videos">
+        <source>home.popular_videos</source>
+        <target>Популярные видео</target>
+      </trans-unit>
+      <trans-unit id="8Mnsv6L" resname="home.recently_watched">
+        <source>home.recently_watched</source>
+        <target>Недавно просмотренные</target>
+      </trans-unit>
+      <trans-unit id="mMJinWA" resname="home.view_all">
+        <source>home.view_all</source>
+        <target>Смотреть все →</target>
+      </trans-unit>
+      <trans-unit id="AlZdoEu" resname="sidebar.trending">
+        <source>sidebar.trending</source>
+        <target>В тренде</target>
+      </trans-unit>
+      <trans-unit id="g0Aqb5s" resname="sidebar.all_videos">
+        <source>sidebar.all_videos</source>
+        <target>Все видео</target>
+      </trans-unit>
+      <trans-unit id="qD22YsH" resname="sidebar.top_views">
+        <source>sidebar.top_views</source>
+        <target>Топ просмотров</target>
+      </trans-unit>
+      <trans-unit id="xz_uplw" resname="sidebar.new">
+        <source>sidebar.new</source>
+        <target>Новые</target>
+      </trans-unit>
+      <trans-unit id="7FGZbv_" resname="sidebar.categories">
+        <source>sidebar.categories</source>
+        <target>Категории</target>
+      </trans-unit>
+      <trans-unit id="Nkz.rYg" resname="sidebar.show_all">
+        <source>sidebar.show_all</source>
+        <target>Показать все</target>
+      </trans-unit>
+      <trans-unit id="pAnDdn5" resname="sidebar.hide">
+        <source>sidebar.hide</source>
+        <target>Скрыть</target>
+      </trans-unit>
+      <trans-unit id="QXlYLOd" resname="sidebar.all_categories">
+        <source>sidebar.all_categories</source>
+        <target>Все категории →</target>
+      </trans-unit>
+      <trans-unit id="lgK1puW" resname="sidebar.no_categories">
+        <source>sidebar.no_categories</source>
+        <target>Категории не найдены</target>
+      </trans-unit>
+      <trans-unit id="YBFhzD4" resname="sidebar.my_profile">
+        <source>sidebar.my_profile</source>
+        <target>Мой профиль</target>
+      </trans-unit>
+      <trans-unit id="8l602Sh" resname="sidebar.my_videos">
+        <source>sidebar.my_videos</source>
+        <target>Мои видео</target>
+      </trans-unit>
+      <trans-unit id="5c7joCZ" resname="sidebar.upload_video">
+        <source>sidebar.upload_video</source>
+        <target>Загрузить видео</target>
+      </trans-unit>
+      <trans-unit id="mQhxDQH" resname="sidebar.playlists">
+        <source>sidebar.playlists</source>
+        <target>Плейлисты</target>
+      </trans-unit>
+      <trans-unit id="fRlIIfk" resname="sidebar.series">
+        <source>sidebar.series</source>
+        <target>Серии</target>
+      </trans-unit>
+      <trans-unit id="4Ij4Hv." resname="sidebar.history">
+        <source>sidebar.history</source>
+        <target>История</target>
+      </trans-unit>
+      <trans-unit id="X16zE19" resname="sidebar.bookmarks">
+        <source>sidebar.bookmarks</source>
+        <target>Избранное</target>
+      </trans-unit>
+      <trans-unit id="lXb01Zg" resname="members.title">
+        <source>members.title</source>
+        <target>Сообщество</target>
+      </trans-unit>
+      <trans-unit id="DQiinDP" resname="members.description">
+        <source>members.description</source>
+        <target>Познакомьтесь с нашими участниками! Здесь вы найдёте создателей контента, активных пользователей и всех, кто делает наше сообщество особенным.</target>
+      </trans-unit>
+      <trans-unit id="IBGmU6h" resname="members.total">
+        <source>members.total</source>
+        <target>Участников</target>
+      </trans-unit>
+      <trans-unit id="ZnypxxS" resname="members.creators">
+        <source>members.creators</source>
+        <target>Авторов</target>
+      </trans-unit>
+      <trans-unit id="9goqzLx" resname="members.verified">
+        <source>members.verified</source>
+        <target>Верифицированных</target>
+      </trans-unit>
+      <trans-unit id=".idt9ZP" resname="members.premium">
+        <source>members.premium</source>
+        <target>Премиум</target>
+      </trans-unit>
+      <trans-unit id="tYFOMwy" resname="members.search_placeholder">
+        <source>members.search_placeholder</source>
+        <target>Поиск по имени...</target>
+      </trans-unit>
+      <trans-unit id="gpN4arT" resname="members.sort.newest">
+        <source>members.sort.newest</source>
+        <target>Новые участники</target>
+      </trans-unit>
+      <trans-unit id="C4aotbc" resname="members.sort.oldest">
+        <source>members.sort.oldest</source>
+        <target>Старые участники</target>
+      </trans-unit>
+      <trans-unit id="itjujFo" resname="members.sort.popular">
+        <source>members.sort.popular</source>
+        <target>Популярные</target>
+      </trans-unit>
+      <trans-unit id="IsN4NRC" resname="members.sort.active">
+        <source>members.sort.active</source>
+        <target>Активные</target>
+      </trans-unit>
+      <trans-unit id="Hx8cmWf" resname="members.search_button">
+        <source>members.search_button</source>
+        <target>Поиск</target>
+      </trans-unit>
+      <trans-unit id="6vF_rtp" resname="members.reset">
+        <source>members.reset</source>
+        <target>Сбросить</target>
+      </trans-unit>
+      <trans-unit id="6F90zFo" resname="members.videos">
+        <source>members.videos</source>
+        <target>Видео:</target>
+      </trans-unit>
+      <trans-unit id="nGPUx7A" resname="members.subscribers">
+        <source>members.subscribers</source>
+        <target>Подписчиков:</target>
+      </trans-unit>
+      <trans-unit id="xhZwcMg" resname="members.member_since">
+        <source>members.member_since</source>
+        <target>Участник с:</target>
+      </trans-unit>
+      <trans-unit id="S2erN4I" resname="members.profile">
+        <source>members.profile</source>
+        <target>Профиль</target>
+      </trans-unit>
+      <trans-unit id="P0HF_6t" resname="members.no_users">
+        <source>members.no_users</source>
+        <target>Пользователи не найдены</target>
+      </trans-unit>
+      <trans-unit id="vHNTsqy" resname="members.no_users_search">
+        <source>members.no_users_search</source>
+        <target>Попробуйте изменить поисковый запрос или сбросить фильтры.</target>
+      </trans-unit>
+      <trans-unit id="8jJz8IM" resname="members.no_users_empty">
+        <source>members.no_users_empty</source>
+        <target>В сообществе пока нет участников.</target>
+      </trans-unit>
+      <trans-unit id="_78WKX9" resname="members.profile_title">
+        <source>members.profile_title</source>
+        <target>%username% - Профиль</target>
+      </trans-unit>
+      <trans-unit id="O1M2atB" resname="members.edit">
+        <source>members.edit</source>
+        <target>Редактировать</target>
+      </trans-unit>
+      <trans-unit id="fufmpp3" resname="members.subscribe">
+        <source>members.subscribe</source>
+        <target>Подписаться</target>
+      </trans-unit>
+      <trans-unit id="8HqMvPC" resname="members.about">
+        <source>members.about</source>
+        <target>О себе</target>
+      </trans-unit>
+      <trans-unit id="mvukL.v" resname="members.recent_videos">
+        <source>members.recent_videos</source>
+        <target>Последние видео</target>
+      </trans-unit>
+      <trans-unit id="xRjwHIM" resname="members.activity">
+        <source>members.activity</source>
+        <target>Активность</target>
+      </trans-unit>
+      <trans-unit id="26LZdbw" resname="members.registered">
+        <source>members.registered</source>
+        <target>Зарегистрирован %date%</target>
+      </trans-unit>
+      <trans-unit id="Wtewhg7" resname="members.last_activity">
+        <source>members.last_activity</source>
+        <target>Последняя активность %date%</target>
+      </trans-unit>
+      <trans-unit id="UaF5Y.Y" resname="members.information">
+        <source>members.information</source>
+        <target>Информация</target>
+      </trans-unit>
+      <trans-unit id="0a1aYlU" resname="members.country">
+        <source>members.country</source>
+        <target>Страна</target>
+      </trans-unit>
+      <trans-unit id="qDoE.0q" resname="members.city">
+        <source>members.city</source>
+        <target>Город</target>
+      </trans-unit>
+      <trans-unit id="Z54Ws.H" resname="members.gender">
+        <source>members.gender</source>
+        <target>Пол</target>
+      </trans-unit>
+      <trans-unit id="52BSQpp" resname="members.gender_male">
+        <source>members.gender_male</source>
+        <target>Мужской</target>
+      </trans-unit>
+      <trans-unit id="6OWZUgS" resname="members.gender_female">
+        <source>members.gender_female</source>
+        <target>Женский</target>
+      </trans-unit>
+      <trans-unit id="cQzB3Bq" resname="members.age">
+        <source>members.age</source>
+        <target>Возраст</target>
+      </trans-unit>
+      <trans-unit id="kzu_x7K" resname="members.age_years">
+        <source>members.age_years</source>
+        <target>%age% лет</target>
+      </trans-unit>
+      <trans-unit id="zdtE9ZV" resname="members.marital_status">
+        <source>members.marital_status</source>
+        <target>Семейное положение</target>
+      </trans-unit>
+      <trans-unit id="DzzWJXg" resname="members.marital_single">
+        <source>members.marital_single</source>
+        <target>Не женат/не замужем</target>
+      </trans-unit>
+      <trans-unit id="MTNMDrM" resname="members.marital_in_relationship">
+        <source>members.marital_in_relationship</source>
+        <target>В отношениях</target>
+      </trans-unit>
+      <trans-unit id="XwNMQ_x" resname="members.marital_engaged">
+        <source>members.marital_engaged</source>
+        <target>Помолвлен(а)</target>
+      </trans-unit>
+      <trans-unit id="yDjGVqw" resname="members.marital_married">
+        <source>members.marital_married</source>
+        <target>Женат/замужем</target>
+      </trans-unit>
+      <trans-unit id="rrPqREj" resname="members.marital_divorced">
+        <source>members.marital_divorced</source>
+        <target>В разводе</target>
+      </trans-unit>
+      <trans-unit id="S8aqWhM" resname="members.marital_widowed">
+        <source>members.marital_widowed</source>
+        <target>Вдовец/вдова</target>
+      </trans-unit>
+      <trans-unit id="FTGHQx8" resname="members.orientation">
+        <source>members.orientation</source>
+        <target>Ориентация</target>
+      </trans-unit>
+      <trans-unit id="69x2Bk8" resname="members.orientation_heterosexual">
+        <source>members.orientation_heterosexual</source>
+        <target>Гетеросексуал</target>
+      </trans-unit>
+      <trans-unit id="VpviceN" resname="members.orientation_homosexual">
+        <source>members.orientation_homosexual</source>
+        <target>Гомосексуал</target>
+      </trans-unit>
+      <trans-unit id="Qn9qrPd" resname="members.orientation_bisexual">
+        <source>members.orientation_bisexual</source>
+        <target>Бисексуал</target>
+      </trans-unit>
+      <trans-unit id="NDLrfPg" resname="members.orientation_other">
+        <source>members.orientation_other</source>
+        <target>Другое</target>
+      </trans-unit>
+      <trans-unit id="AHHlfXc" resname="members.achievements">
+        <source>members.achievements</source>
+        <target>Достижения</target>
+      </trans-unit>
+      <trans-unit id="L_flogs" resname="members.achievement_verified">
+        <source>members.achievement_verified</source>
+        <target>Верифицированный пользователь</target>
+      </trans-unit>
+      <trans-unit id=".eiOSaQ" resname="members.achievement_premium">
+        <source>members.achievement_premium</source>
+        <target>Премиум участник</target>
+      </trans-unit>
+      <trans-unit id="60_hs_l" resname="members.achievement_creator">
+        <source>members.achievement_creator</source>
+        <target>Активный автор</target>
+      </trans-unit>
+      <trans-unit id="dIgiJEU" resname="members.stats.videos">
+        <source>members.stats.videos</source>
+        <target>Видео</target>
+      </trans-unit>
+      <trans-unit id="kuO5V0x" resname="members.stats.subscribers">
+        <source>members.stats.subscribers</source>
+        <target>Подписчиков</target>
+      </trans-unit>
+      <trans-unit id="JXMyHKi" resname="members.stats.views">
+        <source>members.stats.views</source>
+        <target>Просмотров</target>
+      </trans-unit>
+      <trans-unit id="xX4aE5Q" resname="members.stats.member_since">
+        <source>members.stats.member_since</source>
+        <target>Участник с</target>
+      </trans-unit>
+      <trans-unit id="OKSzBGE" resname="footer.site_name">
+        <source>footer.site_name</source>
+        <target>RexTube</target>
+      </trans-unit>
+      <trans-unit id="H8OD7nf" resname="footer.description">
+        <source>footer.description</source>
+        <target>Лучший видеохостинг для загрузки и просмотра видеоконтента.</target>
+      </trans-unit>
+      <trans-unit id="CLcA.gS" resname="footer.navigation">
+        <source>footer.navigation</source>
+        <target>Навигация</target>
+      </trans-unit>
+      <trans-unit id="kvudS1v" resname="footer.information">
+        <source>footer.information</source>
+        <target>Информация</target>
+      </trans-unit>
+      <trans-unit id="OPhlKnK" resname="footer.about_us">
+        <source>footer.about_us</source>
+        <target>О нас</target>
+      </trans-unit>
+      <trans-unit id="NGhd6r9" resname="footer.terms">
+        <source>footer.terms</source>
+        <target>Условия</target>
+      </trans-unit>
+      <trans-unit id="plvhdOt" resname="footer.contact">
+        <source>footer.contact</source>
+        <target>Контакты</target>
+      </trans-unit>
+      <trans-unit id="JlShfKY" resname="footer.copyright">
+        <source>footer.copyright</source>
+        <target>© %year% RexTube. Все права защищены.</target>
+      </trans-unit>
+      <trans-unit id="EiZtTcH" resname="common.save">
+        <source>common.save</source>
+        <target>Сохранить</target>
+      </trans-unit>
+      <trans-unit id="EYVYMfc" resname="common.cancel">
+        <source>common.cancel</source>
+        <target>Отмена</target>
+      </trans-unit>
+      <trans-unit id="RxjXUMf" resname="common.delete">
+        <source>common.delete</source>
+        <target>Удалить</target>
+      </trans-unit>
+      <trans-unit id="ZW9be_S" resname="common.edit">
+        <source>common.edit</source>
+        <target>Редактировать</target>
+      </trans-unit>
+      <trans-unit id="Krz0qaU" resname="common.create">
+        <source>common.create</source>
+        <target>Создать</target>
+      </trans-unit>
+      <trans-unit id="uvCBcL6" resname="common.search">
+        <source>common.search</source>
+        <target>Поиск</target>
+      </trans-unit>
+      <trans-unit id="bp43TDb" resname="common.select">
+        <source>common.select</source>
+        <target>Выберите...</target>
+      </trans-unit>
+      <trans-unit id="A9aPAZG" resname="common.yes">
+        <source>common.yes</source>
+        <target>Да</target>
+      </trans-unit>
+      <trans-unit id="_9IQQFu" resname="common.no">
+        <source>common.no</source>
+        <target>Нет</target>
+      </trans-unit>
+      <trans-unit id="ltE6xPP" resname="common.back">
+        <source>common.back</source>
+        <target>Назад</target>
+      </trans-unit>
+      <trans-unit id="0WeQXOA" resname="common.cm">
+        <source>common.cm</source>
+        <target>см</target>
+      </trans-unit>
+      <trans-unit id="L7mBea9" resname="common.kg">
+        <source>common.kg</source>
+        <target>кг</target>
+      </trans-unit>
+      <trans-unit id="EXC95Fn" resname="common.url">
+        <source>common.url</source>
+        <target>URL</target>
+      </trans-unit>
+      <trans-unit id="Bk2Qg_r" resname="common.error">
+        <source>common.error</source>
+        <target>Произошла ошибка</target>
+      </trans-unit>
+      <trans-unit id="FeiNXPq" resname="common.view">
+        <source>common.view</source>
+        <target>Смотреть</target>
+      </trans-unit>
+      <trans-unit id="Wxpde9l" resname="profile.avatar">
+        <source>profile.avatar</source>
+        <target>Аватар</target>
+      </trans-unit>
+      <trans-unit id="VtEjvgH" resname="profile.cover">
+        <source>profile.cover</source>
+        <target>Обложка профиля</target>
+      </trans-unit>
+      <trans-unit id="169D0Wk" resname="profile.birth_date">
+        <source>profile.birth_date</source>
+        <target>Дата рождения</target>
+      </trans-unit>
+      <trans-unit id="YwJeTri" resname="profile.bio_placeholder">
+        <source>profile.bio_placeholder</source>
+        <target>Расскажите о себе...</target>
+      </trans-unit>
+      <trans-unit id="ry5tIR1" resname="models.title">
+        <source>models.title</source>
+        <target>Модели</target>
+      </trans-unit>
+      <trans-unit id="6B45bg9" resname="models.meta_description">
+        <source>models.meta_description</source>
+        <target>Просмотрите нашу коллекцию моделей и актёров</target>
+      </trans-unit>
+      <trans-unit id="zS6fVlw" resname="models.total_count">
+        <source>models.total_count</source>
+        <target>%count% моделей</target>
+      </trans-unit>
+      <trans-unit id="hna_vvz" resname="models.search">
+        <source>models.search</source>
+        <target>Поиск</target>
+      </trans-unit>
+      <trans-unit id="lP1BRZY" resname="models.search_placeholder">
+        <source>models.search_placeholder</source>
+        <target>Поиск по имени...</target>
+      </trans-unit>
+      <trans-unit id="j6y68or" resname="models.sort.label">
+        <source>models.sort.label</source>
+        <target>Сортировка</target>
+      </trans-unit>
+      <trans-unit id="kGCm5Gm" resname="models.sort.popular">
+        <source>models.sort.popular</source>
+        <target>Популярные</target>
+      </trans-unit>
+      <trans-unit id="qgl1I0K" resname="models.sort.newest">
+        <source>models.sort.newest</source>
+        <target>Новые</target>
+      </trans-unit>
+      <trans-unit id="viL4JPC" resname="models.sort.alphabetical">
+        <source>models.sort.alphabetical</source>
+        <target>По алфавиту</target>
+      </trans-unit>
+      <trans-unit id="RewsPwr" resname="models.sort.videos">
+        <source>models.sort.videos</source>
+        <target>Больше видео</target>
+      </trans-unit>
+      <trans-unit id="AFwiP.8" resname="models.filter.gender">
+        <source>models.filter.gender</source>
+        <target>Пол</target>
+      </trans-unit>
+      <trans-unit id="vE77F5H" resname="models.filter.all">
+        <source>models.filter.all</source>
+        <target>Все</target>
+      </trans-unit>
+      <trans-unit id="RDIIDZc" resname="models.filter.female">
+        <source>models.filter.female</source>
+        <target>Женщины</target>
+      </trans-unit>
+      <trans-unit id="lE6F9PA" resname="models.filter.male">
+        <source>models.filter.male</source>
+        <target>Мужчины</target>
+      </trans-unit>
+      <trans-unit id="B2gf4DM" resname="models.filter.trans">
+        <source>models.filter.trans</source>
+        <target>Транс</target>
+      </trans-unit>
+      <trans-unit id="IznNQhb" resname="models.filter.apply">
+        <source>models.filter.apply</source>
+        <target>Применить</target>
+      </trans-unit>
+      <trans-unit id="XAg8BeZ" resname="models.filter.reset">
+        <source>models.filter.reset</source>
+        <target>Сбросить</target>
+      </trans-unit>
+      <trans-unit id="0p4qnxW" resname="models.no_models">
+        <source>models.no_models</source>
+        <target>Модели не найдены</target>
+      </trans-unit>
+      <trans-unit id="zWtsKLK" resname="model.verified">
+        <source>model.verified</source>
+        <target>Верифицирован</target>
+      </trans-unit>
+      <trans-unit id="TRXfLmV" resname="model.premium">
+        <source>model.premium</source>
+        <target>Премиум</target>
+      </trans-unit>
+      <trans-unit id="eg9iKRl" resname="model.bio">
+        <source>model.bio</source>
+        <target>Биография</target>
+      </trans-unit>
+      <trans-unit id="xMOHMo5" resname="model.videos_title">
+        <source>model.videos_title</source>
+        <target>Видео (%count%)</target>
+      </trans-unit>
+      <trans-unit id="Lca_XC7" resname="model.no_videos">
+        <source>model.no_videos</source>
+        <target>Видео пока нет</target>
+      </trans-unit>
+      <trans-unit id="xb1JH2r" resname="model.meta_description">
+        <source>model.meta_description</source>
+        <target>%name% - %videos% видео на нашей платформе</target>
+      </trans-unit>
+      <trans-unit id="cRY6V8d" resname="model.subscribe">
+        <source>model.subscribe</source>
+        <target>Подписаться</target>
+      </trans-unit>
+      <trans-unit id="fVCZDyl" resname="model.unsubscribe">
+        <source>model.unsubscribe</source>
+        <target>Отписаться</target>
+      </trans-unit>
+      <trans-unit id="4bxwbsf" resname="model.stats.views">
+        <source>model.stats.views</source>
+        <target>Просмотров</target>
+      </trans-unit>
+      <trans-unit id="1tZ0g8u" resname="model.stats.subscribers">
+        <source>model.stats.subscribers</source>
+        <target>Подписчиков</target>
+      </trans-unit>
+      <trans-unit id="_TJbsZE" resname="model.stats.videos">
+        <source>model.stats.videos</source>
+        <target>Видео</target>
+      </trans-unit>
+      <trans-unit id="YidG2ur" resname="model.stats.likes">
+        <source>model.stats.likes</source>
+        <target>Лайков</target>
+      </trans-unit>
+      <trans-unit id="YWo3oVF" resname="model.info.title">
+        <source>model.info.title</source>
+        <target>Информация</target>
+      </trans-unit>
+      <trans-unit id="ydTn1A6" resname="model.info.aliases">
+        <source>model.info.aliases</source>
+        <target>Псевдонимы</target>
+      </trans-unit>
+      <trans-unit id="bCulMZJ" resname="model.info.gender">
+        <source>model.info.gender</source>
+        <target>Пол</target>
+      </trans-unit>
+      <trans-unit id="ZGhox.F" resname="model.info.age">
+        <source>model.info.age</source>
+        <target>Возраст</target>
+      </trans-unit>
+      <trans-unit id="Hjk29dB" resname="model.info.birth_date">
+        <source>model.info.birth_date</source>
+        <target>Дата рождения</target>
+      </trans-unit>
+      <trans-unit id="I9dG..I" resname="model.info.zodiac">
+        <source>model.info.zodiac</source>
+        <target>Знак зодиака</target>
+      </trans-unit>
+      <trans-unit id="QFhIpsT" resname="model.info.country">
+        <source>model.info.country</source>
+        <target>Страна</target>
+      </trans-unit>
+      <trans-unit id="F2pIX8n" resname="model.info.ethnicity">
+        <source>model.info.ethnicity</source>
+        <target>Этничность</target>
+      </trans-unit>
+      <trans-unit id="Bri1Izq" resname="model.info.career_start">
+        <source>model.info.career_start</source>
+        <target>Начало карьеры</target>
+      </trans-unit>
+      <trans-unit id="2SmcGCd" resname="model.info.hair_color">
+        <source>model.info.hair_color</source>
+        <target>Цвет волос</target>
+      </trans-unit>
+      <trans-unit id="txKINf5" resname="model.info.eye_color">
+        <source>model.info.eye_color</source>
+        <target>Цвет глаз</target>
+      </trans-unit>
+      <trans-unit id="Z74X8Rx" resname="model.info.tattoos">
+        <source>model.info.tattoos</source>
+        <target>Татуировки</target>
+      </trans-unit>
+      <trans-unit id="4907u_3" resname="model.info.piercings">
+        <source>model.info.piercings</source>
+        <target>Пирсинг</target>
+      </trans-unit>
+      <trans-unit id="G43J7Lv" resname="model.info.breast_size">
+        <source>model.info.breast_size</source>
+        <target>Размер груди</target>
+      </trans-unit>
+      <trans-unit id="QfkYFeA" resname="model.info.height">
+        <source>model.info.height</source>
+        <target>Рост</target>
+      </trans-unit>
+      <trans-unit id="3S7FpLa" resname="model.info.weight">
+        <source>model.info.weight</source>
+        <target>Вес</target>
+      </trans-unit>
+      <trans-unit id="n3wv6oq" resname="model.info.added">
+        <source>model.info.added</source>
+        <target>Добавлен</target>
+      </trans-unit>
+      <trans-unit id="Tupc6cL" resname="model.gender.female">
+        <source>model.gender.female</source>
+        <target>Женщина</target>
+      </trans-unit>
+      <trans-unit id="futU.6l" resname="model.gender.male">
+        <source>model.gender.male</source>
+        <target>Мужчина</target>
+      </trans-unit>
+      <trans-unit id="wv4T3n5" resname="model.gender.trans">
+        <source>model.gender.trans</source>
+        <target>Транс</target>
+      </trans-unit>
+      <trans-unit id="lssV9Th" resname="model.zodiac.aries">
+        <source>model.zodiac.aries</source>
+        <target>Овен</target>
+      </trans-unit>
+      <trans-unit id="8kn2ahC" resname="model.zodiac.taurus">
+        <source>model.zodiac.taurus</source>
+        <target>Телец</target>
+      </trans-unit>
+      <trans-unit id="uZxD4a." resname="model.zodiac.gemini">
+        <source>model.zodiac.gemini</source>
+        <target>Близнецы</target>
+      </trans-unit>
+      <trans-unit id="3VZkrLO" resname="model.zodiac.cancer">
+        <source>model.zodiac.cancer</source>
+        <target>Рак</target>
+      </trans-unit>
+      <trans-unit id="0UuMTr_" resname="model.zodiac.leo">
+        <source>model.zodiac.leo</source>
+        <target>Лев</target>
+      </trans-unit>
+      <trans-unit id="OOSNWpy" resname="model.zodiac.virgo">
+        <source>model.zodiac.virgo</source>
+        <target>Дева</target>
+      </trans-unit>
+      <trans-unit id="4Q44BHd" resname="model.zodiac.libra">
+        <source>model.zodiac.libra</source>
+        <target>Весы</target>
+      </trans-unit>
+      <trans-unit id="5bWsrO0" resname="model.zodiac.scorpio">
+        <source>model.zodiac.scorpio</source>
+        <target>Скорпион</target>
+      </trans-unit>
+      <trans-unit id="nmDjtA." resname="model.zodiac.sagittarius">
+        <source>model.zodiac.sagittarius</source>
+        <target>Стрелец</target>
+      </trans-unit>
+      <trans-unit id="ntnmac9" resname="model.zodiac.capricorn">
+        <source>model.zodiac.capricorn</source>
+        <target>Козерог</target>
+      </trans-unit>
+      <trans-unit id="Jcj.84v" resname="model.zodiac.aquarius">
+        <source>model.zodiac.aquarius</source>
+        <target>Водолей</target>
+      </trans-unit>
+      <trans-unit id="apc9Yrq" resname="model.zodiac.pisces">
+        <source>model.zodiac.pisces</source>
+        <target>Рыбы</target>
+      </trans-unit>
+      <trans-unit id="h_s631H" resname="playlist.my_playlists">
+        <source>playlist.my_playlists</source>
+        <target>Мои плейлисты</target>
+      </trans-unit>
+      <trans-unit id="VkasZB_" resname="playlist.create">
+        <source>playlist.create</source>
+        <target>Создать плейлист</target>
+      </trans-unit>
+      <trans-unit id="GzZopbN" resname="playlist.create_new">
+        <source>playlist.create_new</source>
+        <target>Создать плейлист</target>
+      </trans-unit>
+      <trans-unit id="BI9dJIh" resname="playlist.edit">
+        <source>playlist.edit</source>
+        <target>Редактировать плейлист</target>
+      </trans-unit>
+      <trans-unit id="9.ElmBh" resname="playlist.title">
+        <source>playlist.title</source>
+        <target>Название</target>
+      </trans-unit>
+      <trans-unit id="zVMkNas" resname="playlist.description">
+        <source>playlist.description</source>
+        <target>Описание</target>
+      </trans-unit>
+      <trans-unit id="l_7rcEm" resname="playlist.videos">
+        <source>playlist.videos</source>
+        <target>видео</target>
+      </trans-unit>
+      <trans-unit id="ZL_Vm8a" resname="playlist.public">
+        <source>playlist.public</source>
+        <target>Публичный</target>
+      </trans-unit>
+      <trans-unit id="tJEtw66" resname="playlist.private">
+        <source>playlist.private</source>
+        <target>Приватный</target>
+      </trans-unit>
+      <trans-unit id="lFFjTKe" resname="playlist.make_public">
+        <source>playlist.make_public</source>
+        <target>Сделать публичным</target>
+      </trans-unit>
+      <trans-unit id="B._YM8c" resname="playlist.no_playlists">
+        <source>playlist.no_playlists</source>
+        <target>У вас пока нет плейлистов</target>
+      </trans-unit>
+      <trans-unit id="Oif9G64" resname="playlist.create_first">
+        <source>playlist.create_first</source>
+        <target>Создайте свой первый плейлист</target>
+      </trans-unit>
+      <trans-unit id="9x3rApW" resname="playlist.no_videos">
+        <source>playlist.no_videos</source>
+        <target>В плейлисте пока нет видео</target>
+      </trans-unit>
+      <trans-unit id="8GvWJyV" resname="playlist.add_video">
+        <source>playlist.add_video</source>
+        <target>В плейлист</target>
+      </trans-unit>
+      <trans-unit id="YxDq2Sa" resname="history.title">
+        <source>history.title</source>
+        <target>История просмотров</target>
+      </trans-unit>
+      <trans-unit id="goDfWkN" resname="history.empty">
+        <source>history.empty</source>
+        <target>История просмотров пуста</target>
+      </trans-unit>
+      <trans-unit id="CqNu2Qu" resname="history.clear_all">
+        <source>history.clear_all</source>
+        <target>Очистить историю</target>
+      </trans-unit>
+      <trans-unit id=".ryd_yd" resname="history.confirm_clear">
+        <source>history.confirm_clear</source>
+        <target>Вы уверены, что хотите очистить всю историю?</target>
+      </trans-unit>
+      <trans-unit id="8ABG32u" resname="bookmark.title">
+        <source>bookmark.title</source>
+        <target>Избранное</target>
+      </trans-unit>
+      <trans-unit id="gIYNQ03" resname="bookmark.empty">
+        <source>bookmark.empty</source>
+        <target>В избранном пока ничего нет</target>
+      </trans-unit>
+      <trans-unit id="G0IgXgE" resname="bookmark.add">
+        <source>bookmark.add</source>
+        <target>Добавить в избранное</target>
+      </trans-unit>
+      <trans-unit id="Z8rTE2G" resname="bookmark.remove">
+        <source>bookmark.remove</source>
+        <target>Удалить из избранного</target>
+      </trans-unit>
+      <trans-unit id="paeBWKe" resname="watch_later.title">
+        <source>watch_later.title</source>
+        <target>Смотреть позже</target>
+      </trans-unit>
+      <trans-unit id="Dc8zYl5" resname="watch_later.description">
+        <source>watch_later.description</source>
+        <target>У вас %count% видео в списке</target>
+      </trans-unit>
+      <trans-unit id="YX_LTQb" resname="watch_later.add">
+        <source>watch_later.add</source>
+        <target>Добавить в "Смотреть позже"</target>
+      </trans-unit>
+      <trans-unit id="EVwYBL0" resname="watch_later.remove">
+        <source>watch_later.remove</source>
+        <target>Удалить из "Смотреть позже"</target>
+      </trans-unit>
+      <trans-unit id="iQPcJEd" resname="watch_later.empty.title">
+        <source>watch_later.empty.title</source>
+        <target>Список "Смотреть позже" пуст</target>
+      </trans-unit>
+      <trans-unit id="akZeIRI" resname="watch_later.empty.description">
+        <source>watch_later.empty.description</source>
+        <target>Добавляйте видео в этот список, чтобы посмотреть их позже</target>
+      </trans-unit>
+      <trans-unit id="jFXXCjt" resname="watch_later.empty.browse_videos">
+        <source>watch_later.empty.browse_videos</source>
+        <target>Смотреть видео</target>
+      </trans-unit>
+      <trans-unit id="QmqNIYr" resname="notification.title">
+        <source>notification.title</source>
+        <target>Уведомления</target>
+      </trans-unit>
+      <trans-unit id="1Ir_8J5" resname="notification.empty">
+        <source>notification.empty</source>
+        <target>Нет уведомлений</target>
+      </trans-unit>
+      <trans-unit id="ippTACe" resname="notification.mark_all_read">
+        <source>notification.mark_all_read</source>
+        <target>Отметить все как прочитанные</target>
+      </trans-unit>
+      <trans-unit id="nlWcLbN" resname="notification.new_video_text">
+        <source>notification.new_video_text</source>
+        <target>загрузил новое видео</target>
+      </trans-unit>
+      <trans-unit id="keNAyhr" resname="notification.reply_text">
+        <source>notification.reply_text</source>
+        <target>ответил на ваш комментарий</target>
+      </trans-unit>
+      <trans-unit id="oMd5od4" resname="notification.mention_text">
+        <source>notification.mention_text</source>
+        <target>упомянул вас в комментарии</target>
+      </trans-unit>
+      <trans-unit id="IHP8_PJ" resname="notification.subscriber_text">
+        <source>notification.subscriber_text</source>
+        <target>подписался на вас</target>
+      </trans-unit>
+      <trans-unit id="za8uIjB" resname="series.my_series">
+        <source>series.my_series</source>
+        <target>Мои серии</target>
+      </trans-unit>
+      <trans-unit id="W1BSrAq" resname="series.create">
+        <source>series.create</source>
+        <target>Создать серию</target>
+      </trans-unit>
+      <trans-unit id="tQO4SkJ" resname="series.create_new">
+        <source>series.create_new</source>
+        <target>Создать серию</target>
+      </trans-unit>
+      <trans-unit id="eQNb6ld" resname="series.title">
+        <source>series.title</source>
+        <target>Название</target>
+      </trans-unit>
+      <trans-unit id="1msgZxc" resname="series.description">
+        <source>series.description</source>
+        <target>Описание</target>
+      </trans-unit>
+      <trans-unit id="tWjwXZ7" resname="series.episodes">
+        <source>series.episodes</source>
+        <target>эпизодов</target>
+      </trans-unit>
+      <trans-unit id="Y4z8SJW" resname="series.episode">
+        <source>series.episode</source>
+        <target>Эпизод</target>
+      </trans-unit>
+      <trans-unit id="J9YKcdD" resname="series.no_series">
+        <source>series.no_series</source>
+        <target>У вас пока нет серий</target>
+      </trans-unit>
+      <trans-unit id="Ge7das4" resname="series.no_seasons">
+        <source>series.no_seasons</source>
+        <target>В серии пока нет сезонов</target>
+      </trans-unit>
+      <trans-unit id="fbRq1Mv" resname="series.no_episodes">
+        <source>series.no_episodes</source>
+        <target>В сезоне пока нет эпизодов</target>
+      </trans-unit>
+      <trans-unit id="lBfO.3n" resname="series.manage">
+        <source>series.manage</source>
+        <target>Управление серией</target>
+      </trans-unit>
+      <trans-unit id="gl.OYVg" resname="series.season_title">
+        <source>series.season_title</source>
+        <target>Название сезона (необязательно)</target>
+      </trans-unit>
+      <trans-unit id="84Xvzk1" resname="series.add_season">
+        <source>series.add_season</source>
+        <target>Добавить сезон</target>
+      </trans-unit>
+      <trans-unit id="8edYnTh" resname="series.add_episode">
+        <source>series.add_episode</source>
+        <target>Добавить эпизод</target>
+      </trans-unit>
+      <trans-unit id="M_tiuJl" resname="series.select_video">
+        <source>series.select_video</source>
+        <target>Выберите видео</target>
+      </trans-unit>
+      <trans-unit id="6odTcY2" resname="filter.duration">
+        <source>filter.duration</source>
+        <target>Длительность</target>
+      </trans-unit>
+      <trans-unit id="MJ6qjci" resname="filter.all">
+        <source>filter.all</source>
+        <target>Все</target>
+      </trans-unit>
+      <trans-unit id="r9nR6v5" resname="filter.short">
+        <source>filter.short</source>
+        <target>Короткие</target>
+      </trans-unit>
+      <trans-unit id="uwNQAqc" resname="filter.medium">
+        <source>filter.medium</source>
+        <target>Средние</target>
+      </trans-unit>
+      <trans-unit id="DcLp1cO" resname="filter.long">
+        <source>filter.long</source>
+        <target>Длинные</target>
+      </trans-unit>
+      <trans-unit id="cEYFXDz" resname="filter.min">
+        <source>filter.min</source>
+        <target>мин</target>
+      </trans-unit>
+      <trans-unit id="wl.f67H" resname="filter.sort">
+        <source>filter.sort</source>
+        <target>Сортировка</target>
+      </trans-unit>
+      <trans-unit id="BWxo9OP" resname="filter.newest">
+        <source>filter.newest</source>
+        <target>Новые</target>
+      </trans-unit>
+      <trans-unit id="5itVY3l" resname="filter.oldest">
+        <source>filter.oldest</source>
+        <target>Старые</target>
+      </trans-unit>
+      <trans-unit id="ifEwB3d" resname="filter.popular">
+        <source>filter.popular</source>
+        <target>Популярные</target>
+      </trans-unit>
+      <trans-unit id="dq8bvRt" resname="filter.rating">
+        <source>filter.rating</source>
+        <target>По рейтингу</target>
+      </trans-unit>
+      <trans-unit id="6eIjYle" resname="filter.reset">
+        <source>filter.reset</source>
+        <target>Сбросить</target>
+      </trans-unit>
+      <trans-unit id="z3YBPV0" resname="tag.videos_with_tag">
+        <source>tag.videos_with_tag</source>
+        <target>Видео с тегом %tag%</target>
+      </trans-unit>
+      <trans-unit id="wVwLbrE" resname="tag.meta_description">
+        <source>tag.meta_description</source>
+        <target>Смотрите %count% видео с тегом %tag%</target>
+      </trans-unit>
+      <trans-unit id="VVII.5d" resname="tag.videos_count">
+        <source>tag.videos_count</source>
+        <target>{0} Нет видео|{1} %count% видео|[2,4] %count% видео|[5,Inf[ %count% видео</target>
+      </trans-unit>
+      <trans-unit id="jOpud9p" resname="tag.no_videos">
+        <source>tag.no_videos</source>
+        <target>Нет видео с этим тегом</target>
+      </trans-unit>
+      <trans-unit id="a3HOo4L" resname="tag.no_videos_description">
+        <source>tag.no_videos_description</source>
+        <target>Пока нет видео с тегом "%tag%"</target>
+      </trans-unit>
+      <trans-unit id="lVkjOAr" resname="tag.browse_all_videos">
+        <source>tag.browse_all_videos</source>
+        <target>Смотреть все видео</target>
+      </trans-unit>
+      <trans-unit id="H.3Ah6D" resname="tag.total_count">
+        <source>tag.total_count</source>
+        <target>%count% тегов</target>
+      </trans-unit>
+      <trans-unit id="l6Tys.V" resname="tag.no_tags">
+        <source>tag.no_tags</source>
+        <target>Теги не найдены</target>
+      </trans-unit>
+      <trans-unit id="sJjrR.m" resname="tag.sort.alphabetical">
+        <source>tag.sort.alphabetical</source>
+        <target>По алфавиту</target>
+      </trans-unit>
+      <trans-unit id="NCTT56N" resname="tag.sort.popular">
+        <source>tag.sort.popular</source>
+        <target>Популярные</target>
+      </trans-unit>
+      <trans-unit id="kmXDUXK" resname="toast.watch_later_added">
+        <source>toast.watch_later_added</source>
+        <target>Видео добавлено в "Смотреть позже"</target>
+      </trans-unit>
+      <trans-unit id="aSMCjst" resname="toast.watch_later_removed">
+        <source>toast.watch_later_removed</source>
+        <target>Видео удалено из "Смотреть позже"</target>
+      </trans-unit>
+      <trans-unit id="2J3s5Ea" resname="toast.bookmark_added">
+        <source>toast.bookmark_added</source>
+        <target>Добавлено в избранное</target>
+      </trans-unit>
+      <trans-unit id="5JhxGIE" resname="toast.bookmark_removed">
+        <source>toast.bookmark_removed</source>
+        <target>Удалено из избранного</target>
+      </trans-unit>
+      <trans-unit id="6yLRtgF" resname="toast.bookmark_error">
+        <source>toast.bookmark_error</source>
+        <target>Не удалось обновить закладку</target>
+      </trans-unit>
+      <trans-unit id="NOT.D3j" resname="toast.playlist_added">
+        <source>toast.playlist_added</source>
+        <target>Видео добавлено в плейлист</target>
+      </trans-unit>
+      <trans-unit id="xdpy9AF" resname="toast.playlist_removed">
+        <source>toast.playlist_removed</source>
+        <target>Видео удалено из плейлиста</target>
+      </trans-unit>
+      <trans-unit id="o7tHE7q" resname="toast.playlist_error">
+        <source>toast.playlist_error</source>
+        <target>Не удалось добавить в плейлист</target>
+      </trans-unit>
+      <trans-unit id="PV2jS63" resname="toast.playlist_remove_error">
+        <source>toast.playlist_remove_error</source>
+        <target>Не удалось удалить видео</target>
+      </trans-unit>
+      <trans-unit id="Zfvz_NM" resname="toast.playlist_in_development">
+        <source>toast.playlist_in_development</source>
+        <target>Функция плейлистов в разработке</target>
+      </trans-unit>
+      <trans-unit id="bpyoGQp" resname="toast.subscribed">
+        <source>toast.subscribed</source>
+        <target>Вы подписались на канал</target>
+      </trans-unit>
+      <trans-unit id="afvQTs9" resname="toast.unsubscribed">
+        <source>toast.unsubscribed</source>
+        <target>Вы отписались от канала</target>
+      </trans-unit>
+      <trans-unit id="ybBi8eB" resname="toast.subscription_error">
+        <source>toast.subscription_error</source>
+        <target>Не удалось изменить подписку</target>
+      </trans-unit>
+      <trans-unit id="4KQO4ny" resname="toast.vote_success">
+        <source>toast.vote_success</source>
+        <target>Ваш голос учтён</target>
+      </trans-unit>
+      <trans-unit id="QZgtzbb" resname="toast.vote_removed">
+        <source>toast.vote_removed</source>
+        <target>Голос отменён</target>
+      </trans-unit>
+      <trans-unit id="xcLCBFv" resname="toast.vote_error">
+        <source>toast.vote_error</source>
+        <target>Не удалось проголосовать</target>
+      </trans-unit>
+      <trans-unit id="8ZM5mrp" resname="toast.rating_success">
+        <source>toast.rating_success</source>
+        <target>Спасибо за вашу оценку!</target>
+      </trans-unit>
+      <trans-unit id="dJtZihB" resname="toast.rating_error">
+        <source>toast.rating_error</source>
+        <target>Не удалось поставить оценку</target>
+      </trans-unit>
+      <trans-unit id="m3C.ilJ" resname="toast.success">
+        <source>toast.success</source>
+        <target>Операция выполнена успешно</target>
+      </trans-unit>
+      <trans-unit id="m1cEySU" resname="toast.error">
+        <source>toast.error</source>
+        <target>Произошла ошибка</target>
+      </trans-unit>
+      <trans-unit id="UmBrHzP" resname="toast.error_generic">
+        <source>toast.error_generic</source>
+        <target>Произошла ошибка при обработке запроса</target>
+      </trans-unit>
+      <trans-unit id="Po7Brih" resname="toast.confirm_delete">
+        <source>toast.confirm_delete</source>
+        <target>Вы уверены, что хотите удалить?</target>
+      </trans-unit>
+      <trans-unit id="gMLmKTL" resname="breadcrumb.home">
+        <source>breadcrumb.home</source>
+        <target>Главная</target>
+      </trans-unit>
+      <trans-unit id="ZGxu1C3" resname="breadcrumb.videos">
+        <source>breadcrumb.videos</source>
+        <target>Видео</target>
+      </trans-unit>
+      <trans-unit id="OtJJHgs" resname="breadcrumb.categories">
+        <source>breadcrumb.categories</source>
+        <target>Категории</target>
+      </trans-unit>
+      <trans-unit id="PfQ1rdc" resname="breadcrumb.models">
+        <source>breadcrumb.models</source>
+        <target>Модели</target>
+      </trans-unit>
+      <trans-unit id="4apqtyM" resname="breadcrumb.community">
+        <source>breadcrumb.community</source>
+        <target>Сообщество</target>
+      </trans-unit>
+      <trans-unit id="yLtVt4." resname="breadcrumb.admin">
+        <source>breadcrumb.admin</source>
+        <target>Админ панель</target>
+      </trans-unit>
+      <trans-unit id="1_GK2D2" resname="admin.content_protection.title">
+        <source>admin.content_protection.title</source>
+        <target>Настройки защиты контента</target>
+      </trans-unit>
+      <trans-unit id="2hbvsi5" resname="admin.content_protection.hotlink.title">
+        <source>admin.content_protection.hotlink.title</source>
+        <target>Защита от Hotlink</target>
+      </trans-unit>
+      <trans-unit id="SlTJ2Qg" resname="admin.content_protection.hotlink.enable">
+        <source>admin.content_protection.hotlink.enable</source>
+        <target>Включить защиту от прямых ссылок</target>
+      </trans-unit>
+      <trans-unit id="h7NET.t" resname="admin.content_protection.hotlink.description">
+        <source>admin.content_protection.hotlink.description</source>
+        <target>Запрещает загрузку медиа-файлов с других сайтов. Проверяет HTTP Referer.</target>
+      </trans-unit>
+      <trans-unit id="oHNC4lN" resname="admin.content_protection.hotlink.allowed_domains">
+        <source>admin.content_protection.hotlink.allowed_domains</source>
+        <target>Разрешенные домены</target>
+      </trans-unit>
+      <trans-unit id="n6bRT4d" resname="admin.content_protection.hotlink.domains_help">
+        <source>admin.content_protection.hotlink.domains_help</source>
+        <target>Один домен на строку. Эти домены смогут загружать ваши медиа-файлы.</target>
+      </trans-unit>
+      <trans-unit id="aeUk325" resname="admin.content_protection.user_agent.title">
+        <source>admin.content_protection.user_agent.title</source>
+        <target>Фильтрация User-Agent</target>
+      </trans-unit>
+      <trans-unit id="2Ktcfti" resname="admin.content_protection.user_agent.enable">
+        <source>admin.content_protection.user_agent.enable</source>
+        <target>Включить фильтрацию User-Agent</target>
+      </trans-unit>
+      <trans-unit id="TccVE3z" resname="admin.content_protection.user_agent.description">
+        <source>admin.content_protection.user_agent.description</source>
+        <target>Блокирует известные скачиватели и боты (wget, curl, youtube-dl, yt-dlp и др.)</target>
+      </trans-unit>
+      <trans-unit id="yaKWSYF" resname="admin.content_protection.user_agent.blocked_agents">
+        <source>admin.content_protection.user_agent.blocked_agents</source>
+        <target>Дополнительные заблокированные User-Agent</target>
+      </trans-unit>
+      <trans-unit id="tmaopVb" resname="admin.content_protection.user_agent.agents_help">
+        <source>admin.content_protection.user_agent.agents_help</source>
+        <target>Один User-Agent на строку. Будут добавлены к стандартному списку.</target>
+      </trans-unit>
+      <trans-unit id="diwdZTJ" resname="admin.content_protection.signed_urls.title">
+        <source>admin.content_protection.signed_urls.title</source>
+        <target>Подписанные URL</target>
+      </trans-unit>
+      <trans-unit id="H7qqiF." resname="admin.content_protection.signed_urls.enable">
+        <source>admin.content_protection.signed_urls.enable</source>
+        <target>Включить подписанные URL</target>
+      </trans-unit>
+      <trans-unit id="fVij_AX" resname="admin.content_protection.signed_urls.description">
+        <source>admin.content_protection.signed_urls.description</source>
+        <target>Генерирует временные токены для доступа к медиа-файлам. URL действителен ограниченное время.</target>
+      </trans-unit>
+      <trans-unit id="E94hwne" resname="admin.content_protection.signed_urls.token_lifetime">
+        <source>admin.content_protection.signed_urls.token_lifetime</source>
+        <target>Время жизни токена</target>
+      </trans-unit>
+      <trans-unit id="kDysZyI" resname="admin.content_protection.signed_urls.seconds">
+        <source>admin.content_protection.signed_urls.seconds</source>
+        <target>секунд</target>
+      </trans-unit>
+      <trans-unit id="eoBFnc1" resname="admin.content_protection.signed_urls.lifetime_help">
+        <source>admin.content_protection.signed_urls.lifetime_help</source>
+        <target>Время в секундах, в течение которого URL остается действительным (60-86400)</target>
+      </trans-unit>
+      <trans-unit id="OiENGLB" resname="admin.content_protection.rate_limit.title">
+        <source>admin.content_protection.rate_limit.title</source>
+        <target>Ограничение скорости</target>
+      </trans-unit>
+      <trans-unit id="Zo.Eit8" resname="admin.content_protection.rate_limit.description">
+        <source>admin.content_protection.rate_limit.description</source>
+        <target>Ограничивает количество запросов с одного IP адреса</target>
+      </trans-unit>
+      <trans-unit id="P7CeNmF" resname="admin.content_protection.rate_limit.per_hour">
+        <source>admin.content_protection.rate_limit.per_hour</source>
+        <target>Максимум запросов в час</target>
+      </trans-unit>
+      <trans-unit id="EJU3ngX" resname="admin.content_protection.rate_limit.requests">
+        <source>admin.content_protection.rate_limit.requests</source>
+        <target>запросов</target>
+      </trans-unit>
+      <trans-unit id="2ArZNeN" resname="admin.content_protection.rate_limit.help">
+        <source>admin.content_protection.rate_limit.help</source>
+        <target>Количество запросов к медиа-файлам с одного IP в час (10-10000)</target>
+      </trans-unit>
+      <trans-unit id="34ARGI7" resname="admin.content_protection.watermark.title">
+        <source>admin.content_protection.watermark.title</source>
+        <target>Водяной знак</target>
+      </trans-unit>
+      <trans-unit id="tjeqPPv" resname="admin.content_protection.watermark.enable">
+        <source>admin.content_protection.watermark.enable</source>
+        <target>Включить водяной знак</target>
+      </trans-unit>
+      <trans-unit id="WBKQcbQ" resname="admin.content_protection.watermark.description">
+        <source>admin.content_protection.watermark.description</source>
+        <target>Добавляет водяной знак на видео для защиты от кражи контента</target>
+      </trans-unit>
+      <trans-unit id="EYXg0SP" resname="admin.content_protection.watermark.text">
+        <source>admin.content_protection.watermark.text</source>
+        <target>Текст водяного знака</target>
+      </trans-unit>
+      <trans-unit id="pXDxuOg" resname="admin.content_protection.watermark.text_help">
+        <source>admin.content_protection.watermark.text_help</source>
+        <target>Текст, который будет отображаться на видео. Можно использовать {username} для имени пользователя.</target>
+      </trans-unit>
+      <trans-unit id="f_ynIEi" resname="admin.content_protection.watermark.position">
+        <source>admin.content_protection.watermark.position</source>
+        <target>Позиция</target>
+      </trans-unit>
+      <trans-unit id="hf96bAA" resname="admin.content_protection.watermark.position_top_left">
+        <source>admin.content_protection.watermark.position_top_left</source>
+        <target>Верхний левый угол</target>
+      </trans-unit>
+      <trans-unit id="rOp.jot" resname="admin.content_protection.watermark.position_top_right">
+        <source>admin.content_protection.watermark.position_top_right</source>
+        <target>Верхний правый угол</target>
+      </trans-unit>
+      <trans-unit id="iU7AYyR" resname="admin.content_protection.watermark.position_bottom_left">
+        <source>admin.content_protection.watermark.position_bottom_left</source>
+        <target>Нижний левый угол</target>
+      </trans-unit>
+      <trans-unit id="hz4gtgN" resname="admin.content_protection.watermark.position_bottom_right">
+        <source>admin.content_protection.watermark.position_bottom_right</source>
+        <target>Нижний правый угол</target>
+      </trans-unit>
+      <trans-unit id="dehD0g2" resname="admin.content_protection.watermark.position_center">
+        <source>admin.content_protection.watermark.position_center</source>
+        <target>По центру</target>
+      </trans-unit>
+      <trans-unit id="IVKjlds" resname="admin.content_protection.watermark.opacity">
+        <source>admin.content_protection.watermark.opacity</source>
+        <target>Прозрачность</target>
+      </trans-unit>
+      <trans-unit id="KxVsE2c" resname="admin.content_protection.info.title">
+        <source>admin.content_protection.info.title</source>
+        <target>Информация</target>
+      </trans-unit>
+      <trans-unit id="W8TsqHH" resname="admin.content_protection.info.how_it_works">
+        <source>admin.content_protection.info.how_it_works</source>
+        <target>Как это работает:</target>
+      </trans-unit>
+      <trans-unit id="rfLreiD" resname="admin.content_protection.info.hotlink_desc">
+        <source>admin.content_protection.info.hotlink_desc</source>
+        <target>Проверяет HTTP Referer и блокирует запросы с неразрешенных доменов</target>
+      </trans-unit>
+      <trans-unit id="Gb8.P9u" resname="admin.content_protection.info.user_agent_desc">
+        <source>admin.content_protection.info.user_agent_desc</source>
+        <target>Блокирует запросы от известных скачивателей и ботов по User-Agent</target>
+      </trans-unit>
+      <trans-unit id="2.t5cLz" resname="admin.content_protection.info.signed_urls_desc">
+        <source>admin.content_protection.info.signed_urls_desc</source>
+        <target>Генерирует временные подписанные URL с токенами, привязанными к IP и сессии</target>
+      </trans-unit>
+      <trans-unit id="dWCxKzN" resname="admin.content_protection.info.rate_limit_desc">
+        <source>admin.content_protection.info.rate_limit_desc</source>
+        <target>Ограничивает количество запросов с одного IP для предотвращения массового скачивания</target>
+      </trans-unit>
+      <trans-unit id="r4jYdYp" resname="admin.content_protection.info.watermark_desc">
+        <source>admin.content_protection.info.watermark_desc</source>
+        <target>Добавляет видимый водяной знак на видео (требует перекодирование)</target>
+      </trans-unit>
+      <trans-unit id="uxzIfzf" resname="admin.content_protection.info.warning">
+        <source>admin.content_protection.info.warning</source>
+        <target>Внимание</target>
+      </trans-unit>
+      <trans-unit id="DO8mypV" resname="admin.content_protection.info.warning_text">
+        <source>admin.content_protection.info.warning_text</source>
+        <target>Слишком строгие настройки могут заблокировать легитимных пользователей. Рекомендуется начать с мягких настроек и постепенно ужесточать.</target>
+      </trans-unit>
+      <trans-unit id="WQxH6m_" resname="seo.category.auto_title">
+        <source>seo.category.auto_title</source>
+        <target>%name% — %count% видео</target>
+      </trans-unit>
+      <trans-unit id="RxRI1Wy" resname="seo.category.auto_description">
+        <source>seo.category.auto_description</source>
+        <target>Смотрите %count% видео в категории %name%. Лучшая подборка онлайн бесплатно в хорошем качестве.</target>
+      </trans-unit>
+      <trans-unit id="WZ2tCtK" resname="seo.model.auto_title">
+        <source>seo.model.auto_title</source>
+        <target>%name% — %count% видео</target>
+      </trans-unit>
+      <trans-unit id="lA3xjQR" resname="seo.model.auto_description">
+        <source>seo.model.auto_description</source>
+        <target>%name% — %videos% видео, %views% просмотров. Смотрите все видео онлайн бесплатно.</target>
+      </trans-unit>
+      <trans-unit id="ppXauXH" resname="seo.tag.auto_title">
+        <source>seo.tag.auto_title</source>
+        <target>%name% — %count% видео</target>
+      </trans-unit>
+      <trans-unit id="4ECTLo9" resname="seo.tag.auto_description">
+        <source>seo.tag.auto_description</source>
+        <target>Видео с тегом %name%: %count% роликов. Смотрите онлайн бесплатно в хорошем качестве.</target>
+      </trans-unit>
+      <trans-unit id="97ntBRh" resname="seo.video.auto_description">
+        <source>seo.video.auto_description</source>
+        <target>%title%. %duration% %categories%. %views% просмотров.</target>
+      </trans-unit>
+      <trans-unit id="5ba2fbk" resname="seo.keywords.video">
+        <source>seo.keywords.video</source>
+        <target>видео</target>
+      </trans-unit>
+      <trans-unit id="xt7Az4q" resname="seo.keywords.watch">
+        <source>seo.keywords.watch</source>
+        <target>смотреть</target>
+      </trans-unit>
+      <trans-unit id="d1voK0g" resname="seo.keywords.model">
+        <source>seo.keywords.model</source>
+        <target>модель</target>
+      </trans-unit>
+      <trans-unit id="W7oUs0t" resname="seo.keywords.tag">
+        <source>seo.keywords.tag</source>
+        <target>тег</target>
+      </trans-unit>
+      <trans-unit id="DyMx0kF" resname="seo.keywords.category">
+        <source>seo.keywords.category</source>
+        <target>категория</target>
+      </trans-unit>
+      <trans-unit id="tMmi9lm" resname="seo.admin.generate_seo">
+        <source>seo.admin.generate_seo</source>
+        <target>Сгенерировать SEO</target>
+      </trans-unit>
+      <trans-unit id="uc.pd9c" resname="seo.admin.generating">
+        <source>seo.admin.generating</source>
+        <target>Генерация...</target>
+      </trans-unit>
+      <trans-unit id="kypy6Wh" resname="seo.admin.generated">
+        <source>seo.admin.generated</source>
+        <target>SEO сгенерировано</target>
+      </trans-unit>
+      <trans-unit id=".XHQ70Y" resname="seo.admin.error">
+        <source>seo.admin.error</source>
+        <target>Ошибка генерации</target>
+      </trans-unit>
+      <trans-unit id="t6HngmE" resname="video.not_found">
+        <source>video.not_found</source>
+        <target>__video.not_found</target>
+      </trans-unit>
+      <trans-unit id="Kt5pFOm" resname="model.likes">
+        <source>model.likes</source>
+        <target>__model.likes</target>
+      </trans-unit>
+      <trans-unit id="IYh36uY" resname="common.add">
+        <source>common.add</source>
+        <target>__common.add</target>
+      </trans-unit>
+      <trans-unit id="EzjkEXO" resname="video.likes">
+        <source>video.likes</source>
+        <target>__video.likes</target>
+      </trans-unit>
+      <trans-unit id="hCzd9fe" resname="category.videos">
+        <source>category.videos</source>
+        <target>__category.videos</target>
+      </trans-unit>
+      <trans-unit id="JKOxvKT" resname="model.cover">
+        <source>model.cover</source>
+        <target>__model.cover</target>
+      </trans-unit>
+      <trans-unit id="OdZhzaW" resname="model.profile">
+        <source>model.profile</source>
+        <target>__model.profile</target>
+      </trans-unit>
+      <trans-unit id="yssD3gN" resname="footer.logo">
+        <source>footer.logo</source>
+        <target>__footer.logo</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

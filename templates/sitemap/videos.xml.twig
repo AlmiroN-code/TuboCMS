@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+{% for item in videos %}
+    <url>
+        <loc>{{ item.loc }}</loc>
+        {% if item.lastmod is defined and item.lastmod %}
+        <lastmod>{{ item.lastmod }}</lastmod>
+        {% endif %}
+        {% if item.changefreq is defined %}
+        <changefreq>{{ item.changefreq }}</changefreq>
+        {% endif %}
+        {% if item.priority is defined %}
+        <priority>{{ item.priority }}</priority>
+        {% endif %}
+        {% if item.video is defined %}
+        <video:video>
+            {% if item.video.thumbnail_loc %}
+            <video:thumbnail_loc>{{ item.video.thumbnail_loc }}</video:thumbnail_loc>
+            {% endif %}
+            <video:title>{{ item.video.title|e }}</video:title>
+            <video:description>{{ item.video.description|e|slice(0, 2048) }}</video:description>
+            {% if item.video.duration > 0 %}
+            <video:duration>{{ item.video.duration }}</video:duration>
+            {% endif %}
+            {% if item.video.view_count > 0 %}
+            <video:view_count>{{ item.video.view_count }}</video:view_count>
+            {% endif %}
+            {% if item.video.publication_date %}
+            <video:publication_date>{{ item.video.publication_date }}</video:publication_date>
+            {% endif %}
+            <video:family_friendly>{{ item.video.family_friendly }}</video:family_friendly>
+            {% if item.video.category %}
+            <video:category>{{ item.video.category|e }}</video:category>
+            {% endif %}
+        </video:video>
+        {% endif %}
+    </url>
+{% endfor %}
+</urlset>

@@ -1,0 +1,66 @@
+# Russian translations - Validation messages
+# Requirements: 6.1, 7.1, 7.2
+
+# Common validation messages
+This value should not be blank.: "Это поле не может быть пустым."
+This value is not valid.: "Это значение недопустимо."
+This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.: "Значение слишком короткое. Минимум {{ limit }} символ.|Значение слишком короткое. Минимум {{ limit }} символа.|Значение слишком короткое. Минимум {{ limit }} символов."
+This value is too long. It should have {{ limit }} character or less.|This value is too long. It should have {{ limit }} characters or less.: "Значение слишком длинное. Максимум {{ limit }} символ.|Значение слишком длинное. Максимум {{ limit }} символа.|Значение слишком длинное. Максимум {{ limit }} символов."
+This value is not a valid email address.: "Это значение не является корректным email адресом."
+The two values should be equal.: "Значения должны совпадать."
+This value should be positive.: "Значение должно быть положительным."
+This value should be greater than {{ compared_value }}.: "Значение должно быть больше {{ compared_value }}."
+This value should be less than {{ compared_value }}.: "Значение должно быть меньше {{ compared_value }}."
+
+# File validation
+The file is too large ({{ size }} {{ suffix }}). Allowed maximum size is {{ limit }} {{ suffix }}.: "Файл слишком большой ({{ size }} {{ suffix }}). Максимальный размер {{ limit }} {{ suffix }}."
+The mime type of the file is invalid ({{ type }}). Allowed mime types are {{ types }}.: "Недопустимый тип файла ({{ type }}). Разрешённые типы: {{ types }}."
+The file could not be uploaded.: "Не удалось загрузить файл."
+An empty file is not allowed.: "Пустой файл не допускается."
+
+# User registration validation
+username:
+    not_blank: "Введите имя пользователя"
+    min_length: "Имя пользователя должно содержать минимум {{ limit }} символа"
+    max_length: "Имя пользователя не может быть длиннее {{ limit }} символов"
+    invalid_characters: "Имя пользователя может содержать только буквы, цифры, дефисы и подчеркивания"
+    already_used: "Это имя пользователя уже занято"
+
+email:
+    not_blank: "Введите email адрес"
+    invalid: "Введите корректный email адрес"
+    max_length: "Email не может быть длиннее {{ limit }} символов"
+    already_used: "Аккаунт с таким email уже существует"
+
+password:
+    not_blank: "Введите пароль"
+    min_length: "Пароль должен содержать минимум {{ limit }} символов"
+    max_length: "Пароль не может быть длиннее {{ limit }} символов"
+    weak: "Пароль должен содержать минимум одну строчную букву, одну заглавную букву и одну цифру"
+    compromised: "Этот пароль был скомпрометирован в утечках данных. Выберите другой пароль."
+    mismatch: "Пароли должны совпадать"
+
+# Video upload validation
+video:
+    title:
+        not_blank: "Введите название видео"
+        max_length: "Название не может быть длиннее {{ limit }} символов"
+    file:
+        invalid_type: "Загрузите корректный видео файл"
+        too_large: "Видео файл слишком большой. Максимальный размер {{ limit }}"
+
+# Profile validation
+profile:
+    avatar:
+        invalid_type: "Загрузите изображение (JPEG, PNG, GIF, WebP)"
+        too_large: "Файл аватара слишком большой. Максимальный размер {{ limit }}"
+    cover:
+        invalid_type: "Загрузите изображение (JPEG, PNG, GIF, WebP)"
+        too_large: "Обложка слишком большая. Максимальный размер {{ limit }}"
+    bio:
+        max_length: "Описание не может быть длиннее {{ limit }} символов"
+
+# Comment validation
+comment:
+    not_blank: "Комментарий не может быть пустым"
+    max_length: "Комментарий слишком длинный"

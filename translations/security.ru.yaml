@@ -1,0 +1,38 @@
+# Russian translations - Security messages
+# Requirements: 7.1, 7.2, 6.3
+
+# Authentication error messages (Symfony Security)
+"Invalid credentials.": "Неверные учётные данные."
+"Invalid CSRF token.": "Недействительный токен безопасности. Пожалуйста, попробуйте снова."
+"Authentication request could not be processed due to a system problem.": "Запрос аутентификации не может быть обработан из-за системной ошибки."
+"Account is disabled.": "Ваш аккаунт отключён."
+"Account is locked.": "Ваш аккаунт заблокирован."
+"Account has expired.": "Срок действия вашего аккаунта истёк."
+"Credentials have expired.": "Срок действия ваших учётных данных истёк."
+"Too many failed login attempts, please try again later.": "Слишком много неудачных попыток входа, попробуйте позже."
+"Username could not be found.": "Пользователь не найден."
+"Bad credentials.": "Неверный email или пароль."
+"An authentication exception occurred.": "Произошла ошибка аутентификации."
+
+# Additional authentication messages
+"Not privileged to request the resource.": "У вас нет прав для доступа к этому ресурсу."
+"Full authentication is required to access this resource.": "Для доступа к этому ресурсу необходимо войти в систему."
+"Session has expired or is invalid.": "Ваша сессия истекла. Пожалуйста, войдите снова."
+"No session available, it either timed out or cookies are not enabled.": "Сессия недоступна. Пожалуйста, включите cookies и попробуйте снова."
+"Cookie has already been used by someone else.": "Ошибка безопасности. Пожалуйста, войдите снова."
+
+# Password reset messages
+"Password reset link has expired.": "Ссылка для сброса пароля истекла."
+"Invalid password reset token.": "Недействительный токен сброса пароля."
+
+# Registration messages
+"This email is already registered.": "Этот email уже зарегистрирован."
+"This username is already taken.": "Это имя пользователя уже занято."
+
+# Rate limiting messages
+"Too many login attempts.": "Слишком много попыток входа. Попробуйте позже."
+"Too many registration attempts.": "Слишком много попыток регистрации. Попробуйте позже."
+
+# Access denied messages
+"Access Denied.": "Доступ запрещён."
+"You are not allowed to access this page.": "У вас нет доступа к этой странице."

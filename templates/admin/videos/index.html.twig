@@ -1,0 +1,63 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Видео{% endblock %}
+{% block page_title %}Видео{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex items-center gap-4">
+        <p class="text-gray-600">Всего: {{ total }}</p>
+        {# Status Filter #}
+        <select id="status-filter" 
+                hx-get="{{ path('admin_videos') }}"
+                hx-target="#videos-table"
+                hx-swap="innerHTML"
+                hx-include="[name='sort']"
+                name="status"
+                class="px-3 py-2 border border-gray-300 rounded text-sm">
+            <option value="" {{ currentStatus is same as(null) ? 'selected' : '' }}>Все статусы</option>
+            <option value="published" {{ currentStatus == 'published' ? 'selected' : '' }}>Опубликовано</option>
+            <option value="draft" {{ currentStatus == 'draft' ? 'selected' : '' }}>Черновик</option>
+            <option value="processing" {{ currentStatus == 'processing' ? 'selected' : '' }}>Обработка</option>
+            <option value="rejected" {{ currentStatus == 'rejected' ? 'selected' : '' }}>Отклонено</option>
+        </select>
+        {# Sort Filter #}
+        <select id="sort-filter" 
+                hx-get="{{ path('admin_videos') }}"
+                hx-target="#videos-table"
+                hx-swap="innerHTML"
+                hx-include="[name='status']"
+                name="sort"
+                class="px-3 py-2 border border-gray-300 rounded text-sm">
+            <option value="date_desc" {{ currentSort is same as(null) or currentSort == 'date_desc' ? 'selected' : '' }}>По дате ↓</option>
+            <option value="date_asc" {{ currentSort == 'date_asc' ? 'selected' : '' }}>По дате ↑</option>
+            <option value="views_desc" {{ currentSort == 'views_desc' ? 'selected' : '' }}>По просмотрам ↓</option>
+            <option value="views_asc" {{ currentSort == 'views_asc' ? 'selected' : '' }}>По просмотрам ↑</option>
+            <option value="impressions_desc" {{ currentSort == 'impressions_desc' ? 'selected' : '' }}>По показам ↓</option>
+            <option value="impressions_asc" {{ currentSort == 'impressions_asc' ? 'selected' : '' }}>По показам ↑</option>
+            <option value="ctr_desc" {{ currentSort == 'ctr_desc' ? 'selected' : '' }}>По CTR ↓</option>
+            <option value="ctr_asc" {{ currentSort == 'ctr_asc' ? 'selected' : '' }}>По CTR ↑</option>
+        </select>
+    </div>
+    <a href="{{ path('admin_videos_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Добавить видео
+    </a>
+</div>
+
+<div id="videos-table" class="bg-white rounded-md shadow overflow-hidden">
+    {% include 'admin/videos/_table.html.twig' %}
+</div>
+
+{% if pages > 1 %}
+<div class="mt-6 flex justify-center">
+    <nav class="flex space-x-2">
+        {% for p in 1..pages %}
+            <a href="{{ path('admin_videos', {page: p, sort: currentSort, status: currentStatus}) }}" 
+               class="px-4 py-2 rounded {{ p == page ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                {{ p }}
+            </a>
+        {% endfor %}
+    </nav>
+</div>
+{% endif %}
+{% endblock %}

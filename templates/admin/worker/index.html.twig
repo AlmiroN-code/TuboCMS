@@ -1,0 +1,130 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Messenger Worker{% endblock %}
+{% block page_title %}Messenger Worker{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Статус воркера -->
+    <div class="bg-white rounded-md shadow p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Статус воркера</h3>
+            <div class="flex items-center gap-3">
+                {% if status.running %}
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Запущен
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                        Остановлен
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Информация -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-gray-50 rounded-md p-4">
+                <div class="text-sm text-gray-500 mb-1">PID процесса</div>
+                <div class="text-lg font-semibold text-gray-900">
+                    {{ status.pid ?? '—' }}
+                </div>
+            </div>
+            <div class="bg-gray-50 rounded-md p-4">
+                <div class="text-sm text-gray-500 mb-1">Сообщений в очереди</div>
+                <div class="text-lg font-semibold text-gray-900">
+                    {{ status.pendingMessages ?? 0 }}
+                </div>
+            </div>
+            <div class="bg-gray-50 rounded-md p-4">
+                <div class="text-sm text-gray-500 mb-1">Размер лога</div>
+                <div class="text-lg font-semibold text-gray-900">
+                    {% if status.logSize is defined %}
+                        {{ (status.logSize / 1024)|number_format(1) }} KB
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки управления -->
+        <div class="flex items-center gap-3">
+            {% if status.running %}
+                <form action="{{ path('admin_worker_stop') }}" method="POST" class="inline">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                        </svg>
+                        Остановить
+                    </button>
+                </form>
+                <form action="{{ path('admin_worker_restart') }}" method="POST" class="inline">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Перезапустить
+                    </button>
+                </form>
+            {% else %}
+                <form action="{{ path('admin_worker_start') }}" method="POST" class="inline">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Запустить
+                    </button>
+                </form>
+            {% endif %}
+            
+            <a href="{{ path('admin_worker_logs') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Просмотр логов
+            </a>
+        </div>
+    </div>
+
+    <!-- Последние логи -->
+    {% if status.lastLog is defined and status.lastLog %}
+    <div class="bg-white rounded-md shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Последние записи лога</h3>
+            <a href="{{ path('admin_worker_logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                Показать все →
+            </a>
+        </div>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-64 overflow-y-auto">{{ status.lastLog }}</pre>
+    </div>
+    {% endif %}
+
+    <!-- Информация о конфигурации -->
+    <div class="bg-white rounded-md shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Конфигурация</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500">PID файл:</span>
+                <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">{{ status.pidFile }}</code>
+            </div>
+            <div>
+                <span class="text-gray-500">Лог файл:</span>
+                <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">{{ status.logFile }}</code>
+            </div>
+            <div>
+                <span class="text-gray-500">Транспорт:</span>
+                <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">async (Doctrine)</code>
+            </div>
+            <div>
+                <span class="text-gray-500">Лимиты:</span>
+                <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">1 час / 256MB</code>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

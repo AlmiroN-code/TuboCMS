@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': title is defined ? (title starts with 'video.' ? title|trans : title) : 'video.all_videos'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ setting('seo_videos_title') ?: (title is defined ? (title starts with 'video.' ? title|trans : title) : 'video.all_videos'|trans) }}{% endblock %}
+
+{% block meta_description %}{{ setting('seo_videos_description') ?: parent() }}{% endblock %}
+
+{% block meta_keywords %}{{ setting('seo_videos_keywords') ?: parent() }}{% endblock %}
+
+{# ItemList JSON-LD structured data #}
+{% block structured_data %}
+{{ itemlist_schema(videos, title is defined ? (title starts with 'video.' ? title|trans : title) : 'video.all_videos'|trans, url('app_videos')) }}
+{% endblock %}
+
+{# Pagination SEO #}
+{% block pagination_seo %}
+{% set total_pages = (videos|length == 24) ? page + 1 : page %}
+{% set prev_url = pagination_prev_url(page, total_pages) %}
+{% set next_url = pagination_next_url(page, total_pages) %}
+{% if prev_url %}<link rel="prev" href="{{ prev_url }}">{% endif %}
+{% if next_url %}<link rel="next" href="{{ next_url }}">{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="flex gap-2">
+        {% include 'partials/_sidebar.html.twig' %}
+        
+        <div class="flex-1 p-3">
+            {# Реклама в шапке #}
+            {{ show_ad('header', {'page': 'videos', 'category_id': category.id|default(null)}) }}
+
+            <div class="mb-4">
+                <h1 class="text-3xl text-gray-900 dark:text-gray-100">{{ title is defined ? (title starts with 'video.' ? title|trans : title) : 'video.all_videos'|trans }}</h1>
+            </div>
+
+            {# Filters #}
+            <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-md" data-controller="filter">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">{{ ux_icon('mingcute:time-duration-line', {class: 'w-4 h-4'}) }} {{ 'filter.duration'|trans }}:</label>
+                        <select data-filter-target="duration" data-action="change->filter#filter"
+                                class="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+                            <option value="">{{ 'filter.all'|trans }}</option>
+                            <option value="short" {{ duration|default('') == 'short' ? 'selected' : '' }}>{{ 'filter.short'|trans }} (&lt;5 {{ 'filter.min'|trans }})</option>
+                            <option value="medium" {{ duration|default('') == 'medium' ? 'selected' : '' }}>{{ 'filter.medium'|trans }} (5-20 {{ 'filter.min'|trans }})</option>
+                            <option value="long" {{ duration|default('') == 'long' ? 'selected' : '' }}>{{ 'filter.long'|trans }} (&gt;20 {{ 'filter.min'|trans }})</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">{{ ux_icon('tabler:arrows-sort', {class: 'w-4 h-4'}) }} {{ 'filter.sort'|trans }}:</label>
+                        <select data-filter-target="sort" data-action="change->filter#filter"
+                                class="px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+                            <option value="newest" {{ sort|default('newest') == 'newest' ? 'selected' : '' }}>{{ 'filter.newest'|trans }}</option>
+                            <option value="oldest" {{ sort|default('newest') == 'oldest' ? 'selected' : '' }}>{{ 'filter.oldest'|trans }}</option>
+                            <option value="popular" {{ sort|default('newest') == 'popular' ? 'selected' : '' }}>{{ 'filter.popular'|trans }}</option>
+                            <option value="rating" {{ sort|default('newest') == 'rating' ? 'selected' : '' }}>{{ 'filter.rating'|trans }}</option>
+                        </select>
+                    </div>
+                    
+                    {% if filters is defined and filters|length > 0 %}
+                        <button type="button" data-action="filter#reset" class="text-sm text-red-500 hover:text-red-400 flex items-center gap-1">
+                            {{ ux_icon('tabler:trash', {class: 'w-4 h-4'}) }} {{ 'filter.reset'|trans }} 
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if videos|length > 0 %}
+                <div id="video-grid" class="video-grid">
+                    {% for video in videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                        
+                        {# Реклама между видео каждые 6 элементов #}
+                        {% if loop.index is divisible by(6) %}
+                            <div class="col-span-full my-4">
+                                {{ show_ad('between_videos', {'page': 'videos', 'category_id': category.id|default(null)}) }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {# Load More Button #}
+                    {% if videos|length == 24 %}
+                    <div id="load-more-container" class="col-span-full flex justify-center mt-4">
+                        <button 
+                            hx-get="{{ path('app_videos_load_more', {sort: sort|default('newest'), page: page + 1}) }}"
+                            hx-target="#video-grid"
+                            hx-swap="beforeend"
+                            hx-on::after-request="this.parentElement.remove()"
+                            class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition flex items-center gap-2">
+                            <span>{{ 'video.load_more'|trans }}</span>
+                            <svg class="w-5 h-5 htmx-indicator animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# Classic Pagination #}
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if page > 1 %}
+                        <a href="?page={{ page - 1 }}" 
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            ← {{ 'pagination.previous'|trans }}
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-orange-600 text-white rounded-md">
+                        {{ 'pagination.page'|trans({'%page%': page}) }}
+                    </span>
+                    
+                    {% if videos|length == 24 %}
+                        <a href="?page={{ page + 1 }}" 
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            {{ 'pagination.next'|trans }} →
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'video.no_videos'|trans }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

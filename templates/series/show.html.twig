@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'series.my_series'|trans, 'url': path('app_series_index')},
+    {'label': series.title, 'url': ''}
+] %}
+
+{% block title %}{{ series.title }} - {{ setting('site_name') }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold text-white">{{ series.title }}</h1>
+                {% if series.description %}
+                    <p class="text-gray-400 mt-2">{{ series.description }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 mt-2">{{ series.videosCount }} {{ 'series.episodes'|trans }}</p>
+            </div>
+            {% if isOwner %}
+                <a href="{{ path('app_series_create') }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+                    {{ 'series.create_new'|trans|default('Создать серию') }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for season in series.seasons %}
+        <div class="mb-8 bg-gray-800 rounded-md p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-white">{{ season.displayTitle }}</h2>
+                {% if isOwner %}
+                    <button type="button" 
+                            onclick="toggleAddEpisode({{ season.id }})"
+                            class="text-sm text-orange-500 hover:text-orange-400">
+                        + {{ 'series.add_episode'|trans|default('Добавить эпизод') }}
+                    </button>
+                {% endif %}
+            </div>
+            
+            {# Add episode form (hidden by default) #}
+            {% if isOwner %}
+                <div id="add-episode-{{ season.id }}" class="hidden mb-4 p-4 bg-gray-700 rounded-md">
+                    <form action="{{ path('app_series_add_episode', {id: series.id}) }}" method="post" class="flex gap-2">
+                        <input type="hidden" name="season_id" value="{{ season.id }}">
+                        <select name="video_id" required class="flex-grow bg-gray-600 border border-gray-500 rounded px-3 py-2 text-white">
+                            <option value="">{{ 'series.select_video'|trans|default('Выберите видео') }}</option>
+                            {% for video in user_videos|default([]) %}
+                                <option value="{{ video.id }}">{{ video.title }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                            {{ 'common.add'|trans|default('Добавить') }}
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+            
+            {% if season.episodes is empty %}
+                <p class="text-gray-400">{{ 'series.no_episodes'|trans }}</p>
+            {% else %}
+                <div class="space-y-3">
+                    {% for video in season.episodes %}
+                        <a href="{{ path('video_detail', {slug: video.slug}) }}" class="flex gap-4 bg-gray-700 rounded-md p-3 hover:bg-gray-600 transition">
+                            <div class="flex-shrink-0 w-32 aspect-video bg-gray-600 rounded overflow-hidden">
+                                {% if video.poster %}
+                                    {{ lazy_img(asset('media/posters/' ~ video.poster), video.title, 'w-full h-full object-cover', 128, 72) }}
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gray-500 text-sm">{{ 'series.episode'|trans }} {{ video.episodeNumber }}</span>
+                                </div>
+                                <h3 class="font-semibold text-white">{{ video.title }}</h3>
+                                <p class="text-sm text-gray-400">{{ video.durationFormatted }}</p>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="text-center py-8">
+            <p class="text-gray-400 mb-4">{{ 'series.no_seasons'|trans }}</p>
+        </div>
+    {% endfor %}
+
+    {% if isOwner %}
+        <div class="mt-8 p-4 bg-gray-800 rounded-md">
+            <h3 class="font-semibold text-white mb-4">{{ 'series.manage'|trans }}</h3>
+            <form action="{{ path('app_series_add_season', {id: series.id}) }}" method="post" class="flex gap-2">
+                <input type="text" name="title" placeholder="{{ 'series.season_title'|trans }}" 
+                       class="flex-grow bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                    {{ 'series.add_season'|trans }}
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleAddEpisode(seasonId) {
+    const form = document.getElementById('add-episode-' + seasonId);
+    form.classList.toggle('hidden');
+}
+</script>
+{% endblock %}

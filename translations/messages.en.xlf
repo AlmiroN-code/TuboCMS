@@ -1,0 +1,1534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="eLrezdb" resname="search.placeholder">
+        <source>search.placeholder</source>
+        <target>Search videos...</target>
+      </trans-unit>
+      <trans-unit id="6cF3V18" resname="search.view_all_results">
+        <source>search.view_all_results</source>
+        <target>View all results</target>
+      </trans-unit>
+      <trans-unit id="HFDRxsS" resname="search.no_results">
+        <source>search.no_results</source>
+        <target>No results found</target>
+      </trans-unit>
+      <trans-unit id="Y5AiU23" resname="search.try_full_search">
+        <source>search.try_full_search</source>
+        <target>Try full search</target>
+      </trans-unit>
+      <trans-unit id="AF.qlip" resname="search.try_different_query">
+        <source>search.try_different_query</source>
+        <target>Try a different query</target>
+      </trans-unit>
+      <trans-unit id="_YOUhcO" resname="search.videos">
+        <source>search.videos</source>
+        <target>Videos</target>
+      </trans-unit>
+      <trans-unit id="Ab8hLth" resname="search.categories">
+        <source>search.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="OsiANl_" resname="search.tags">
+        <source>search.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="cXcQZ3Z" resname="search.models">
+        <source>search.models</source>
+        <target>Models</target>
+      </trans-unit>
+      <trans-unit id="LboHGOB" resname="nav.home">
+        <source>nav.home</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="hX16ohC" resname="nav.videos">
+        <source>nav.videos</source>
+        <target>Videos</target>
+      </trans-unit>
+      <trans-unit id="uPYqAQT" resname="nav.categories">
+        <source>nav.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="0UVAM0C" resname="nav.tags">
+        <source>nav.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="ixdmVLo" resname="nav.models">
+        <source>nav.models</source>
+        <target>Models</target>
+      </trans-unit>
+      <trans-unit id="RIh3Tr6" resname="nav.community">
+        <source>nav.community</source>
+        <target>Community</target>
+      </trans-unit>
+      <trans-unit id="LndwEuF" resname="nav.popular">
+        <source>nav.popular</source>
+        <target>Popular</target>
+      </trans-unit>
+      <trans-unit id="3H3KfYj" resname="nav.trending">
+        <source>nav.trending</source>
+        <target>Trending</target>
+      </trans-unit>
+      <trans-unit id="kGa.Ppj" resname="auth.login">
+        <source>auth.login</source>
+        <target>Login</target>
+      </trans-unit>
+      <trans-unit id="E7gA3ag" resname="auth.logout">
+        <source>auth.logout</source>
+        <target>Logout</target>
+      </trans-unit>
+      <trans-unit id="I1cUD63" resname="auth.register">
+        <source>auth.register</source>
+        <target>Sign Up</target>
+      </trans-unit>
+      <trans-unit id="B_sm11q" resname="auth.my_profile">
+        <source>auth.my_profile</source>
+        <target>My Profile</target>
+      </trans-unit>
+      <trans-unit id="jC1Ruvx" resname="auth.my_videos">
+        <source>auth.my_videos</source>
+        <target>My Videos</target>
+      </trans-unit>
+      <trans-unit id="CNf82o7" resname="auth.admin_panel">
+        <source>auth.admin_panel</source>
+        <target>Admin Panel</target>
+      </trans-unit>
+      <trans-unit id="ojOTtV6" resname="auth.login_page.title">
+        <source>auth.login_page.title</source>
+        <target>Login</target>
+      </trans-unit>
+      <trans-unit id="8co3g1K" resname="auth.login_page.heading">
+        <source>auth.login_page.heading</source>
+        <target>Sign in to your account</target>
+      </trans-unit>
+      <trans-unit id="GpxTGlS" resname="auth.login_page.email">
+        <source>auth.login_page.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="mW2S5Qg" resname="auth.login_page.password">
+        <source>auth.login_page.password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="UaVfqXf" resname="auth.login_page.submit">
+        <source>auth.login_page.submit</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="3aQSf_o" resname="auth.login_page.no_account">
+        <source>auth.login_page.no_account</source>
+        <target>Don't have an account?</target>
+      </trans-unit>
+      <trans-unit id="Sh8sXH6" resname="auth.login_page.sign_up_link">
+        <source>auth.login_page.sign_up_link</source>
+        <target>Sign up</target>
+      </trans-unit>
+      <trans-unit id="5soH3g2" resname="auth.register_page.title">
+        <source>auth.register_page.title</source>
+        <target>Sign Up</target>
+      </trans-unit>
+      <trans-unit id="4_fVhp4" resname="auth.register_page.heading">
+        <source>auth.register_page.heading</source>
+        <target>Create an account</target>
+      </trans-unit>
+      <trans-unit id=".GjsQ8X" resname="auth.register_page.username">
+        <source>auth.register_page.username</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="gLRDeP8" resname="auth.register_page.email">
+        <source>auth.register_page.email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="CSnxsM2" resname="auth.register_page.password">
+        <source>auth.register_page.password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="AOt8C9W" resname="auth.register_page.submit">
+        <source>auth.register_page.submit</source>
+        <target>Sign up</target>
+      </trans-unit>
+      <trans-unit id="F85oU44" resname="auth.register_page.have_account">
+        <source>auth.register_page.have_account</source>
+        <target>Already have an account?</target>
+      </trans-unit>
+      <trans-unit id="puMVEH1" resname="auth.register_page.sign_in_link">
+        <source>auth.register_page.sign_in_link</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="7ZCVvo6" resname="auth.errors.invalid_credentials">
+        <source>auth.errors.invalid_credentials</source>
+        <target>Invalid credentials</target>
+      </trans-unit>
+      <trans-unit id="SB527eh" resname="auth.errors.account_disabled">
+        <source>auth.errors.account_disabled</source>
+        <target>Your account has been disabled</target>
+      </trans-unit>
+      <trans-unit id="6c1gU6Z" resname="auth.errors.account_locked">
+        <source>auth.errors.account_locked</source>
+        <target>Your account is locked</target>
+      </trans-unit>
+      <trans-unit id="S_WM5KJ" resname="auth.errors.email_not_verified">
+        <source>auth.errors.email_not_verified</source>
+        <target>Please verify your email address</target>
+      </trans-unit>
+      <trans-unit id="mShOSei" resname="video.all_videos">
+        <source>video.all_videos</source>
+        <target>All Videos</target>
+      </trans-unit>
+      <trans-unit id="S7RBlax" resname="video.popular_videos">
+        <source>video.popular_videos</source>
+        <target>Popular Videos</target>
+      </trans-unit>
+      <trans-unit id="RWeuU4a" resname="video.trending_videos">
+        <source>video.trending_videos</source>
+        <target>Trending Videos</target>
+      </trans-unit>
+      <trans-unit id="EyYyO8S" resname="video.newest_videos">
+        <source>video.newest_videos</source>
+        <target>Newest Videos</target>
+      </trans-unit>
+      <trans-unit id="7.YNPu4" resname="video.my_videos">
+        <source>video.my_videos</source>
+        <target>My Videos</target>
+      </trans-unit>
+      <trans-unit id="5hModnR" resname="video.related_videos">
+        <source>video.related_videos</source>
+        <target>Related Videos</target>
+      </trans-unit>
+      <trans-unit id="EzmrVRo" resname="video.performers">
+        <source>video.performers</source>
+        <target>Models in this video</target>
+      </trans-unit>
+      <trans-unit id="hYcqyUB" resname="video.categories">
+        <source>video.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="H3wh.Rb" resname="video.tags">
+        <source>video.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="NarSHL8" resname="video.upload">
+        <source>video.upload</source>
+        <target>Upload Video</target>
+      </trans-unit>
+      <trans-unit id="jw4VmVS" resname="video.upload_new">
+        <source>video.upload_new</source>
+        <target>Upload new video</target>
+      </trans-unit>
+      <trans-unit id="WAdq7B8" resname="video.views">
+        <source>video.views</source>
+        <target>{0} views|{1} view|]1,Inf[ %count% views</target>
+      </trans-unit>
+      <trans-unit id="CVYHRmu" resname="video.views_count">
+        <source>video.views_count</source>
+        <target>%count% views</target>
+      </trans-unit>
+      <trans-unit id="bCz5ZQv" resname="video.views_short">
+        <source>video.views_short</source>
+        <target>views</target>
+      </trans-unit>
+      <trans-unit id="h.S.QtY" resname="video.videos_count">
+        <source>video.videos_count</source>
+        <target>videos</target>
+      </trans-unit>
+      <trans-unit id="df5ossn" resname="video.no_videos">
+        <source>video.no_videos</source>
+        <target>No videos found</target>
+      </trans-unit>
+      <trans-unit id="QhOGgs5" resname="video.no_videos_query">
+        <source>video.no_videos_query</source>
+        <target>No videos found for "%query%"</target>
+      </trans-unit>
+      <trans-unit id="gKp1rSp" resname="video.load_more">
+        <source>video.load_more</source>
+        <target>Load more</target>
+      </trans-unit>
+      <trans-unit id="MsSc6EX" resname="video.search_placeholder">
+        <source>video.search_placeholder</source>
+        <target>Search videos...</target>
+      </trans-unit>
+      <trans-unit id="OTBK9F9" resname="video.search">
+        <source>video.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="EEN4x94" resname="video.search_results">
+        <source>video.search_results</source>
+        <target>Search results: "%query%"</target>
+      </trans-unit>
+      <trans-unit id="bkHVRw0" resname="video.search_videos">
+        <source>video.search_videos</source>
+        <target>Search videos</target>
+      </trans-unit>
+      <trans-unit id="4GXuiL8" resname="video.enter_search_query">
+        <source>video.enter_search_query</source>
+        <target>Enter a search query</target>
+      </trans-unit>
+      <trans-unit id=".Hdbvve" resname="video.show_all_results">
+        <source>video.show_all_results</source>
+        <target>Show all results</target>
+      </trans-unit>
+      <trans-unit id="_sxjKP7" resname="video.try_full_search">
+        <source>video.try_full_search</source>
+        <target>Try full search</target>
+      </trans-unit>
+      <trans-unit id="R4B839q" resname="video.browser_not_supported">
+        <source>video.browser_not_supported</source>
+        <target>Your browser does not support video.</target>
+      </trans-unit>
+      <trans-unit id="E11b88A" resname="video.quality">
+        <source>video.quality</source>
+        <target>Quality</target>
+      </trans-unit>
+      <trans-unit id=".pBL3iF" resname="video.subscribers">
+        <source>video.subscribers</source>
+        <target>%count% subscribers</target>
+      </trans-unit>
+      <trans-unit id="EIIG7S." resname="video.loading_comments">
+        <source>video.loading_comments</source>
+        <target>Loading comments...</target>
+      </trans-unit>
+      <trans-unit id="vWxIDD4" resname="video.watch_later">
+        <source>video.watch_later</source>
+        <target>Watch Later</target>
+      </trans-unit>
+      <trans-unit id="2nqtJge" resname="video.added_to_playlist">
+        <source>video.added_to_playlist</source>
+        <target>Video added to playlist</target>
+      </trans-unit>
+      <trans-unit id="4DuCYkP" resname="video.share.copy">
+        <source>video.share.copy</source>
+        <target>Copy</target>
+      </trans-unit>
+      <trans-unit id="nAl2A4A" resname="video.share.copy_link">
+        <source>video.share.copy_link</source>
+        <target>Copy link</target>
+      </trans-unit>
+      <trans-unit id="tkTC12j" resname="video.share.copied">
+        <source>video.share.copied</source>
+        <target>Copied!</target>
+      </trans-unit>
+      <trans-unit id="1fCuSM9" resname="video.share.twitter">
+        <source>video.share.twitter</source>
+        <target>Share on Twitter</target>
+      </trans-unit>
+      <trans-unit id="yV8qpVQ" resname="video.share.facebook">
+        <source>video.share.facebook</source>
+        <target>Share on Facebook</target>
+      </trans-unit>
+      <trans-unit id="y5n3Z5U" resname="video.share.telegram">
+        <source>video.share.telegram</source>
+        <target>Share on Telegram</target>
+      </trans-unit>
+      <trans-unit id="6azm0uu" resname="video.status.published">
+        <source>video.status.published</source>
+        <target>Published</target>
+      </trans-unit>
+      <trans-unit id="8_Sl.6W" resname="video.status.processing">
+        <source>video.status.processing</source>
+        <target>Processing</target>
+      </trans-unit>
+      <trans-unit id="EwBg6fM" resname="video.status.draft">
+        <source>video.status.draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="8dkoFCb" resname="video.status.error">
+        <source>video.status.error</source>
+        <target>Error</target>
+      </trans-unit>
+      <trans-unit id="GnJnyyx" resname="video.processing.in_progress">
+        <source>video.processing.in_progress</source>
+        <target>Video is processing...</target>
+      </trans-unit>
+      <trans-unit id="phCElIq" resname="video.processing.waiting">
+        <source>video.processing.waiting</source>
+        <target>Video is waiting for processing...</target>
+      </trans-unit>
+      <trans-unit id="w6YiCwJ" resname="video.processing.error">
+        <source>video.processing.error</source>
+        <target>Video processing error</target>
+      </trans-unit>
+      <trans-unit id="GyisVf." resname="video.table.video">
+        <source>video.table.video</source>
+        <target>Video</target>
+      </trans-unit>
+      <trans-unit id="tFzawA3" resname="video.table.status">
+        <source>video.table.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="b6WYgAZ" resname="video.table.views">
+        <source>video.table.views</source>
+        <target>Views</target>
+      </trans-unit>
+      <trans-unit id="B6.QcCU" resname="video.table.date">
+        <source>video.table.date</source>
+        <target>Date</target>
+      </trans-unit>
+      <trans-unit id="3FRfCvE" resname="video.table.actions">
+        <source>video.table.actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="dFn_P2X" resname="video.table.view">
+        <source>video.table.view</source>
+        <target>View</target>
+      </trans-unit>
+      <trans-unit id="y4I1hRq" resname="video.empty.title">
+        <source>video.empty.title</source>
+        <target>No videos</target>
+      </trans-unit>
+      <trans-unit id="s6c7AjX" resname="video.empty.description">
+        <source>video.empty.description</source>
+        <target>Start by uploading your first video</target>
+      </trans-unit>
+      <trans-unit id="ajMMPSI" resname="video.empty.upload">
+        <source>video.empty.upload</source>
+        <target>Upload video</target>
+      </trans-unit>
+      <trans-unit id="c7UAFba" resname="video.upload_page.title">
+        <source>video.upload_page.title</source>
+        <target>Upload Video</target>
+      </trans-unit>
+      <trans-unit id="OMHDTRF" resname="video.upload_page.video_title">
+        <source>video.upload_page.video_title</source>
+        <target>Video Title</target>
+      </trans-unit>
+      <trans-unit id="FjxlH7F" resname="video.upload_page.description">
+        <source>video.upload_page.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="RUKpYzy" resname="video.upload_page.category">
+        <source>video.upload_page.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="w01MVi2" resname="video.upload_page.tags">
+        <source>video.upload_page.tags</source>
+        <target>Tags</target>
+      </trans-unit>
+      <trans-unit id="dGj_VQI" resname="video.upload_page.video_file">
+        <source>video.upload_page.video_file</source>
+        <target>Video File</target>
+      </trans-unit>
+      <trans-unit id="dV8n7tc" resname="video.upload_page.supported_formats">
+        <source>video.upload_page.supported_formats</source>
+        <target>Supported formats: MP4, AVI, MOV. Maximum size: 2GB</target>
+      </trans-unit>
+      <trans-unit id="RqouYQV" resname="video.upload_page.cancel">
+        <source>video.upload_page.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="UpABfVe" resname="video.upload_page.submit">
+        <source>video.upload_page.submit</source>
+        <target>Upload Video</target>
+      </trans-unit>
+      <trans-unit id="o1h6KAX" resname="video.upload_page.info_title">
+        <source>video.upload_page.info_title</source>
+        <target>Upload Information</target>
+      </trans-unit>
+      <trans-unit id="Krzsgu5" resname="video.upload_page.info_processing">
+        <source>video.upload_page.info_processing</source>
+        <target>After upload, the video will be processed and converted</target>
+      </trans-unit>
+      <trans-unit id="UD4tW_O" resname="video.upload_page.info_time">
+        <source>video.upload_page.info_time</source>
+        <target>Processing may take several minutes</target>
+      </trans-unit>
+      <trans-unit id="Z92aupx" resname="video.upload_page.info_notification">
+        <source>video.upload_page.info_notification</source>
+        <target>You will be notified when the video is ready</target>
+      </trans-unit>
+      <trans-unit id="ks_HdTc" resname="video.upload_page.info_rights">
+        <source>video.upload_page.info_rights</source>
+        <target>Make sure you have the rights to the uploaded content</target>
+      </trans-unit>
+      <trans-unit id="WqARhDm" resname="pagination.previous">
+        <source>pagination.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="8O85RAJ" resname="pagination.next">
+        <source>pagination.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="QZc9Lww" resname="pagination.page">
+        <source>pagination.page</source>
+        <target>Page %page%</target>
+      </trans-unit>
+      <trans-unit id="hxWIP0w" resname="pagination.page_of">
+        <source>pagination.page_of</source>
+        <target>Page %page% of %pages%</target>
+      </trans-unit>
+      <trans-unit id="TKiGJLC" resname="category.title">
+        <source>category.title</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="V9nWte_" resname="category.all_categories">
+        <source>category.all_categories</source>
+        <target>All Categories</target>
+      </trans-unit>
+      <trans-unit id="2xfH9AV" resname="category.videos_count">
+        <source>category.videos_count</source>
+        <target>%count% videos</target>
+      </trans-unit>
+      <trans-unit id="4RpN277" resname="category.no_categories">
+        <source>category.no_categories</source>
+        <target>No categories found</target>
+      </trans-unit>
+      <trans-unit id="ZAKFTj7" resname="category.no_videos_in_category">
+        <source>category.no_videos_in_category</source>
+        <target>No videos in this category yet</target>
+      </trans-unit>
+      <trans-unit id="h.VqngM" resname="home.featured">
+        <source>home.featured</source>
+        <target>Featured</target>
+      </trans-unit>
+      <trans-unit id="ANkSyfj" resname="home.new_videos">
+        <source>home.new_videos</source>
+        <target>New Videos</target>
+      </trans-unit>
+      <trans-unit id="D3.dufq" resname="home.popular_videos">
+        <source>home.popular_videos</source>
+        <target>Popular Videos</target>
+      </trans-unit>
+      <trans-unit id="8Mnsv6L" resname="home.recently_watched">
+        <source>home.recently_watched</source>
+        <target>Recently Watched</target>
+      </trans-unit>
+      <trans-unit id="mMJinWA" resname="home.view_all">
+        <source>home.view_all</source>
+        <target>View all →</target>
+      </trans-unit>
+      <trans-unit id="AlZdoEu" resname="sidebar.trending">
+        <source>sidebar.trending</source>
+        <target>Trending</target>
+      </trans-unit>
+      <trans-unit id="g0Aqb5s" resname="sidebar.all_videos">
+        <source>sidebar.all_videos</source>
+        <target>All videos</target>
+      </trans-unit>
+      <trans-unit id="qD22YsH" resname="sidebar.top_views">
+        <source>sidebar.top_views</source>
+        <target>Top views</target>
+      </trans-unit>
+      <trans-unit id="xz_uplw" resname="sidebar.new">
+        <source>sidebar.new</source>
+        <target>New</target>
+      </trans-unit>
+      <trans-unit id="7FGZbv_" resname="sidebar.categories">
+        <source>sidebar.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="Nkz.rYg" resname="sidebar.show_all">
+        <source>sidebar.show_all</source>
+        <target>Show all</target>
+      </trans-unit>
+      <trans-unit id="pAnDdn5" resname="sidebar.hide">
+        <source>sidebar.hide</source>
+        <target>Hide</target>
+      </trans-unit>
+      <trans-unit id="QXlYLOd" resname="sidebar.all_categories">
+        <source>sidebar.all_categories</source>
+        <target>All categories →</target>
+      </trans-unit>
+      <trans-unit id="lgK1puW" resname="sidebar.no_categories">
+        <source>sidebar.no_categories</source>
+        <target>No categories found</target>
+      </trans-unit>
+      <trans-unit id="YBFhzD4" resname="sidebar.my_profile">
+        <source>sidebar.my_profile</source>
+        <target>My profile</target>
+      </trans-unit>
+      <trans-unit id="8l602Sh" resname="sidebar.my_videos">
+        <source>sidebar.my_videos</source>
+        <target>My videos</target>
+      </trans-unit>
+      <trans-unit id="5c7joCZ" resname="sidebar.upload_video">
+        <source>sidebar.upload_video</source>
+        <target>Upload video</target>
+      </trans-unit>
+      <trans-unit id="lXb01Zg" resname="members.title">
+        <source>members.title</source>
+        <target>Community</target>
+      </trans-unit>
+      <trans-unit id="DQiinDP" resname="members.description">
+        <source>members.description</source>
+        <target>Meet our members! Here you'll find content creators, active users, and everyone who makes our community special.</target>
+      </trans-unit>
+      <trans-unit id="IBGmU6h" resname="members.total">
+        <source>members.total</source>
+        <target>Members</target>
+      </trans-unit>
+      <trans-unit id="ZnypxxS" resname="members.creators">
+        <source>members.creators</source>
+        <target>Creators</target>
+      </trans-unit>
+      <trans-unit id="9goqzLx" resname="members.verified">
+        <source>members.verified</source>
+        <target>Verified</target>
+      </trans-unit>
+      <trans-unit id=".idt9ZP" resname="members.premium">
+        <source>members.premium</source>
+        <target>Premium</target>
+      </trans-unit>
+      <trans-unit id="tYFOMwy" resname="members.search_placeholder">
+        <source>members.search_placeholder</source>
+        <target>Search by username...</target>
+      </trans-unit>
+      <trans-unit id="gpN4arT" resname="members.sort.newest">
+        <source>members.sort.newest</source>
+        <target>New members</target>
+      </trans-unit>
+      <trans-unit id="C4aotbc" resname="members.sort.oldest">
+        <source>members.sort.oldest</source>
+        <target>Oldest members</target>
+      </trans-unit>
+      <trans-unit id="itjujFo" resname="members.sort.popular">
+        <source>members.sort.popular</source>
+        <target>Popular</target>
+      </trans-unit>
+      <trans-unit id="IsN4NRC" resname="members.sort.active">
+        <source>members.sort.active</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="Hx8cmWf" resname="members.search_button">
+        <source>members.search_button</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="6vF_rtp" resname="members.reset">
+        <source>members.reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="6F90zFo" resname="members.videos">
+        <source>members.videos</source>
+        <target>Videos:</target>
+      </trans-unit>
+      <trans-unit id="nGPUx7A" resname="members.subscribers">
+        <source>members.subscribers</source>
+        <target>Subscribers:</target>
+      </trans-unit>
+      <trans-unit id="xhZwcMg" resname="members.member_since">
+        <source>members.member_since</source>
+        <target>Member since:</target>
+      </trans-unit>
+      <trans-unit id="S2erN4I" resname="members.profile">
+        <source>members.profile</source>
+        <target>Profile</target>
+      </trans-unit>
+      <trans-unit id="P0HF_6t" resname="members.no_users">
+        <source>members.no_users</source>
+        <target>No users found</target>
+      </trans-unit>
+      <trans-unit id="vHNTsqy" resname="members.no_users_search">
+        <source>members.no_users_search</source>
+        <target>Try changing your search query or reset filters.</target>
+      </trans-unit>
+      <trans-unit id="8jJz8IM" resname="members.no_users_empty">
+        <source>members.no_users_empty</source>
+        <target>There are no members in the community yet.</target>
+      </trans-unit>
+      <trans-unit id="_78WKX9" resname="members.profile_title">
+        <source>members.profile_title</source>
+        <target>%username% - Profile</target>
+      </trans-unit>
+      <trans-unit id="O1M2atB" resname="members.edit">
+        <source>members.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="fufmpp3" resname="members.subscribe">
+        <source>members.subscribe</source>
+        <target>Subscribe</target>
+      </trans-unit>
+      <trans-unit id="8HqMvPC" resname="members.about">
+        <source>members.about</source>
+        <target>About</target>
+      </trans-unit>
+      <trans-unit id="mvukL.v" resname="members.recent_videos">
+        <source>members.recent_videos</source>
+        <target>Recent Videos</target>
+      </trans-unit>
+      <trans-unit id="xRjwHIM" resname="members.activity">
+        <source>members.activity</source>
+        <target>Activity</target>
+      </trans-unit>
+      <trans-unit id="26LZdbw" resname="members.registered">
+        <source>members.registered</source>
+        <target>Registered %date%</target>
+      </trans-unit>
+      <trans-unit id="Wtewhg7" resname="members.last_activity">
+        <source>members.last_activity</source>
+        <target>Last activity %date%</target>
+      </trans-unit>
+      <trans-unit id="UaF5Y.Y" resname="members.information">
+        <source>members.information</source>
+        <target>Information</target>
+      </trans-unit>
+      <trans-unit id="0a1aYlU" resname="members.country">
+        <source>members.country</source>
+        <target>Country</target>
+      </trans-unit>
+      <trans-unit id="qDoE.0q" resname="members.city">
+        <source>members.city</source>
+        <target>City</target>
+      </trans-unit>
+      <trans-unit id="Z54Ws.H" resname="members.gender">
+        <source>members.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="52BSQpp" resname="members.gender_male">
+        <source>members.gender_male</source>
+        <target>Male</target>
+      </trans-unit>
+      <trans-unit id="6OWZUgS" resname="members.gender_female">
+        <source>members.gender_female</source>
+        <target>Female</target>
+      </trans-unit>
+      <trans-unit id="cQzB3Bq" resname="members.age">
+        <source>members.age</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="kzu_x7K" resname="members.age_years">
+        <source>members.age_years</source>
+        <target>%age% years</target>
+      </trans-unit>
+      <trans-unit id="zdtE9ZV" resname="members.marital_status">
+        <source>members.marital_status</source>
+        <target>Marital Status</target>
+      </trans-unit>
+      <trans-unit id="DzzWJXg" resname="members.marital_single">
+        <source>members.marital_single</source>
+        <target>Single</target>
+      </trans-unit>
+      <trans-unit id="MTNMDrM" resname="members.marital_in_relationship">
+        <source>members.marital_in_relationship</source>
+        <target>In a relationship</target>
+      </trans-unit>
+      <trans-unit id="XwNMQ_x" resname="members.marital_engaged">
+        <source>members.marital_engaged</source>
+        <target>Engaged</target>
+      </trans-unit>
+      <trans-unit id="yDjGVqw" resname="members.marital_married">
+        <source>members.marital_married</source>
+        <target>Married</target>
+      </trans-unit>
+      <trans-unit id="rrPqREj" resname="members.marital_divorced">
+        <source>members.marital_divorced</source>
+        <target>Divorced</target>
+      </trans-unit>
+      <trans-unit id="S8aqWhM" resname="members.marital_widowed">
+        <source>members.marital_widowed</source>
+        <target>Widowed</target>
+      </trans-unit>
+      <trans-unit id="FTGHQx8" resname="members.orientation">
+        <source>members.orientation</source>
+        <target>Orientation</target>
+      </trans-unit>
+      <trans-unit id="69x2Bk8" resname="members.orientation_heterosexual">
+        <source>members.orientation_heterosexual</source>
+        <target>Heterosexual</target>
+      </trans-unit>
+      <trans-unit id="VpviceN" resname="members.orientation_homosexual">
+        <source>members.orientation_homosexual</source>
+        <target>Homosexual</target>
+      </trans-unit>
+      <trans-unit id="Qn9qrPd" resname="members.orientation_bisexual">
+        <source>members.orientation_bisexual</source>
+        <target>Bisexual</target>
+      </trans-unit>
+      <trans-unit id="NDLrfPg" resname="members.orientation_other">
+        <source>members.orientation_other</source>
+        <target>Other</target>
+      </trans-unit>
+      <trans-unit id="AHHlfXc" resname="members.achievements">
+        <source>members.achievements</source>
+        <target>Achievements</target>
+      </trans-unit>
+      <trans-unit id="L_flogs" resname="members.achievement_verified">
+        <source>members.achievement_verified</source>
+        <target>Verified user</target>
+      </trans-unit>
+      <trans-unit id=".eiOSaQ" resname="members.achievement_premium">
+        <source>members.achievement_premium</source>
+        <target>Premium member</target>
+      </trans-unit>
+      <trans-unit id="60_hs_l" resname="members.achievement_creator">
+        <source>members.achievement_creator</source>
+        <target>Active creator</target>
+      </trans-unit>
+      <trans-unit id="dIgiJEU" resname="members.stats.videos">
+        <source>members.stats.videos</source>
+        <target>Videos</target>
+      </trans-unit>
+      <trans-unit id="kuO5V0x" resname="members.stats.subscribers">
+        <source>members.stats.subscribers</source>
+        <target>Subscribers</target>
+      </trans-unit>
+      <trans-unit id="JXMyHKi" resname="members.stats.views">
+        <source>members.stats.views</source>
+        <target>Views</target>
+      </trans-unit>
+      <trans-unit id="xX4aE5Q" resname="members.stats.member_since">
+        <source>members.stats.member_since</source>
+        <target>Member since</target>
+      </trans-unit>
+      <trans-unit id="OKSzBGE" resname="footer.site_name">
+        <source>footer.site_name</source>
+        <target>RexTube</target>
+      </trans-unit>
+      <trans-unit id="H8OD7nf" resname="footer.description">
+        <source>footer.description</source>
+        <target>The best video hosting for uploading and watching video content.</target>
+      </trans-unit>
+      <trans-unit id="CLcA.gS" resname="footer.navigation">
+        <source>footer.navigation</source>
+        <target>Navigation</target>
+      </trans-unit>
+      <trans-unit id="kvudS1v" resname="footer.information">
+        <source>footer.information</source>
+        <target>Information</target>
+      </trans-unit>
+      <trans-unit id="OPhlKnK" resname="footer.about_us">
+        <source>footer.about_us</source>
+        <target>About Us</target>
+      </trans-unit>
+      <trans-unit id="NGhd6r9" resname="footer.terms">
+        <source>footer.terms</source>
+        <target>Terms</target>
+      </trans-unit>
+      <trans-unit id="plvhdOt" resname="footer.contact">
+        <source>footer.contact</source>
+        <target>Contact</target>
+      </trans-unit>
+      <trans-unit id="JlShfKY" resname="footer.copyright">
+        <source>footer.copyright</source>
+        <target>© %year% RexTube. All rights reserved.</target>
+      </trans-unit>
+      <trans-unit id="EiZtTcH" resname="common.save">
+        <source>common.save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="EYVYMfc" resname="common.cancel">
+        <source>common.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="RxjXUMf" resname="common.delete">
+        <source>common.delete</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="ZW9be_S" resname="common.edit">
+        <source>common.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="Krz0qaU" resname="common.create">
+        <source>common.create</source>
+        <target>Create</target>
+      </trans-unit>
+      <trans-unit id="uvCBcL6" resname="common.search">
+        <source>common.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="bp43TDb" resname="common.select">
+        <source>common.select</source>
+        <target>Select...</target>
+      </trans-unit>
+      <trans-unit id="A9aPAZG" resname="common.yes">
+        <source>common.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="_9IQQFu" resname="common.no">
+        <source>common.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="0WeQXOA" resname="common.cm">
+        <source>common.cm</source>
+        <target>cm</target>
+      </trans-unit>
+      <trans-unit id="L7mBea9" resname="common.kg">
+        <source>common.kg</source>
+        <target>kg</target>
+      </trans-unit>
+      <trans-unit id="Wxpde9l" resname="profile.avatar">
+        <source>profile.avatar</source>
+        <target>Avatar</target>
+      </trans-unit>
+      <trans-unit id="VtEjvgH" resname="profile.cover">
+        <source>profile.cover</source>
+        <target>Cover Image</target>
+      </trans-unit>
+      <trans-unit id="169D0Wk" resname="profile.birth_date">
+        <source>profile.birth_date</source>
+        <target>Birth Date</target>
+      </trans-unit>
+      <trans-unit id="YwJeTri" resname="profile.bio_placeholder">
+        <source>profile.bio_placeholder</source>
+        <target>Tell us about yourself...</target>
+      </trans-unit>
+      <trans-unit id="ry5tIR1" resname="models.title">
+        <source>models.title</source>
+        <target>Models</target>
+      </trans-unit>
+      <trans-unit id="6B45bg9" resname="models.meta_description">
+        <source>models.meta_description</source>
+        <target>Browse our collection of models and performers</target>
+      </trans-unit>
+      <trans-unit id="zS6fVlw" resname="models.total_count">
+        <source>models.total_count</source>
+        <target>%count% models</target>
+      </trans-unit>
+      <trans-unit id="hna_vvz" resname="models.search">
+        <source>models.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="lP1BRZY" resname="models.search_placeholder">
+        <source>models.search_placeholder</source>
+        <target>Search by name...</target>
+      </trans-unit>
+      <trans-unit id="j6y68or" resname="models.sort.label">
+        <source>models.sort.label</source>
+        <target>Sort by</target>
+      </trans-unit>
+      <trans-unit id="kGCm5Gm" resname="models.sort.popular">
+        <source>models.sort.popular</source>
+        <target>Popular</target>
+      </trans-unit>
+      <trans-unit id="qgl1I0K" resname="models.sort.newest">
+        <source>models.sort.newest</source>
+        <target>Newest</target>
+      </trans-unit>
+      <trans-unit id="viL4JPC" resname="models.sort.alphabetical">
+        <source>models.sort.alphabetical</source>
+        <target>A-Z</target>
+      </trans-unit>
+      <trans-unit id="RewsPwr" resname="models.sort.videos">
+        <source>models.sort.videos</source>
+        <target>Most videos</target>
+      </trans-unit>
+      <trans-unit id="AFwiP.8" resname="models.filter.gender">
+        <source>models.filter.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="vE77F5H" resname="models.filter.all">
+        <source>models.filter.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="RDIIDZc" resname="models.filter.female">
+        <source>models.filter.female</source>
+        <target>Female</target>
+      </trans-unit>
+      <trans-unit id="lE6F9PA" resname="models.filter.male">
+        <source>models.filter.male</source>
+        <target>Male</target>
+      </trans-unit>
+      <trans-unit id="B2gf4DM" resname="models.filter.trans">
+        <source>models.filter.trans</source>
+        <target>Trans</target>
+      </trans-unit>
+      <trans-unit id="IznNQhb" resname="models.filter.apply">
+        <source>models.filter.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="XAg8BeZ" resname="models.filter.reset">
+        <source>models.filter.reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="0p4qnxW" resname="models.no_models">
+        <source>models.no_models</source>
+        <target>No models found</target>
+      </trans-unit>
+      <trans-unit id="zWtsKLK" resname="model.verified">
+        <source>model.verified</source>
+        <target>Verified</target>
+      </trans-unit>
+      <trans-unit id="TRXfLmV" resname="model.premium">
+        <source>model.premium</source>
+        <target>Premium</target>
+      </trans-unit>
+      <trans-unit id="eg9iKRl" resname="model.bio">
+        <source>model.bio</source>
+        <target>Biography</target>
+      </trans-unit>
+      <trans-unit id="xMOHMo5" resname="model.videos_title">
+        <source>model.videos_title</source>
+        <target>Videos (%count%)</target>
+      </trans-unit>
+      <trans-unit id="Lca_XC7" resname="model.no_videos">
+        <source>model.no_videos</source>
+        <target>No videos yet</target>
+      </trans-unit>
+      <trans-unit id="xb1JH2r" resname="model.meta_description">
+        <source>model.meta_description</source>
+        <target>%name% - %videos% videos on our platform</target>
+      </trans-unit>
+      <trans-unit id="cRY6V8d" resname="model.subscribe">
+        <source>model.subscribe</source>
+        <target>Subscribe</target>
+      </trans-unit>
+      <trans-unit id="fVCZDyl" resname="model.unsubscribe">
+        <source>model.unsubscribe</source>
+        <target>Unsubscribe</target>
+      </trans-unit>
+      <trans-unit id="4bxwbsf" resname="model.stats.views">
+        <source>model.stats.views</source>
+        <target>Views</target>
+      </trans-unit>
+      <trans-unit id="1tZ0g8u" resname="model.stats.subscribers">
+        <source>model.stats.subscribers</source>
+        <target>Subscribers</target>
+      </trans-unit>
+      <trans-unit id="_TJbsZE" resname="model.stats.videos">
+        <source>model.stats.videos</source>
+        <target>Videos</target>
+      </trans-unit>
+      <trans-unit id="YidG2ur" resname="model.stats.likes">
+        <source>model.stats.likes</source>
+        <target>Likes</target>
+      </trans-unit>
+      <trans-unit id="YWo3oVF" resname="model.info.title">
+        <source>model.info.title</source>
+        <target>Information</target>
+      </trans-unit>
+      <trans-unit id="ydTn1A6" resname="model.info.aliases">
+        <source>model.info.aliases</source>
+        <target>Also known as</target>
+      </trans-unit>
+      <trans-unit id="bCulMZJ" resname="model.info.gender">
+        <source>model.info.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="ZGhox.F" resname="model.info.age">
+        <source>model.info.age</source>
+        <target>Age</target>
+      </trans-unit>
+      <trans-unit id="Hjk29dB" resname="model.info.birth_date">
+        <source>model.info.birth_date</source>
+        <target>Birth Date</target>
+      </trans-unit>
+      <trans-unit id="I9dG..I" resname="model.info.zodiac">
+        <source>model.info.zodiac</source>
+        <target>Zodiac Sign</target>
+      </trans-unit>
+      <trans-unit id="QFhIpsT" resname="model.info.country">
+        <source>model.info.country</source>
+        <target>Country</target>
+      </trans-unit>
+      <trans-unit id="F2pIX8n" resname="model.info.ethnicity">
+        <source>model.info.ethnicity</source>
+        <target>Ethnicity</target>
+      </trans-unit>
+      <trans-unit id="Bri1Izq" resname="model.info.career_start">
+        <source>model.info.career_start</source>
+        <target>Career Start</target>
+      </trans-unit>
+      <trans-unit id="2SmcGCd" resname="model.info.hair_color">
+        <source>model.info.hair_color</source>
+        <target>Hair Color</target>
+      </trans-unit>
+      <trans-unit id="txKINf5" resname="model.info.eye_color">
+        <source>model.info.eye_color</source>
+        <target>Eye Color</target>
+      </trans-unit>
+      <trans-unit id="Z74X8Rx" resname="model.info.tattoos">
+        <source>model.info.tattoos</source>
+        <target>Tattoos</target>
+      </trans-unit>
+      <trans-unit id="4907u_3" resname="model.info.piercings">
+        <source>model.info.piercings</source>
+        <target>Piercings</target>
+      </trans-unit>
+      <trans-unit id="G43J7Lv" resname="model.info.breast_size">
+        <source>model.info.breast_size</source>
+        <target>Breast Size</target>
+      </trans-unit>
+      <trans-unit id="QfkYFeA" resname="model.info.height">
+        <source>model.info.height</source>
+        <target>Height</target>
+      </trans-unit>
+      <trans-unit id="3S7FpLa" resname="model.info.weight">
+        <source>model.info.weight</source>
+        <target>Weight</target>
+      </trans-unit>
+      <trans-unit id="n3wv6oq" resname="model.info.added">
+        <source>model.info.added</source>
+        <target>Added</target>
+      </trans-unit>
+      <trans-unit id="Tupc6cL" resname="model.gender.female">
+        <source>model.gender.female</source>
+        <target>Female</target>
+      </trans-unit>
+      <trans-unit id="futU.6l" resname="model.gender.male">
+        <source>model.gender.male</source>
+        <target>Male</target>
+      </trans-unit>
+      <trans-unit id="wv4T3n5" resname="model.gender.trans">
+        <source>model.gender.trans</source>
+        <target>Trans</target>
+      </trans-unit>
+      <trans-unit id="lssV9Th" resname="model.zodiac.aries">
+        <source>model.zodiac.aries</source>
+        <target>Aries</target>
+      </trans-unit>
+      <trans-unit id="8kn2ahC" resname="model.zodiac.taurus">
+        <source>model.zodiac.taurus</source>
+        <target>Taurus</target>
+      </trans-unit>
+      <trans-unit id="uZxD4a." resname="model.zodiac.gemini">
+        <source>model.zodiac.gemini</source>
+        <target>Gemini</target>
+      </trans-unit>
+      <trans-unit id="3VZkrLO" resname="model.zodiac.cancer">
+        <source>model.zodiac.cancer</source>
+        <target>Cancer</target>
+      </trans-unit>
+      <trans-unit id="0UuMTr_" resname="model.zodiac.leo">
+        <source>model.zodiac.leo</source>
+        <target>Leo</target>
+      </trans-unit>
+      <trans-unit id="OOSNWpy" resname="model.zodiac.virgo">
+        <source>model.zodiac.virgo</source>
+        <target>Virgo</target>
+      </trans-unit>
+      <trans-unit id="4Q44BHd" resname="model.zodiac.libra">
+        <source>model.zodiac.libra</source>
+        <target>Libra</target>
+      </trans-unit>
+      <trans-unit id="5bWsrO0" resname="model.zodiac.scorpio">
+        <source>model.zodiac.scorpio</source>
+        <target>Scorpio</target>
+      </trans-unit>
+      <trans-unit id="nmDjtA." resname="model.zodiac.sagittarius">
+        <source>model.zodiac.sagittarius</source>
+        <target>Sagittarius</target>
+      </trans-unit>
+      <trans-unit id="ntnmac9" resname="model.zodiac.capricorn">
+        <source>model.zodiac.capricorn</source>
+        <target>Capricorn</target>
+      </trans-unit>
+      <trans-unit id="Jcj.84v" resname="model.zodiac.aquarius">
+        <source>model.zodiac.aquarius</source>
+        <target>Aquarius</target>
+      </trans-unit>
+      <trans-unit id="apc9Yrq" resname="model.zodiac.pisces">
+        <source>model.zodiac.pisces</source>
+        <target>Pisces</target>
+      </trans-unit>
+      <trans-unit id="h_s631H" resname="playlist.my_playlists">
+        <source>playlist.my_playlists</source>
+        <target>My Playlists</target>
+      </trans-unit>
+      <trans-unit id="VkasZB_" resname="playlist.create">
+        <source>playlist.create</source>
+        <target>Create Playlist</target>
+      </trans-unit>
+      <trans-unit id="GzZopbN" resname="playlist.create_new">
+        <source>playlist.create_new</source>
+        <target>Create Playlist</target>
+      </trans-unit>
+      <trans-unit id="BI9dJIh" resname="playlist.edit">
+        <source>playlist.edit</source>
+        <target>Edit Playlist</target>
+      </trans-unit>
+      <trans-unit id="9.ElmBh" resname="playlist.title">
+        <source>playlist.title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="zVMkNas" resname="playlist.description">
+        <source>playlist.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="l_7rcEm" resname="playlist.videos">
+        <source>playlist.videos</source>
+        <target>videos</target>
+      </trans-unit>
+      <trans-unit id="ZL_Vm8a" resname="playlist.public">
+        <source>playlist.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="tJEtw66" resname="playlist.private">
+        <source>playlist.private</source>
+        <target>Private</target>
+      </trans-unit>
+      <trans-unit id="lFFjTKe" resname="playlist.make_public">
+        <source>playlist.make_public</source>
+        <target>Make public</target>
+      </trans-unit>
+      <trans-unit id="B._YM8c" resname="playlist.no_playlists">
+        <source>playlist.no_playlists</source>
+        <target>You don't have any playlists yet</target>
+      </trans-unit>
+      <trans-unit id="Oif9G64" resname="playlist.create_first">
+        <source>playlist.create_first</source>
+        <target>Create your first playlist</target>
+      </trans-unit>
+      <trans-unit id="9x3rApW" resname="playlist.no_videos">
+        <source>playlist.no_videos</source>
+        <target>No videos in this playlist</target>
+      </trans-unit>
+      <trans-unit id="8GvWJyV" resname="playlist.add_video">
+        <source>playlist.add_video</source>
+        <target>Add to playlist</target>
+      </trans-unit>
+      <trans-unit id="YxDq2Sa" resname="history.title">
+        <source>history.title</source>
+        <target>Watch History</target>
+      </trans-unit>
+      <trans-unit id="goDfWkN" resname="history.empty">
+        <source>history.empty</source>
+        <target>Your watch history is empty</target>
+      </trans-unit>
+      <trans-unit id="CqNu2Qu" resname="history.clear_all">
+        <source>history.clear_all</source>
+        <target>Clear history</target>
+      </trans-unit>
+      <trans-unit id=".ryd_yd" resname="history.confirm_clear">
+        <source>history.confirm_clear</source>
+        <target>Are you sure you want to clear all history?</target>
+      </trans-unit>
+      <trans-unit id="8ABG32u" resname="bookmark.title">
+        <source>bookmark.title</source>
+        <target>Favorites</target>
+      </trans-unit>
+      <trans-unit id="gIYNQ03" resname="bookmark.empty">
+        <source>bookmark.empty</source>
+        <target>No favorites yet</target>
+      </trans-unit>
+      <trans-unit id="G0IgXgE" resname="bookmark.add">
+        <source>bookmark.add</source>
+        <target>Add to favorites</target>
+      </trans-unit>
+      <trans-unit id="Z8rTE2G" resname="bookmark.remove">
+        <source>bookmark.remove</source>
+        <target>Remove from favorites</target>
+      </trans-unit>
+      <trans-unit id="paeBWKe" resname="watch_later.title">
+        <source>watch_later.title</source>
+        <target>Watch Later</target>
+      </trans-unit>
+      <trans-unit id="Dc8zYl5" resname="watch_later.description">
+        <source>watch_later.description</source>
+        <target>You have %count% videos in the list</target>
+      </trans-unit>
+      <trans-unit id="YX_LTQb" resname="watch_later.add">
+        <source>watch_later.add</source>
+        <target>Add to Watch Later</target>
+      </trans-unit>
+      <trans-unit id="EVwYBL0" resname="watch_later.remove">
+        <source>watch_later.remove</source>
+        <target>Remove from Watch Later</target>
+      </trans-unit>
+      <trans-unit id="iQPcJEd" resname="watch_later.empty.title">
+        <source>watch_later.empty.title</source>
+        <target>Watch Later list is empty</target>
+      </trans-unit>
+      <trans-unit id="akZeIRI" resname="watch_later.empty.description">
+        <source>watch_later.empty.description</source>
+        <target>Add videos to this list to watch them later</target>
+      </trans-unit>
+      <trans-unit id="jFXXCjt" resname="watch_later.empty.browse_videos">
+        <source>watch_later.empty.browse_videos</source>
+        <target>Browse videos</target>
+      </trans-unit>
+      <trans-unit id="QmqNIYr" resname="notification.title">
+        <source>notification.title</source>
+        <target>Notifications</target>
+      </trans-unit>
+      <trans-unit id="1Ir_8J5" resname="notification.empty">
+        <source>notification.empty</source>
+        <target>No notifications</target>
+      </trans-unit>
+      <trans-unit id="ippTACe" resname="notification.mark_all_read">
+        <source>notification.mark_all_read</source>
+        <target>Mark all as read</target>
+      </trans-unit>
+      <trans-unit id="nlWcLbN" resname="notification.new_video_text">
+        <source>notification.new_video_text</source>
+        <target>uploaded a new video</target>
+      </trans-unit>
+      <trans-unit id="keNAyhr" resname="notification.reply_text">
+        <source>notification.reply_text</source>
+        <target>replied to your comment</target>
+      </trans-unit>
+      <trans-unit id="oMd5od4" resname="notification.mention_text">
+        <source>notification.mention_text</source>
+        <target>mentioned you in a comment</target>
+      </trans-unit>
+      <trans-unit id="IHP8_PJ" resname="notification.subscriber_text">
+        <source>notification.subscriber_text</source>
+        <target>subscribed to you</target>
+      </trans-unit>
+      <trans-unit id="za8uIjB" resname="series.my_series">
+        <source>series.my_series</source>
+        <target>My Series</target>
+      </trans-unit>
+      <trans-unit id="W1BSrAq" resname="series.create">
+        <source>series.create</source>
+        <target>Create Series</target>
+      </trans-unit>
+      <trans-unit id="eQNb6ld" resname="series.title">
+        <source>series.title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="1msgZxc" resname="series.description">
+        <source>series.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="tWjwXZ7" resname="series.episodes">
+        <source>series.episodes</source>
+        <target>episodes</target>
+      </trans-unit>
+      <trans-unit id="Y4z8SJW" resname="series.episode">
+        <source>series.episode</source>
+        <target>Episode</target>
+      </trans-unit>
+      <trans-unit id="J9YKcdD" resname="series.no_series">
+        <source>series.no_series</source>
+        <target>You don't have any series yet</target>
+      </trans-unit>
+      <trans-unit id="Ge7das4" resname="series.no_seasons">
+        <source>series.no_seasons</source>
+        <target>No seasons in this series</target>
+      </trans-unit>
+      <trans-unit id="fbRq1Mv" resname="series.no_episodes">
+        <source>series.no_episodes</source>
+        <target>No episodes in this season</target>
+      </trans-unit>
+      <trans-unit id="lBfO.3n" resname="series.manage">
+        <source>series.manage</source>
+        <target>Manage Series</target>
+      </trans-unit>
+      <trans-unit id="gl.OYVg" resname="series.season_title">
+        <source>series.season_title</source>
+        <target>Season title (optional)</target>
+      </trans-unit>
+      <trans-unit id="84Xvzk1" resname="series.add_season">
+        <source>series.add_season</source>
+        <target>Add Season</target>
+      </trans-unit>
+      <trans-unit id="6odTcY2" resname="filter.duration">
+        <source>filter.duration</source>
+        <target>Duration</target>
+      </trans-unit>
+      <trans-unit id="MJ6qjci" resname="filter.all">
+        <source>filter.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="r9nR6v5" resname="filter.short">
+        <source>filter.short</source>
+        <target>Short</target>
+      </trans-unit>
+      <trans-unit id="uwNQAqc" resname="filter.medium">
+        <source>filter.medium</source>
+        <target>Medium</target>
+      </trans-unit>
+      <trans-unit id="DcLp1cO" resname="filter.long">
+        <source>filter.long</source>
+        <target>Long</target>
+      </trans-unit>
+      <trans-unit id="cEYFXDz" resname="filter.min">
+        <source>filter.min</source>
+        <target>min</target>
+      </trans-unit>
+      <trans-unit id="wl.f67H" resname="filter.sort">
+        <source>filter.sort</source>
+        <target>Sort</target>
+      </trans-unit>
+      <trans-unit id="BWxo9OP" resname="filter.newest">
+        <source>filter.newest</source>
+        <target>Newest</target>
+      </trans-unit>
+      <trans-unit id="5itVY3l" resname="filter.oldest">
+        <source>filter.oldest</source>
+        <target>Oldest</target>
+      </trans-unit>
+      <trans-unit id="ifEwB3d" resname="filter.popular">
+        <source>filter.popular</source>
+        <target>Popular</target>
+      </trans-unit>
+      <trans-unit id="dq8bvRt" resname="filter.rating">
+        <source>filter.rating</source>
+        <target>By rating</target>
+      </trans-unit>
+      <trans-unit id="6eIjYle" resname="filter.reset">
+        <source>filter.reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="z3YBPV0" resname="tag.videos_with_tag">
+        <source>tag.videos_with_tag</source>
+        <target>Videos tagged with %tag%</target>
+      </trans-unit>
+      <trans-unit id="wVwLbrE" resname="tag.meta_description">
+        <source>tag.meta_description</source>
+        <target>Watch %count% videos tagged with %tag%</target>
+      </trans-unit>
+      <trans-unit id="VVII.5d" resname="tag.videos_count">
+        <source>tag.videos_count</source>
+        <target>{0} No videos|{1} %count% video|[2,Inf[ %count% videos</target>
+      </trans-unit>
+      <trans-unit id="jOpud9p" resname="tag.no_videos">
+        <source>tag.no_videos</source>
+        <target>No videos with this tag</target>
+      </trans-unit>
+      <trans-unit id="a3HOo4L" resname="tag.no_videos_description">
+        <source>tag.no_videos_description</source>
+        <target>No videos tagged with "%tag%" yet</target>
+      </trans-unit>
+      <trans-unit id="lVkjOAr" resname="tag.browse_all_videos">
+        <source>tag.browse_all_videos</source>
+        <target>Browse all videos</target>
+      </trans-unit>
+      <trans-unit id="H.3Ah6D" resname="tag.total_count">
+        <source>tag.total_count</source>
+        <target>%count% tags</target>
+      </trans-unit>
+      <trans-unit id="l6Tys.V" resname="tag.no_tags">
+        <source>tag.no_tags</source>
+        <target>No tags found</target>
+      </trans-unit>
+      <trans-unit id="sJjrR.m" resname="tag.sort.alphabetical">
+        <source>tag.sort.alphabetical</source>
+        <target>Alphabetical</target>
+      </trans-unit>
+      <trans-unit id="NCTT56N" resname="tag.sort.popular">
+        <source>tag.sort.popular</source>
+        <target>Popular</target>
+      </trans-unit>
+      <trans-unit id="kmXDUXK" resname="toast.watch_later_added">
+        <source>toast.watch_later_added</source>
+        <target>Video added to Watch Later</target>
+      </trans-unit>
+      <trans-unit id="aSMCjst" resname="toast.watch_later_removed">
+        <source>toast.watch_later_removed</source>
+        <target>Video removed from Watch Later</target>
+      </trans-unit>
+      <trans-unit id="2J3s5Ea" resname="toast.bookmark_added">
+        <source>toast.bookmark_added</source>
+        <target>Added to favorites</target>
+      </trans-unit>
+      <trans-unit id="5JhxGIE" resname="toast.bookmark_removed">
+        <source>toast.bookmark_removed</source>
+        <target>Removed from favorites</target>
+      </trans-unit>
+      <trans-unit id="6yLRtgF" resname="toast.bookmark_error">
+        <source>toast.bookmark_error</source>
+        <target>Failed to update bookmark</target>
+      </trans-unit>
+      <trans-unit id="NOT.D3j" resname="toast.playlist_added">
+        <source>toast.playlist_added</source>
+        <target>Video added to playlist</target>
+      </trans-unit>
+      <trans-unit id="xdpy9AF" resname="toast.playlist_removed">
+        <source>toast.playlist_removed</source>
+        <target>Video removed from playlist</target>
+      </trans-unit>
+      <trans-unit id="o7tHE7q" resname="toast.playlist_error">
+        <source>toast.playlist_error</source>
+        <target>Failed to add to playlist</target>
+      </trans-unit>
+      <trans-unit id="PV2jS63" resname="toast.playlist_remove_error">
+        <source>toast.playlist_remove_error</source>
+        <target>Failed to remove video</target>
+      </trans-unit>
+      <trans-unit id="Zfvz_NM" resname="toast.playlist_in_development">
+        <source>toast.playlist_in_development</source>
+        <target>Playlist feature is under development</target>
+      </trans-unit>
+      <trans-unit id="bpyoGQp" resname="toast.subscribed">
+        <source>toast.subscribed</source>
+        <target>You subscribed to the channel</target>
+      </trans-unit>
+      <trans-unit id="afvQTs9" resname="toast.unsubscribed">
+        <source>toast.unsubscribed</source>
+        <target>You unsubscribed from the channel</target>
+      </trans-unit>
+      <trans-unit id="ybBi8eB" resname="toast.subscription_error">
+        <source>toast.subscription_error</source>
+        <target>Failed to change subscription</target>
+      </trans-unit>
+      <trans-unit id="4KQO4ny" resname="toast.vote_success">
+        <source>toast.vote_success</source>
+        <target>Your vote has been counted</target>
+      </trans-unit>
+      <trans-unit id="QZgtzbb" resname="toast.vote_removed">
+        <source>toast.vote_removed</source>
+        <target>Vote removed</target>
+      </trans-unit>
+      <trans-unit id="xcLCBFv" resname="toast.vote_error">
+        <source>toast.vote_error</source>
+        <target>Failed to vote</target>
+      </trans-unit>
+      <trans-unit id="8ZM5mrp" resname="toast.rating_success">
+        <source>toast.rating_success</source>
+        <target>Thank you for your rating!</target>
+      </trans-unit>
+      <trans-unit id="dJtZihB" resname="toast.rating_error">
+        <source>toast.rating_error</source>
+        <target>Failed to rate</target>
+      </trans-unit>
+      <trans-unit id="m3C.ilJ" resname="toast.success">
+        <source>toast.success</source>
+        <target>Operation completed successfully</target>
+      </trans-unit>
+      <trans-unit id="m1cEySU" resname="toast.error">
+        <source>toast.error</source>
+        <target>An error occurred</target>
+      </trans-unit>
+      <trans-unit id="UmBrHzP" resname="toast.error_generic">
+        <source>toast.error_generic</source>
+        <target>An error occurred while processing the request</target>
+      </trans-unit>
+      <trans-unit id="Po7Brih" resname="toast.confirm_delete">
+        <source>toast.confirm_delete</source>
+        <target>Are you sure you want to delete?</target>
+      </trans-unit>
+      <trans-unit id="gMLmKTL" resname="breadcrumb.home">
+        <source>breadcrumb.home</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="ZGxu1C3" resname="breadcrumb.videos">
+        <source>breadcrumb.videos</source>
+        <target>Videos</target>
+      </trans-unit>
+      <trans-unit id="OtJJHgs" resname="breadcrumb.categories">
+        <source>breadcrumb.categories</source>
+        <target>Categories</target>
+      </trans-unit>
+      <trans-unit id="PfQ1rdc" resname="breadcrumb.models">
+        <source>breadcrumb.models</source>
+        <target>Models</target>
+      </trans-unit>
+      <trans-unit id="4apqtyM" resname="breadcrumb.community">
+        <source>breadcrumb.community</source>
+        <target>Community</target>
+      </trans-unit>
+      <trans-unit id="yLtVt4." resname="breadcrumb.admin">
+        <source>breadcrumb.admin</source>
+        <target>Admin Panel</target>
+      </trans-unit>
+      <trans-unit id="t6HngmE" resname="video.not_found">
+        <source>video.not_found</source>
+        <target>__video.not_found</target>
+      </trans-unit>
+      <trans-unit id="Kt5pFOm" resname="model.likes">
+        <source>model.likes</source>
+        <target>__model.likes</target>
+      </trans-unit>
+      <trans-unit id="tQO4SkJ" resname="series.create_new">
+        <source>series.create_new</source>
+        <target>__series.create_new</target>
+      </trans-unit>
+      <trans-unit id="8edYnTh" resname="series.add_episode">
+        <source>series.add_episode</source>
+        <target>__series.add_episode</target>
+      </trans-unit>
+      <trans-unit id="M_tiuJl" resname="series.select_video">
+        <source>series.select_video</source>
+        <target>__series.select_video</target>
+      </trans-unit>
+      <trans-unit id="IYh36uY" resname="common.add">
+        <source>common.add</source>
+        <target>__common.add</target>
+      </trans-unit>
+      <trans-unit id="EzjkEXO" resname="video.likes">
+        <source>video.likes</source>
+        <target>__video.likes</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

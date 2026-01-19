@@ -1,0 +1,642 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': video.categories|length > 0 ? video.categories[0].name : 'breadcrumb.videos'|trans, 'url': video.categories|length > 0 ? path('app_category_show', {'slug': video.categories[0].slug}) : path('app_videos')},
+    {'label': video.title, 'url': ''}
+] %}
+
+{% block title %}{{ auto_meta_title(video) ?: video.title }}{% endblock %}
+{% block meta_description %}{{ auto_meta_description(video) }}{% endblock %}
+
+{# Open Graph meta tags for social sharing #}
+{% set og = og_meta(video) %}
+{% block og_title %}{{ og['og:title'] }}{% endblock %}
+{% block og_description %}{{ og['og:description'] }}{% endblock %}
+{% block og_type %}{{ og['og:type'] }}{% endblock %}
+{% block og_image %}<meta property="og:image" content="{{ og['og:image'] }}"><meta property="og:image:width" content="{{ og['og:image:width'] }}"><meta property="og:image:height" content="{{ og['og:image:height'] }}">{% if og['og:video'] %}<meta property="og:video" content="{{ og['og:video'] }}"><meta property="og:video:type" content="{{ og['og:video:type'] }}"><meta property="og:video:width" content="{{ og['og:video:width'] }}"><meta property="og:video:height" content="{{ og['og:video:height'] }}"><meta property="og:video:duration" content="{{ og['og:video:duration'] }}">{% endif %}{% endblock %}
+
+{# VideoObject JSON-LD structured data #}
+{% block structured_data %}
+{{ video_schema(video) }}
+{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col lg:flex-row p-4 gap-4">
+        <div class="flex-1">
+            {# Рекламный блок перед видео #}
+            <div class="ad-block mb-4">
+                {{ show_ad('video_before_player', {
+                    'page': 'video_detail',
+                    'video_id': video.id,
+                    'category_id': video.categories|length > 0 ? video.categories[0].id : null,
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+
+            <div class="mb-4">
+                {% if video.encodedFiles|length > 0 or video.tempVideoFile %}
+                    {% include 'video/_player.html.twig' with {'video': video, 'video_file_urls': video_file_urls|default({})} %}
+                {% else %}
+                    <div class="bg-black rounded-md overflow-hidden">
+                        <div class="aspect-video flex items-center justify-center bg-gray-800">
+                            <div class="text-center">
+                                {% if video.processingStatus == 'processing' %}
+                                    <svg class="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    <p class="text-white mb-2">{{ 'video.processing.in_progress'|trans }}</p>
+                                    {% if video.processingProgress > 0 %}
+                                        <div class="w-64 bg-gray-700 rounded-full h-2 mx-auto">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ video.processingProgress }}%"></div>
+                                        </div>
+                                        <p class="text-gray-300 text-sm mt-2">{{ video.processingProgress }}%</p>
+                                    {% endif %}
+                                {% elseif video.processingStatus == 'error' %}
+                                    <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p class="text-white">{{ 'video.processing.error'|trans }}</p>
+                                    {% if video.processingError %}
+                                        <p class="text-gray-300 text-sm mt-2">{{ video.processingError }}</p>
+                                    {% endif %}
+                                {% else %}
+                                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p class="text-white">{{ 'video.processing.waiting'|trans }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+<div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-2">
+                    {# Like Buttons #}
+                    {% include 'video/_like_buttons.html.twig' with {'video': video, 'user_like': user_like|default(null)} %}
+                    
+                    {# Bookmark Button #}
+                    {% if app.user %}
+                        <button type="button" 
+                                id="bookmark-btn"
+                                onclick="toggleBookmark({{ video.id }})"
+                                class="flex items-center gap-1 px-4 py-2 md:px-3 md:py-1.5 text-sm {{ is_bookmarked|default(false) ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-400' }} hover:text-yellow-500 transition touch-manipulation"
+                                title="{{ 'bookmark.add'|trans }}">
+                            <svg class="w-5 h-5" fill="{{ is_bookmarked|default(false) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                            </svg>
+                        </button>
+                        
+                        {# Add to Playlist Button #}
+                        <div class="relative" id="playlist-dropdown">
+                            <button type="button" 
+                                    onclick="togglePlaylistDropdown()"
+                                    class="flex items-center gap-1 px-4 py-2 md:px-3 md:py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition touch-manipulation"
+                                    title="{{ 'playlist.add_video'|trans }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                            <div id="playlist-menu" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                                <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                    <p class="font-semibold text-gray-900 dark:text-gray-100">{{ 'playlist.add_video'|trans }}</p>
+                                </div>
+                                <div id="playlist-list" class="max-h-48 overflow-y-auto">
+                                    {% for playlist in user_playlists|default([]) %}
+                                        <button type="button" 
+                                        onclick="addToPlaylist({{ playlist.id }}, {{ video.id }})"
+                                        class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <span>{{ playlist.title }}</span>
+                                            <span class="text-xs text-gray-500">{{ playlist.videosCount }} {{ 'playlist.videos'|trans }}</span>
+                                        </button>
+                                    {% else %}
+                                        <p class="px-4 py-2 text-sm text-gray-500">{{ 'playlist.no_playlists'|trans }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+                                    <a href="{{ path('app_playlist_create') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        {{ 'playlist.create_new'|trans }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {# Share Buttons #}
+                {% set share_links = share_urls(video) %}
+                <div class="flex items-center gap-2" data-controller="share">
+                    <button type="button" 
+                            onclick="showEmbedModal()"
+                            class="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition"
+                            title="{{ 'video.share.copy_link'|trans }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                        </svg>
+                        <span data-share-target="message">{{ 'video.share.copy'|trans }}</span>
+                    </button>
+                    <a href="{{ share_links.twitter }}" target="_blank" rel="noopener" 
+                       class="p-1.5 text-gray-600 dark:text-gray-400 hover:text-blue-400 transition" 
+                       title="{{ 'video.share.twitter'|trans }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="{{ share_links.facebook }}" target="_blank" rel="noopener" 
+                       class="p-1.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 transition" 
+                       title="{{ 'video.share.facebook'|trans }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="{{ share_links.telegram }}" target="_blank" rel="noopener" 
+                       class="p-1.5 text-gray-600 dark:text-gray-400 hover:text-blue-500 transition" 
+                       title="{{ 'video.share.telegram'|trans }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    </a>
+                    <a href="{{ share_links.whatsapp }}" target="_blank" rel="noopener" 
+                       class="p-1.5 text-gray-600 dark:text-gray-400 hover:text-green-500 transition" 
+                       title="{{ 'video.share.whatsapp'|trans }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.782 1.176l-.013 1.39 4.552 2.251 3.635-1.993-.392-2.824zm0 0"/></svg>
+                    </a>
+                    <a href="{{ share_links.reddit }}" target="_blank" rel="noopener" 
+                       class="p-1.5 text-gray-600 dark:text-gray-400 hover:text-orange-500 transition" 
+                       title="{{ 'video.share.reddit'|trans }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.385 4.859-7.181 4.859-3.796 0-7.182-2.165-7.182-4.859a3.5 3.5 0 0 1 .476-1.84 1.754 1.754 0 1 0 2.516-2.422c1.062-.871 2.614-1.414 4.27-1.414.375 0 .74.04 1.085.117l.812-3.813a1.25 1.25 0 0 1 1.528-1.047zM5.364 12.744c-.656 0-1.186.529-1.186 1.186 0 .657.53 1.186 1.186 1.186.657 0 1.186-.53 1.186-1.186 0-.657-.53-1.186-1.186-1.186zm5.313 1.9h-.227c.257.164.528.271.822.271.294 0 .564-.107.822-.27h-.227a1.004 1.004 0 0 0-.988.988v.01c0 .55.438.996.988.996h.227a1.002 1.002 0 0 0 .988-.988v-.01a1.004 1.004 0 0 0-.988-.988zm4.598-1.9c-.657 0-1.186.529-1.186 1.186 0 .657.529 1.186 1.186 1.186.656 0 1.186-.53 1.186-1.186 0-.657-.53-1.186-1.186-1.186z"/></svg>
+                    </a>
+                    <a href="{{ share_links.pinterest }}" target="_blank" rel="noopener" 
+                       class="p-1.5 text-gray-600 dark:text-gray-400 hover:text-red-600 transition" 
+                       title="{{ 'video.share.pinterest'|trans }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.223-.937 1.58-6.685 1.58-6.685s-.4-.8-.4-1.982c0-1.858 1.08-3.253 2.423-3.253 1.146 0 1.699.86 1.699 1.89 0 1.152-.733 2.872-1.11 4.471-.313 1.323.627 2.401 1.936 2.401 2.324 0 4.106-2.447 4.106-5.982 0-3.137-2.25-5.335-5.465-5.335-3.728 0-5.905 2.788-5.905 5.682 0 1.12.423 2.32 1.052 2.975.115.133.132.248.099.38-.108.452-.35 1.473-.401 1.694-.054.229-.183.276-.422.167-1.85-.868-3.006-3.589-3.006-5.694 0-4.115 2.99-7.897 8.627-7.897 4.527 0 8.043 3.199 8.043 7.473 0 4.46-2.809 8.049-6.739 8.049-1.312 0-2.545-.68-2.968-1.48 0 0-.648 2.469-.808 3.08-.293 1.123-1.084 2.524-1.613 3.38A12 12 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+                    </a>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        {{ 'video.views_count'|trans({'%count%': video.viewsCount|locale_number}) }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        {{ video.createdAt|locale_date('short') }}
+                    </span>
+                </div>
+                
+            </div>
+
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ video.title }}</h1>
+
+
+            {% if video.description %}
+                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 rounded-md p-4 mb-6">
+                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ video.description }}</p>
+                </div>
+            {% endif %}
+
+            {# Рекламный блок после описания #}
+            <div class="ad-block mb-6">
+                {{ show_ad('video_after_description', {
+                    'page': 'video_detail',
+                    'video_id': video.id,
+                    'category_id': video.categories|length > 0 ? video.categories[0].id : null,
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+
+            {# Категории #}
+            {% if video.categories|length > 0 %}
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'video.categories'|trans }}:</span>
+                    {% for category in video.categories %}
+                        <a href="{{ path('app_category_show', {slug: category.slug}) }}" 
+                           class="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-800 transition">
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Теги #}
+            {% if video.tags|length > 0 %}
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'video.tags'|trans }}:</span>
+                    {% for tag in video.tags %}
+                        <a href="{{ path('app_tag_show', {slug: tag.slug}) }}" 
+                           class="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                            #{{ tag.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            
+            {% if video.createdBy %}
+                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-4">
+                        <a href="{{ path('app_member_profile', {username: video.createdBy.username}) }}">
+                            {% if video.createdBy.avatar %}
+                                {{ lazy_img(asset('media/avatars/' ~ video.createdBy.avatar), video.createdBy.username, 'w-12 h-12 rounded-full object-cover', 48, 48, true) }}
+                            {% else %}
+                                <div class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                                    {{ video.createdBy.username|slice(0, 1)|upper }}
+                                </div>
+                            {% endif %}
+                        </a>
+                        <div>
+                            <a href="{{ path('app_member_profile', {username: video.createdBy.username}) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-orange-600 dark:hover:text-orange-400">{{ video.createdBy.username }}</a>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'video.subscribers'|trans({'%count%': video.createdBy.subscribersCount}) }}</p>
+                        </div>
+                    </div>
+                    {% include 'partials/_subscribe_button.html.twig' with {'channel': video.createdBy, 'is_subscribed': is_subscribed|default(false)} %}
+                </div>
+            {% endif %}
+
+            {# Модели в видео #}
+            {% if video.performers|length > 0 %}
+                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 rounded-md p-4 mb-6">
+                    <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ 'video.performers'|trans }}</h3>
+                    <div class="flex flex-wrap gap-3">
+                        {% for performer in video.performers %}
+                            <a href="{{ path('app_model_show', {slug: performer.slug}) }}" 
+                               class="flex items-center gap-2 shadow bg-white dark:bg-gray-700 rounded-md px-3 py-2 hover:shadow transition">
+                                {% if performer.avatar %}
+                                    {{ lazy_img('/media/avatars/' ~ performer.avatar, performer.displayName, 'w-8 h-8 rounded-full object-cover', 32, 32, true) }}
+                                {% else %}
+                                    <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                        {{ performer.displayName|slice(0, 1)|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ performer.displayName }}</span>
+                                {% if performer.isVerified %}
+                                    <span class="text-blue-500 text-xs">✓</span>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mb-4 data-turbo="false">
+                <div id="comments-container">
+                    <div id="comments-loading" class="flex items-center justify-center py-8 ">
+                        <svg class="animate-spin h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-2 text-gray-500 dark:text-gray-400">{{ 'video.loading_comments'|trans }}</span>
+                    </div>
+                </div>
+                <script>
+                (function() {
+                    console.log('[Comments] Script started');
+                    
+                    function loadComments() {
+                        console.log('[Comments] loadComments called');
+                        const container = document.getElementById('comments-container');
+                        console.log('[Comments] Container:', container);
+                        
+                        if (!container) {
+                            console.log('[Comments] Container not found');
+                            return;
+                        }
+                        
+                        if (container.dataset.loaded === 'true') {
+                            console.log('[Comments] Already loaded');
+                            return;
+                        }
+                        
+                        container.dataset.loaded = 'true';
+                        const url = '{{ path('comment_list', {id: video.id}) }}';
+                        console.log('[Comments] Fetching:', url);
+                        
+                        fetch(url, {
+                            headers: { 'Accept': 'text/html' }
+                        })
+                        .then(response => {
+                            console.log('[Comments] Response status:', response.status);
+                            return response.text();
+                        })
+                        .then(html => {
+                            console.log('[Comments] HTML received, length:', html.length);
+                            container.innerHTML = html;
+                            if (window.htmx) {
+                                htmx.process(container);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('[Comments] Error:', err);
+                            container.innerHTML = '<p class="text-red-500 text-center py-4">Ошибка загрузки комментариев</p>';
+                        });
+                    }
+                    
+                    // Execute immediately
+                    loadComments();
+                })();
+                </script>
+            </div>
+        </div>
+
+        {# Рекламный сайдбар #}
+        <div class="w-full lg:w-[250px] flex-shrink-0">
+            {# Рекламный блок 1 - Основной сайдбар #}
+            <div class="ad-block mb-4">
+                {{ show_ad('video_sidebar_top', {
+                    'page': 'video_detail',
+                    'video_id': video.id,
+                    'category_id': video.categories|length > 0 ? video.categories[0].id : null,
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+            
+            {# Рекламный блок 2 - Вертикальный баннер #}
+            <div class="ad-block mb-4">
+                {{ show_ad('video_sidebar_middle', {
+                    'page': 'video_detail',
+                    'video_id': video.id,
+                    'category_id': video.categories|length > 0 ? video.categories[0].id : null,
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+            
+            {# Рекламный блок 3 - Sticky блок #}
+            <div class="ad-block sticky top-4">
+                {{ show_ad('video_sidebar_bottom', {
+                    'page': 'video_detail',
+                    'video_id': video.id,
+                    'category_id': video.categories|length > 0 ? video.categories[0].id : null,
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+        </div>
+    </div>
+    
+    {# Рекламный блок перед похожими видео #}
+    <div class="ad-block p-4">
+        {{ show_ad('video_before_related', {
+            'page': 'video_detail',
+            'video_id': video.id,
+            'category_id': video.categories|length > 0 ? video.categories[0].id : null,
+            'user_id': app.user ? app.user.id : null
+        }) }}
+    </div>
+    
+    {# Похожие видео - внизу страницы #}
+    {% if related_videos|length > 0 %}
+        <div class="p-4">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ 'video.related_videos'|trans }}</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {% for related in related_videos %}
+                    {% if related.id != video.id %}
+                        {% include 'video/_card.html.twig' with {'video': related} %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# Блок "Смотрите также" #}
+    {% if see_also %}
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            {% include 'partials/_see_also.html.twig' with {
+                'title': 'Смотрите также',
+                'videos': see_also.similar_videos ?? [],
+                'blogPosts': see_also.blog_posts ?? [],
+                'class': 'video-see-also'
+            } %}
+            
+            {# Видео моделей #}
+            {% if see_also.model_videos is defined %}
+                {% for model_name, model_videos in see_also.model_videos %}
+                    {% if model_videos|length > 0 %}
+                        <div class="mt-8">
+                            <h4 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3">
+                                Другие видео {{ model_name }}
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {% for model_video in model_videos %}
+                                    {% include 'video/_card.html.twig' with {'video': model_video} %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    {# Embed Modal #}
+    <div id="embed-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 p-4" style="display: none; align-items: center; justify-content: center;">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ 'video.share.embed'|trans }}</h2>
+                <button type="button" onclick="closeEmbedModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                {# Video URL #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ 'common.url'|trans }}</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="video-url-input" value="{{ video_url(video) }}" readonly 
+                               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+                        <button type="button" onclick="copyToClipboard('video-url-input')" 
+                                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-sm font-medium transition">
+                            {{ 'video.share.copy'|trans }}
+                        </button>
+                    </div>
+                </div>
+                
+                {# Embed Code #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ 'video.share.embed'|trans }} HTML</label>
+                    <textarea id="embed-code-textarea" readonly rows="6"
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-mono">{{ embed_code(video) }}</textarea>
+                </div>
+                
+                {# oEmbed URL #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">oEmbed URL</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="oembed-url-input" value="{{ oembed_url(video) }}" readonly 
+                               class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
+                        <button type="button" onclick="copyToClipboard('oembed-url-input')" 
+                                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-sm font-medium transition">
+                            {{ 'video.share.copy'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sticky bottom-0 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 p-6 flex gap-3 justify-end">
+                <button type="button" onclick="closeEmbedModal()" 
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                    {{ 'common.cancel'|trans }}
+                </button>
+                <button type="button" id="copy-embed-btn" onclick="copyEmbedCodeFromModal()" 
+                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md font-medium transition">
+                    {{ 'video.share.copy'|trans }} HTML
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+// Copy to clipboard helper
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    const text = element.value;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        // Show success message
+        const originalValue = element.value;
+        element.value = '{{ 'video.share.copied'|trans }}';
+        element.classList.add('bg-green-100', 'dark:bg-green-900');
+        
+        setTimeout(() => {
+            element.value = originalValue;
+            element.classList.remove('bg-green-100', 'dark:bg-green-900');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('{{ 'common.error'|trans }}');
+    });
+}
+
+// Close dropdown when clicking outside (уже есть в interactions.js, но оставим для совместимости)
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('playlist-dropdown');
+    const menu = document.getElementById('playlist-menu');
+    if (dropdown && menu && !dropdown.contains(e.target)) {
+        menu.classList.add('hidden');
+    }
+});
+
+// Show embed modal
+function showEmbedModal() {
+    const modal = document.getElementById('embed-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+    }
+}
+
+// Close embed modal
+function closeEmbedModal() {
+    const modal = document.getElementById('embed-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+}
+
+// Copy embed code from modal
+function copyEmbedCodeFromModal() {
+    const embedCode = document.getElementById('embed-code-textarea').value;
+    const btn = document.getElementById('copy-embed-btn');
+    
+    navigator.clipboard.writeText(embedCode).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '{{ 'video.share.embed_copied'|trans }}';
+        btn.classList.add('bg-green-600', 'hover:bg-green-700');
+        btn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            btn.classList.add('bg-orange-600', 'hover:bg-orange-700');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy embed code:', err);
+        alert('{{ 'common.error'|trans }}');
+    });
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('embed-modal');
+    if (modal && e.target === modal) {
+        closeEmbedModal();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeEmbedModal();
+    }
+});
+
+// Playlist modal functions for video cards
+function openPlaylistModal(videoId) {
+    const modal = document.getElementById('playlist-modal-' + videoId);
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        loadPlaylistsForModal(videoId);
+    }
+}
+
+function closePlaylistModal(videoId) {
+    const modal = document.getElementById('playlist-modal-' + videoId);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+}
+
+function loadPlaylistsForModal(videoId) {
+    const listContainer = document.getElementById('playlist-list-' + videoId);
+    if (!listContainer) return;
+    
+    // Fetch playlists via AJAX
+    fetch('/api/playlists', {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        listContainer.innerHTML = '';
+        
+        if (data.playlists && data.playlists.length > 0) {
+            data.playlists.forEach(playlist => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition';
+                button.innerHTML = `
+                    <span>${playlist.title}</span>
+                    <span class="text-xs text-gray-500">${playlist.videosCount} {{ 'playlist.videos'|trans }}</span>
+                `;
+                button.onclick = () => addToPlaylist(playlist.id, videoId);
+                listContainer.appendChild(button);
+            });
+        } else {
+            listContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">{{ 'playlist.no_playlists'|trans }}</p>';
+        }
+    })
+    .catch(err => {
+        console.error('Failed to load playlists:', err);
+        listContainer.innerHTML = '<p class="text-sm text-red-500 text-center py-4">{{ 'common.error'|trans }}</p>';
+    });
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    // Close playlist modals
+    document.querySelectorAll('[id^="playlist-modal-"]').forEach(modal => {
+        if (e.target === modal) {
+            const videoId = modal.id.replace('playlist-modal-', '');
+            closePlaylistModal(videoId);
+        }
+    });
+});
+</script>
+{% endblock %}
+

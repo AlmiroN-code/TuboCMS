@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'category.title'|trans, 'url': path('app_categories')},
+    {'label': category.name, 'url': ''}
+] %}
+
+{% block title %}{{ auto_meta_title(category) ?: category.name }}{% endblock %}
+
+{% block meta_description %}{{ auto_meta_description(category) }}{% endblock %}
+
+{% block meta_keywords %}{{ category.metaKeywords ?: parent() }}{% endblock %}
+
+{# Open Graph meta tags for social sharing #}
+{% block og_title %}{{ category.name }}{% endblock %}
+{% block og_description %}{{ auto_meta_description(category) }}{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block og_image %}{% if category.poster %}<meta property="og:image" content="{{ absolute_url('/media/' ~ category.poster) }}">{% endif %}{% endblock %}
+
+{# CollectionPage + ItemList JSON-LD structured data #}
+{% block structured_data %}
+{{ category_schema(category, videos, videos_count) }}
+{% endblock %}
+
+{# Pagination SEO #}
+{% block pagination_seo %}
+{% set total_pages = (videos|length == 24) ? page + 1 : page %}
+{% set prev_url = pagination_prev_url(page, total_pages) %}
+{% set next_url = pagination_next_url(page, total_pages) %}
+{% if prev_url %}<link rel="prev" href="{{ prev_url }}">{% endif %}
+{% if next_url %}<link rel="next" href="{{ next_url }}">{% endif %}
+{% endblock %}
+
+{% block body %}
+    {# Рекламный блок в верхней части страницы категории #}
+    <div class="ad-block mb-4">
+        {{ show_ad('category_top_banner', {
+            'page': 'category_show',
+            'category_id': category.id,
+            'user_id': app.user ? app.user.id : null
+        }) }}
+    </div>
+
+    <div class="flex gap-8">
+        {% include 'partials/_sidebar.html.twig' %}
+        
+        <div class="flex-1">
+            <div class="mt-8 mb-8">
+                <h1 class="text-3xl text-gray-900">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="text-gray-600 mt-2">{{ category.description }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 mt-2">{{ 'category.videos_count'|trans({'%count%': videos_count}) }}</p>
+            </div>
+
+            {% if videos|length > 0 %}
+                <div class="video-grid">
+                    {% for video in videos %}
+                        {% if loop.index % 12 == 6 %}
+                            {# Рекламный блок между видео в категории #}
+                            <div class="ad-block col-span-full my-4">
+                                {{ show_ad('category_between_videos', {
+                                    'page': 'category_show',
+                                    'category_id': category.id,
+                                    'user_id': app.user ? app.user.id : null
+                                }) }}
+                            </div>
+                        {% endif %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if page > 1 %}
+                        <a href="{{ path('app_category_show', {slug: category.slug, page: page - 1}) }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            ← {{ 'pagination.previous'|trans }}
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-orange-600 text-white rounded-md">
+                        {{ 'pagination.page'|trans({'%page%': page}) }}
+                    </span>
+                    
+                    {% if videos|length == 24 %}
+                        <a href="{{ path('app_category_show', {slug: category.slug, page: page + 1}) }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            {{ 'pagination.next'|trans }} →
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <p class="text-gray-500 text-lg">{{ 'category.no_videos_in_category'|trans }}</p>
+                </div>
+            {% endif %}
+
+            {# Блок "Смотрите также" #}
+            {% if see_also %}
+                <div class="mt-12 border-t border-gray-200 pt-8">
+                    {% include 'partials/_see_also.html.twig' with {
+                        'title': 'Смотрите также',
+                        'videos': see_also.popular_videos ?? [],
+                        'tags': see_also.popular_tags ?? [],
+                        'models': see_also.popular_models ?? [],
+                        'class': 'category-see-also'
+                    } %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Рекламный сайдбар на странице категории #}
+        <div class="w-80 flex-shrink-0">
+            <div class="ad-block mb-4">
+                {{ show_ad('category_sidebar', {
+                    'page': 'category_show',
+                    'category_id': category.id,
+                    'user_id': app.user ? app.user.id : null
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

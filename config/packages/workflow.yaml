@@ -1,0 +1,71 @@
+framework:
+    workflows:
+        # Workflow для статусов видео
+        video_status:
+            type: 'state_machine'
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: 'method'
+                property: 'status'
+            supports:
+                - App\Entity\Video
+            initial_marking: draft
+            places:
+                - draft
+                - processing
+                - published
+                - private
+                - rejected
+            transitions:
+                submit_for_processing:
+                    from: draft
+                    to: processing
+                reprocess:
+                    from: [rejected, published, private]
+                    to: processing
+                publish:
+                    from: processing
+                    to: published
+                reject:
+                    from: [processing, published]
+                    to: rejected
+                make_private:
+                    from: [published, draft]
+                    to: private
+                make_public:
+                    from: private
+                    to: published
+                unpublish:
+                    from: published
+                    to: draft
+        
+        # Workflow для модерации комментариев
+        comment_moderation:
+            type: 'state_machine'
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: 'method'
+                property: 'moderationStatus'
+            supports:
+                - App\Entity\Comment
+            initial_marking: pending
+            places:
+                - pending
+                - approved
+                - rejected
+                - spam
+            transitions:
+                approve:
+                    from: [pending, rejected]
+                    to: approved
+                reject:
+                    from: [pending, approved]
+                    to: rejected
+                mark_spam:
+                    from: [pending, approved, rejected]
+                    to: spam
+                restore:
+                    from: [rejected, spam]
+                    to: pending

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'category.title'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ 'category.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl mb-8">{{ 'category.all_categories'|trans }}</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for category in categories %}
+            <a href="{{ path('app_category_show', {'slug': category.slug}) }}" 
+               class="bg-gray-800 rounded-md p-6 hover:bg-gray-700 transition">
+                <h2 class="text-xl font-semibold mb-2">{{ category.name }}</h2>
+                <p class="text-gray-400 text-sm mb-4">{{ category.description }}</p>
+                <p class="text-red-500 font-semibold">{{ 'category.videos_count'|trans({'%count%': category.videosCount}) }}</p>
+            </a>
+        {% else %}
+            <div class="col-span-full text-center py-12 text-gray-400">
+                {{ 'category.no_categories'|trans }}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

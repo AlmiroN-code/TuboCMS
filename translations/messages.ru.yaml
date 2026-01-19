@@ -1,0 +1,586 @@
+# Russian translations - Main messages
+# Requirements: 7.1, 7.2
+
+# Search (Live Component)
+search:
+    placeholder: "Поиск видео..."
+    view_all_results: "Показать все результаты"
+    no_results: "Ничего не найдено"
+    try_full_search: "Попробовать полный поиск"
+    try_different_query: "Попробуйте изменить запрос"
+    videos: "Видео"
+    categories: "Категории"
+    tags: "Теги"
+    models: "Модели"
+
+# Navigation
+nav:
+    home: "Главная"
+    videos: "Видео"
+    categories: "Категории"
+    tags: "Теги"
+    models: "Модели"
+    community: "Сообщество"
+    popular: "Популярное"
+    trending: "В тренде"
+
+# Authentication
+auth:
+    login: "Войти"
+    logout: "Выйти"
+    register: "Регистрация"
+    my_profile: "Мой профиль"
+    my_videos: "Мои видео"
+    admin_panel: "Админ панель"
+    # Login page
+    login_page:
+        title: "Вход"
+        heading: "Войдите в свой аккаунт"
+        email: "Email"
+        password: "Пароль"
+        submit: "Войти"
+        no_account: "Нет аккаунта?"
+        sign_up_link: "Зарегистрироваться"
+    # Registration page
+    register_page:
+        title: "Регистрация"
+        heading: "Создайте аккаунт"
+        username: "Имя пользователя"
+        email: "Email"
+        password: "Пароль"
+        submit: "Зарегистрироваться"
+        have_account: "Уже есть аккаунт?"
+        sign_in_link: "Войти"
+    # Error messages
+    errors:
+        invalid_credentials: "Неверные учётные данные"
+        account_disabled: "Ваш аккаунт отключён"
+        account_locked: "Ваш аккаунт заблокирован"
+        email_not_verified: "Пожалуйста, подтвердите ваш email"
+
+# Video
+video:
+    all_videos: "Все видео"
+    popular_videos: "Популярные видео"
+    trending_videos: "В тренде"
+    newest_videos: "Новые видео"
+    my_videos: "Мои видео"
+    related_videos: "Похожие видео"
+    performers: "Модели в видео"
+    categories: "Категории"
+    tags: "Теги"
+    upload: "Загрузить видео"
+    upload_new: "Загрузить новое видео"
+    views: "{0} просмотров|{1} просмотр|[2,4] %count% просмотра|[5,Inf[ %count% просмотров"
+    views_count: "%count% просмотров"
+    views_short: "просм."
+    videos_count: "видео"
+    no_videos: "Видео не найдено"
+    no_videos_query: "Видео по запросу \"%query%\" не найдено"
+    load_more: "Загрузить ещё"
+    search_placeholder: "Поиск видео..."
+    search: "Поиск"
+    search_results: "Результаты поиска: \"%query%\""
+    search_videos: "Поиск видео"
+    enter_search_query: "Введите поисковый запрос"
+    show_all_results: "Показать все результаты"
+    try_full_search: "Попробовать полный поиск"
+    browser_not_supported: "Ваш браузер не поддерживает воспроизведение видео."
+    quality: "Качество"
+    subscribers: "%count% подписчиков"
+    loading_comments: "Загрузка комментариев..."
+    watch_later: "Смотреть позже"
+    added_to_playlist: "Видео добавлено в плейлист"
+    # Share
+    share:
+        copy: "Копировать"
+        copy_link: "Копировать ссылку"
+        copied: "Скопировано!"
+        twitter: "Поделиться в Twitter"
+        facebook: "Поделиться в Facebook"
+        telegram: "Поделиться в Telegram"
+        whatsapp: "Поделиться в WhatsApp"
+        reddit: "Поделиться в Reddit"
+        pinterest: "Поделиться в Pinterest"
+        embed: "Код для встраивания"
+        embed_copied: "Код встраивания скопирован!"
+    # Video statuses
+    status:
+        published: "Опубликовано"
+        processing: "Обработка"
+        draft: "Черновик"
+        error: "Ошибка"
+    # Processing messages
+    processing:
+        in_progress: "Видео обрабатывается..."
+        waiting: "Видео ожидает обработки..."
+        error: "Ошибка обработки видео"
+    # My videos table
+    table:
+        video: "Видео"
+        status: "Статус"
+        views: "Просмотры"
+        date: "Дата"
+        actions: "Действия"
+        view: "Смотреть"
+    # Empty state
+    empty:
+        title: "Нет видео"
+        description: "Начните с загрузки вашего первого видео"
+        upload: "Загрузить видео"
+    # Upload page
+    upload_page:
+        title: "Загрузка видео"
+        video_title: "Название видео"
+        description: "Описание"
+        category: "Категория"
+        tags: "Теги"
+        video_file: "Видеофайл"
+        supported_formats: "Поддерживаемые форматы: MP4, AVI, MOV. Максимальный размер: 2 ГБ"
+        cancel: "Отмена"
+        submit: "Загрузить видео"
+        info_title: "Информация о загрузке"
+        info_processing: "После загрузки видео будет обработано и сконвертировано"
+        info_time: "Обработка может занять несколько минут"
+        info_notification: "Вы получите уведомление, когда видео будет готово"
+        info_rights: "Убедитесь, что у вас есть права на загружаемый контент"
+
+# Pagination
+pagination:
+    previous: "Назад"
+    next: "Вперёд"
+    page: "Страница %page%"
+    page_of: "Страница %page% из %pages%"
+
+# Category
+category:
+    title: "Категории"
+    all_categories: "Все категории"
+    videos_count: "%count% видео"
+    no_categories: "Категории не найдены"
+    no_videos_in_category: "В этой категории пока нет видео"
+
+# Home page
+home:
+    featured: "Рекомендуемое"
+    new_videos: "Новые видео"
+    popular_videos: "Популярные видео"
+    recently_watched: "Недавно просмотренные"
+    view_all: "Смотреть все →"
+
+# Sidebar
+sidebar:
+    trending: "В тренде"
+    all_videos: "Все видео"
+    top_views: "Топ просмотров"
+    new: "Новые"
+    categories: "Категории"
+    show_all: "Показать все"
+    hide: "Скрыть"
+    all_categories: "Все категории →"
+    no_categories: "Категории не найдены"
+    my_profile: "Мой профиль"
+    my_videos: "Мои видео"
+    upload_video: "Загрузить видео"
+    playlists: "Плейлисты"
+    series: "Серии"
+    history: "История"
+    bookmarks: "Избранное"
+
+# Members / Community
+members:
+    title: "Сообщество"
+    description: "Познакомьтесь с нашими участниками! Здесь вы найдёте создателей контента, активных пользователей и всех, кто делает наше сообщество особенным."
+    total: "Участников"
+    creators: "Авторов"
+    verified: "Верифицированных"
+    premium: "Премиум"
+    search_placeholder: "Поиск по имени..."
+    sort:
+        newest: "Новые участники"
+        oldest: "Старые участники"
+        popular: "Популярные"
+        active: "Активные"
+    search_button: "Поиск"
+    reset: "Сбросить"
+    videos: "Видео:"
+    subscribers: "Подписчиков:"
+    member_since: "Участник с:"
+    profile: "Профиль"
+    no_users: "Пользователи не найдены"
+    no_users_search: "Попробуйте изменить поисковый запрос или сбросить фильтры."
+    no_users_empty: "В сообществе пока нет участников."
+    # Profile page
+    profile_title: "%username% - Профиль"
+    edit: "Редактировать"
+    subscribe: "Подписаться"
+    about: "О себе"
+    recent_videos: "Последние видео"
+    activity: "Активность"
+    registered: "Зарегистрирован %date%"
+    last_activity: "Последняя активность %date%"
+    information: "Информация"
+    country: "Страна"
+    city: "Город"
+    gender: "Пол"
+    gender_male: "Мужской"
+    gender_female: "Женский"
+    age: "Возраст"
+    age_years: "%age% лет"
+    marital_status: "Семейное положение"
+    marital_single: "Не женат/не замужем"
+    marital_in_relationship: "В отношениях"
+    marital_engaged: "Помолвлен(а)"
+    marital_married: "Женат/замужем"
+    marital_divorced: "В разводе"
+    marital_widowed: "Вдовец/вдова"
+    orientation: "Ориентация"
+    orientation_heterosexual: "Гетеросексуал"
+    orientation_homosexual: "Гомосексуал"
+    orientation_bisexual: "Бисексуал"
+    orientation_other: "Другое"
+    achievements: "Достижения"
+    achievement_verified: "Верифицированный пользователь"
+    achievement_premium: "Премиум участник"
+    achievement_creator: "Активный автор"
+    stats:
+        videos: "Видео"
+        subscribers: "Подписчиков"
+        views: "Просмотров"
+        member_since: "Участник с"
+
+# Footer
+footer:
+    site_name: "RexTube"
+    description: "Лучший видеохостинг для загрузки и просмотра видеоконтента."
+    navigation: "Навигация"
+    information: "Информация"
+    about_us: "О нас"
+    terms: "Условия"
+    contact: "Контакты"
+    copyright: "© %year% RexTube. Все права защищены."
+
+# Common
+common:
+    save: "Сохранить"
+    cancel: "Отмена"
+    delete: "Удалить"
+    edit: "Редактировать"
+    create: "Создать"
+    search: "Поиск"
+    select: "Выберите..."
+    yes: "Да"
+    no: "Нет"
+    back: "Назад"
+    cm: "см"
+    kg: "кг"
+    url: "URL"
+    error: "Произошла ошибка"
+    view: "Смотреть"
+
+# Profile
+profile:
+    avatar: "Аватар"
+    cover: "Обложка профиля"
+    birth_date: "Дата рождения"
+    bio_placeholder: "Расскажите о себе..."
+
+# Models section
+models:
+    title: "Модели"
+    meta_description: "Просмотрите нашу коллекцию моделей и актёров"
+    total_count: "%count% моделей"
+    search: "Поиск"
+    search_placeholder: "Поиск по имени..."
+    sort:
+        label: "Сортировка"
+        popular: "Популярные"
+        newest: "Новые"
+        alphabetical: "По алфавиту"
+        videos: "Больше видео"
+    filter:
+        gender: "Пол"
+        all: "Все"
+        female: "Женщины"
+        male: "Мужчины"
+        trans: "Транс"
+        apply: "Применить"
+        reset: "Сбросить"
+    no_models: "Модели не найдены"
+
+model:
+    verified: "Верифицирован"
+    premium: "Премиум"
+    bio: "Биография"
+    videos_title: "Видео (%count%)"
+    no_videos: "Видео пока нет"
+    meta_description: "%name% - %videos% видео на нашей платформе"
+    subscribe: "Подписаться"
+    unsubscribe: "Отписаться"
+    stats:
+        views: "Просмотров"
+        subscribers: "Подписчиков"
+        videos: "Видео"
+        likes: "Лайков"
+    info:
+        title: "Информация"
+        aliases: "Псевдонимы"
+        gender: "Пол"
+        age: "Возраст"
+        birth_date: "Дата рождения"
+        zodiac: "Знак зодиака"
+        country: "Страна"
+        ethnicity: "Этничность"
+        career_start: "Начало карьеры"
+        hair_color: "Цвет волос"
+        eye_color: "Цвет глаз"
+        tattoos: "Татуировки"
+        piercings: "Пирсинг"
+        breast_size: "Размер груди"
+        height: "Рост"
+        weight: "Вес"
+        added: "Добавлен"
+    gender:
+        female: "Женщина"
+        male: "Мужчина"
+        trans: "Транс"
+    zodiac:
+        aries: "Овен"
+        taurus: "Телец"
+        gemini: "Близнецы"
+        cancer: "Рак"
+        leo: "Лев"
+        virgo: "Дева"
+        libra: "Весы"
+        scorpio: "Скорпион"
+        sagittarius: "Стрелец"
+        capricorn: "Козерог"
+        aquarius: "Водолей"
+        pisces: "Рыбы"
+
+
+# Playlist
+playlist:
+    my_playlists: "Мои плейлисты"
+    create: "Создать плейлист"
+    create_new: "Создать плейлист"
+    edit: "Редактировать плейлист"
+    title: "Название"
+    description: "Описание"
+    videos: "видео"
+    public: "Публичный"
+    private: "Приватный"
+    make_public: "Сделать публичным"
+    no_playlists: "У вас пока нет плейлистов"
+    create_first: "Создайте свой первый плейлист"
+    no_videos: "В плейлисте пока нет видео"
+    add_video: "В плейлист"
+
+# History
+history:
+    title: "История просмотров"
+    empty: "История просмотров пуста"
+    clear_all: "Очистить историю"
+    confirm_clear: "Вы уверены, что хотите очистить всю историю?"
+
+# Bookmark
+bookmark:
+    title: "Избранное"
+    empty: "В избранном пока ничего нет"
+    add: "Добавить в избранное"
+    remove: "Удалить из избранного"
+
+# Watch Later
+watch_later:
+    title: "Смотреть позже"
+    description: "У вас %count% видео в списке"
+    add: "Добавить в \"Смотреть позже\""
+    remove: "Удалить из \"Смотреть позже\""
+    empty:
+        title: "Список \"Смотреть позже\" пуст"
+        description: "Добавляйте видео в этот список, чтобы посмотреть их позже"
+        browse_videos: "Смотреть видео"
+
+# Notification
+notification:
+    title: "Уведомления"
+    empty: "Нет уведомлений"
+    mark_all_read: "Отметить все как прочитанные"
+    new_video_text: "загрузил новое видео"
+    reply_text: "ответил на ваш комментарий"
+    mention_text: "упомянул вас в комментарии"
+    subscriber_text: "подписался на вас"
+
+# Series
+series:
+    my_series: "Мои серии"
+    create: "Создать серию"
+    create_new: "Создать серию"
+    title: "Название"
+    description: "Описание"
+    episodes: "эпизодов"
+    episode: "Эпизод"
+    no_series: "У вас пока нет серий"
+    no_seasons: "В серии пока нет сезонов"
+    no_episodes: "В сезоне пока нет эпизодов"
+    manage: "Управление серией"
+    season_title: "Название сезона (необязательно)"
+    add_season: "Добавить сезон"
+    add_episode: "Добавить эпизод"
+    select_video: "Выберите видео"
+
+# Video Filters
+filter:
+    duration: "Длительность"
+    all: "Все"
+    short: "Короткие"
+    medium: "Средние"
+    long: "Длинные"
+    min: "мин"
+    sort: "Сортировка"
+    newest: "Новые"
+    oldest: "Старые"
+    popular: "Популярные"
+    rating: "По рейтингу"
+    reset: "Сбросить"
+
+# Tag
+tag:
+    videos_with_tag: "Видео с тегом %tag%"
+    meta_description: "Смотрите %count% видео с тегом %tag%"
+    videos_count: "{0} Нет видео|{1} %count% видео|[2,4] %count% видео|[5,Inf[ %count% видео"
+    no_videos: "Нет видео с этим тегом"
+    no_videos_description: "Пока нет видео с тегом \"%tag%\""
+    browse_all_videos: "Смотреть все видео"
+    total_count: "%count% тегов"
+    no_tags: "Теги не найдены"
+    sort:
+        alphabetical: "По алфавиту"
+        popular: "Популярные"
+
+
+# Toast Notifications
+toast:
+    # Watch Later
+    watch_later_added: "Видео добавлено в \"Смотреть позже\""
+    watch_later_removed: "Видео удалено из \"Смотреть позже\""
+    
+    # Bookmarks
+    bookmark_added: "Добавлено в избранное"
+    bookmark_removed: "Удалено из избранного"
+    bookmark_error: "Не удалось обновить закладку"
+    
+    # Playlists
+    playlist_added: "Видео добавлено в плейлист"
+    playlist_removed: "Видео удалено из плейлиста"
+    playlist_error: "Не удалось добавить в плейлист"
+    playlist_remove_error: "Не удалось удалить видео"
+    playlist_in_development: "Функция плейлистов в разработке"
+    
+    # Subscriptions
+    subscribed: "Вы подписались на канал"
+    unsubscribed: "Вы отписались от канала"
+    subscription_error: "Не удалось изменить подписку"
+    
+    # Ratings/Votes
+    vote_success: "Ваш голос учтён"
+    vote_removed: "Голос отменён"
+    vote_error: "Не удалось проголосовать"
+    rating_success: "Спасибо за вашу оценку!"
+    rating_error: "Не удалось поставить оценку"
+    
+    # Generic
+    success: "Операция выполнена успешно"
+    error: "Произошла ошибка"
+    error_generic: "Произошла ошибка при обработке запроса"
+    confirm_delete: "Вы уверены, что хотите удалить?"
+
+
+# Breadcrumbs
+breadcrumb:
+    home: "Главная"
+    videos: "Видео"
+    categories: "Категории"
+    models: "Модели"
+    community: "Сообщество"
+    admin: "Админ панель"
+
+
+# Admin - Content Protection
+admin:
+    content_protection:
+        title: "Настройки защиты контента"
+        hotlink:
+            title: "Защита от Hotlink"
+            enable: "Включить защиту от прямых ссылок"
+            description: "Запрещает загрузку медиа-файлов с других сайтов. Проверяет HTTP Referer."
+            allowed_domains: "Разрешенные домены"
+            domains_help: "Один домен на строку. Эти домены смогут загружать ваши медиа-файлы."
+        user_agent:
+            title: "Фильтрация User-Agent"
+            enable: "Включить фильтрацию User-Agent"
+            description: "Блокирует известные скачиватели и боты (wget, curl, youtube-dl, yt-dlp и др.)"
+            blocked_agents: "Дополнительные заблокированные User-Agent"
+            agents_help: "Один User-Agent на строку. Будут добавлены к стандартному списку."
+        signed_urls:
+            title: "Подписанные URL"
+            enable: "Включить подписанные URL"
+            description: "Генерирует временные токены для доступа к медиа-файлам. URL действителен ограниченное время."
+            token_lifetime: "Время жизни токена"
+            seconds: "секунд"
+            lifetime_help: "Время в секундах, в течение которого URL остается действительным (60-86400)"
+        rate_limit:
+            title: "Ограничение скорости"
+            description: "Ограничивает количество запросов с одного IP адреса"
+            per_hour: "Максимум запросов в час"
+            requests: "запросов"
+            help: "Количество запросов к медиа-файлам с одного IP в час (10-10000)"
+        watermark:
+            title: "Водяной знак"
+            enable: "Включить водяной знак"
+            description: "Добавляет водяной знак на видео для защиты от кражи контента"
+            text: "Текст водяного знака"
+            text_help: "Текст, который будет отображаться на видео. Можно использовать {username} для имени пользователя."
+            position: "Позиция"
+            position_top_left: "Верхний левый угол"
+            position_top_right: "Верхний правый угол"
+            position_bottom_left: "Нижний левый угол"
+            position_bottom_right: "Нижний правый угол"
+            position_center: "По центру"
+            opacity: "Прозрачность"
+        info:
+            title: "Информация"
+            how_it_works: "Как это работает:"
+            hotlink_desc: "Проверяет HTTP Referer и блокирует запросы с неразрешенных доменов"
+            user_agent_desc: "Блокирует запросы от известных скачивателей и ботов по User-Agent"
+            signed_urls_desc: "Генерирует временные подписанные URL с токенами, привязанными к IP и сессии"
+            rate_limit_desc: "Ограничивает количество запросов с одного IP для предотвращения массового скачивания"
+            watermark_desc: "Добавляет видимый водяной знак на видео (требует перекодирование)"
+            warning: "Внимание"
+            warning_text: "Слишком строгие настройки могут заблокировать легитимных пользователей. Рекомендуется начать с мягких настроек и постепенно ужесточать."
+
+
+# SEO Auto-generation templates
+seo:
+    category:
+        auto_title: "%name% — %count% видео"
+        auto_description: "Смотрите %count% видео в категории %name%. Лучшая подборка онлайн бесплатно в хорошем качестве."
+    model:
+        auto_title: "%name% — %count% видео"
+        auto_description: "%name% — %videos% видео, %views% просмотров. Смотрите все видео онлайн бесплатно."
+    tag:
+        auto_title: "%name% — %count% видео"
+        auto_description: "Видео с тегом %name%: %count% роликов. Смотрите онлайн бесплатно в хорошем качестве."
+    video:
+        auto_description: "%title%. %duration% %categories%. %views% просмотров."
+    keywords:
+        video: "видео"
+        watch: "смотреть"
+        model: "модель"
+        tag: "тег"
+        category: "категория"
+    admin:
+        generate_seo: "Сгенерировать SEO"
+        generating: "Генерация..."
+        generated: "SEO сгенерировано"
+        error: "Ошибка генерации"

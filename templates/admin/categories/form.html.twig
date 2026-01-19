@@ -1,0 +1,168 @@
+{% extends 'admin/base.html.twig' %}
+
+{% set admin_breadcrumbs = [
+    {'label': 'Dashboard', 'url': path('admin_dashboard')},
+    {'label': 'Категории', 'url': path('admin_categories')},
+    {'label': category.id ? 'Редактировать' : 'Новая категория', 'url': ''}
+] %}
+
+{% block title %}{{ category.id ? 'Редактировать категорию' : 'Новая категория' }}{% endblock %}
+{% block page_title %}{{ category.id ? 'Редактировать категорию' : 'Новая категория' }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-md shadow p-6">
+    <form method="post" enctype="multipart/form-data">
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Название</label>
+                <input type="text" name="name" value="{{ category.name }}" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Описание</label>
+                <textarea name="description" rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">{{ category.description }}</textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Постер</label>
+                {% if category.poster %}
+                    <div class="mb-3">
+                        <img src="/media/categories/{{ category.poster }}" alt="Текущий постер" class="w-32 h-24 object-cover rounded">
+                        <p class="text-sm text-gray-500 mt-1">Текущий: {{ category.poster }}</p>
+                    </div>
+                {% endif %}
+                <input type="file" name="poster" accept="image/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-sm text-gray-500 mt-1">Рекомендуемый размер: 400x300 (4:3)</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Порядок сортировки</label>
+                <input type="number" name="order_position" value="{{ category.orderPosition ?? 0 }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox" name="is_active" value="1" {{ category.isActive ? 'checked' : '' }}
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label class="ml-2 block text-sm text-gray-900">Активна</label>
+            </div>
+
+            {# SEO метатеги #}
+            <div class="border-t pt-6 mt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">SEO метатеги</h3>
+                    <button type="button" id="generate-seo-btn" 
+                            class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
+                            data-type="category" data-id="{{ category.id }}">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span class="btn-text">Сгенерировать SEO</span>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Meta Title
+                            <span class="text-gray-500 font-normal">(если не указан, генерируется автоматически)</span>
+                        </label>
+                        <input type="text" name="meta_title" id="meta_title" value="{{ category.metaTitle }}" maxlength="255"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-sm text-gray-500 mt-1">Рекомендуемая длина: 50-60 символов</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Meta Description
+                            <span class="text-gray-500 font-normal">(если не указано, генерируется автоматически)</span>
+                        </label>
+                        <textarea name="meta_description" id="meta_description" rows="3" maxlength="500"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">{{ category.metaDescription }}</textarea>
+                        <p class="text-sm text-gray-500 mt-1">Рекомендуемая длина: 150-160 символов</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Meta Keywords
+                            <span class="text-gray-500 font-normal">(через запятую)</span>
+                        </label>
+                        <input type="text" name="meta_keywords" id="meta_keywords" value="{{ category.metaKeywords }}" maxlength="500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-sm text-gray-500 mt-1">Пример: видео, категория, контент</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+                    Сохранить
+                </button>
+                <a href="{{ path('admin_categories') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded">
+                    Отмена
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    const generateBtn = document.getElementById('generate-seo-btn');
+    if (!generateBtn) return;
+    
+    generateBtn.addEventListener('click', async function() {
+        const type = this.dataset.type;
+        const id = this.dataset.id || null;
+        const btnText = this.querySelector('.btn-text');
+        const originalText = btnText.textContent;
+        
+        const data = {
+            type: type,
+            id: id ? parseInt(id) : null,
+            data: {
+                name: document.querySelector('[name="name"]')?.value || '',
+                description: document.querySelector('[name="description"]')?.value || ''
+            }
+        };
+        
+        this.disabled = true;
+        btnText.textContent = 'Генерация...';
+        
+        try {
+            const response = await fetch('{{ path("admin_seo_generate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                if (result.metaTitle) document.getElementById('meta_title').value = result.metaTitle;
+                if (result.metaDescription) document.getElementById('meta_description').value = result.metaDescription;
+                if (result.metaKeywords) document.getElementById('meta_keywords').value = result.metaKeywords;
+                
+                btnText.textContent = 'Готово!';
+                setTimeout(() => { btnText.textContent = originalText; }, 2000);
+            } else {
+                btnText.textContent = result.error || 'Ошибка';
+                setTimeout(() => { btnText.textContent = originalText; }, 3000);
+            }
+        } catch (error) {
+            console.error('SEO generation error:', error);
+            btnText.textContent = 'Ошибка сети';
+            setTimeout(() => { btnText.textContent = originalText; }, 3000);
+        } finally {
+            this.disabled = false;
+        }
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'models.title'|trans, 'url': ''}
+] %}
+
+{% block title %}{{ setting('seo_models_title') ?: 'models.title'|trans }}{% endblock %}
+
+{% block meta_description %}{{ setting('seo_models_description') ?: 'models.meta_description'|trans }}{% endblock %}
+
+{% block meta_keywords %}{{ setting('seo_models_keywords') ?: parent() }}{% endblock %}
+
+{% block og_title %}{{ setting('seo_models_title') ?: 'models.title'|trans }} - {{ site_name() }}{% endblock %}
+{% block og_description %}{{ setting('seo_models_description') ?: 'models.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+<div class="flex gap-8">
+    {% include 'partials/_sidebar.html.twig' %}
+    
+    <div class="flex-1">
+        <div class="mt-8 mb-8">
+            <h1 class="text-3xl text-gray-900 dark:text-white">{{ 'models.title'|trans }}</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">{{ 'models.total_count'|trans({'%count%': total}) }}</p>
+        </div>
+
+        {# Форма поиска, сортировки и фильтрации #}
+        <div class="bg-white dark:bg-slate-800 rounded-md shadow p-4 mb-6">
+            <form method="get" action="{{ path('app_models') }}" class="flex flex-wrap gap-4 items-end">
+                {# Поиск #}
+                <div class="flex-1 min-w-[200px]">
+                    <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {{ 'models.search'|trans }}
+                    </label>
+                    <input type="text" name="search" id="search" value="{{ search }}"
+                           placeholder="{{ 'models.search_placeholder'|trans }}"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                                  bg-white dark:bg-slate-700 text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                </div>
+
+                {# Сортировка #}
+                <div class="w-48">
+                    <label for="sort" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {{ 'models.sort.label'|trans }}
+                    </label>
+                    <select name="sort" id="sort"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                                   bg-white dark:bg-slate-700 text-gray-900 dark:text-white
+                                   focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <option value="popular" {{ sort == 'popular' ? 'selected' }}>{{ 'models.sort.popular'|trans }}</option>
+                        <option value="newest" {{ sort == 'newest' ? 'selected' }}>{{ 'models.sort.newest'|trans }}</option>
+                        <option value="alphabetical" {{ sort == 'alphabetical' ? 'selected' }}>{{ 'models.sort.alphabetical'|trans }}</option>
+                        <option value="videos" {{ sort == 'videos' ? 'selected' }}>{{ 'models.sort.videos'|trans }}</option>
+                    </select>
+                </div>
+
+                {# Фильтр по полу #}
+                <div class="w-40">
+                    <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {{ 'models.filter.gender'|trans }}
+                    </label>
+                    <select name="gender" id="gender"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+                                   bg-white dark:bg-slate-700 text-gray-900 dark:text-white
+                                   focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <option value="">{{ 'models.filter.all'|trans }}</option>
+                        <option value="female" {{ gender == 'female' ? 'selected' }}>{{ 'models.filter.female'|trans }}</option>
+                        <option value="male" {{ gender == 'male' ? 'selected' }}>{{ 'models.filter.male'|trans }}</option>
+                        <option value="trans" {{ gender == 'trans' ? 'selected' }}>{{ 'models.filter.trans'|trans }}</option>
+                    </select>
+                </div>
+
+                <button type="submit" 
+                        class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition">
+                    {{ 'models.filter.apply'|trans }}
+                </button>
+
+                {% if search or gender %}
+                    <a href="{{ path('app_models') }}" 
+                       class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition">
+                        {{ 'models.filter.reset'|trans }}
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {# Сетка моделей #}
+        {% if models|length > 0 %}
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {% for model in models %}
+                    {% include 'model/_card.html.twig' with {'model': model} %}
+                {% endfor %}
+            </div>
+
+            {# Пагинация #}
+            {% if pages > 1 %}
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if page > 1 %}
+                        <a href="{{ path('app_models', {page: page - 1, search: search, sort: sort, gender: gender}|filter(v => v is not empty)) }}" 
+                           class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200">
+                            ← {{ 'pagination.previous'|trans }}
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-orange-600 text-white rounded-md">
+                        {{ 'pagination.page_of'|trans({'%page%': page, '%pages%': pages}) }}
+                    </span>
+                    
+                    {% if page < pages %}
+                        <a href="{{ path('app_models', {page: page + 1, search: search, sort: sort, gender: gender}|filter(v => v is not empty)) }}" 
+                           class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200">
+                            {{ 'pagination.next'|trans }} →
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'models.no_models'|trans }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

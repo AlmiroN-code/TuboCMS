@@ -1,0 +1,32 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Messenger Queue - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Messenger Queue Status</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-md shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Async Transport</h2>
+            <div class="text-4xl font-bold text-blue-600">{{ async_count }}</div>
+            <p class="text-gray-600 mt-2">Messages in queue</p>
+        </div>
+        
+        <div class="bg-white rounded-md shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Failed Transport</h2>
+            <div class="text-4xl font-bold text-red-600">{{ failed_count }}</div>
+            <p class="text-gray-600 mt-2">Failed messages</p>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-md shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Commands</h2>
+        <div class="space-y-2">
+            <code class="block bg-gray-100 p-3 rounded">php bin/console messenger:consume async -vv</code>
+            <code class="block bg-gray-100 p-3 rounded">php bin/console messenger:failed:show</code>
+            <code class="block bg-gray-100 p-3 rounded">php bin/console messenger:failed:retry</code>
+        </div>
+    </div>
+</div>
+{% endblock %}

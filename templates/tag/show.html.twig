@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'nav.tags'|trans, 'url': path('app_tags')},
+    {'label': tag.name, 'url': ''}
+] %}
+
+{% block title %}{{ auto_meta_title(tag) ?: '#' ~ tag.name }}{% endblock %}
+
+{% block meta_description %}{{ auto_meta_description(tag) }}{% endblock %}
+
+{% block meta_keywords %}{{ tag.metaKeywords ?: tag.name }}{% endblock %}
+
+{# Open Graph meta tags for social sharing #}
+{% block og_title %}#{{ tag.name }}{% endblock %}
+{% block og_description %}{{ auto_meta_description(tag) }}{% endblock %}
+{% block og_type %}website{% endblock %}
+
+{# Pagination SEO #}
+{% block pagination_seo %}
+{% set total_pages = (videos|length == 24) ? page + 1 : page %}
+{% set prev_url = pagination_prev_url(page, total_pages) %}
+{% set next_url = pagination_next_url(page, total_pages) %}
+{% if prev_url %}<link rel="prev" href="{{ prev_url }}">{% endif %}
+{% if next_url %}<link rel="next" href="{{ next_url }}">{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="flex gap-8">
+        {% include 'partials/_sidebar.html.twig' %}
+        
+        <div class="flex-1">
+            <div class="mt-8 mb-8">
+                <h1 class="text-3xl text-gray-900 dark:text-gray-100">#{{ tag.name }}</h1>
+                {% if tag.description %}
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">{{ tag.description }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ 'category.videos_count'|trans({'%count%': videos_count}) }}</p>
+            </div>
+
+            {% if videos|length > 0 %}
+                <div class="video-grid">
+                    {% for video in videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if page > 1 %}
+                        <a href="{{ path('app_tag_show', {slug: tag.slug, page: page - 1}) }}" 
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                            ← {{ 'pagination.previous'|trans }}
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-orange-600 text-white rounded-md">
+                        {{ 'pagination.page'|trans({'%page%': page}) }}
+                    </span>
+                    
+                    {% if videos|length == 24 %}
+                        <a href="{{ path('app_tag_show', {slug: tag.slug, page: page + 1}) }}" 
+                           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                            {{ 'pagination.next'|trans }} →
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'tag.no_videos'|trans }}</p>
+                </div>
+            {% endif %}
+
+            {# Блок "Смотрите также" #}
+            {% if see_also %}
+                <div class="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8">
+                    {% include 'partials/_see_also.html.twig' with {
+                        'title': 'Смотрите также',
+                        'categories': see_also.related_categories ?? [],
+                        'models': see_also.related_models ?? [],
+                        'class': 'tag-see-also'
+                    } %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Объявления{% endblock %}
+{% block page_title %}Объявления{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+        <form method="GET" class="flex items-center space-x-2">
+            <select name="status" onchange="this.form.submit()"
+                    class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Все статусы</option>
+                <option value="draft" {{ status == 'draft' ? 'selected' : '' }}>Черновик</option>
+                <option value="pending" {{ status == 'pending' ? 'selected' : '' }}>На модерации</option>
+                <option value="active" {{ status == 'active' ? 'selected' : '' }}>Активна</option>
+                <option value="paused" {{ status == 'paused' ? 'selected' : '' }}>Приостановлена</option>
+                <option value="completed" {{ status == 'completed' ? 'selected' : '' }}>Завершена</option>
+                <option value="rejected" {{ status == 'rejected' ? 'selected' : '' }}>Отклонена</option>
+            </select>
+            
+            <select name="placement" onchange="this.form.submit()"
+                    class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Все места размещения</option>
+                {% for placement in placements %}
+                    <option value="{{ placement.id }}" {{ placementId == placement.id ? 'selected' : '' }}>
+                        {{ placement.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    
+    <a href="{{ path('admin_ads_new') }}" 
+       class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+        Создать объявление
+    </a>
+</div>
+
+{# Панель массовых действий #}
+<div id="bulk-actions" class="hidden mb-4 bg-blue-50 border border-blue-200 rounded-md p-3 flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+        <span class="text-sm text-blue-800">Выбрано: <strong id="selected-count">0</strong></span>
+    </div>
+    <div class="flex items-center space-x-2">
+        <button type="button" onclick="bulkAction('activate')" class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+            Активировать
+        </button>
+        <button type="button" onclick="bulkAction('deactivate')" class="px-3 py-1 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700">
+            Деактивировать
+        </button>
+        <button type="button" onclick="bulkAction('pause')" class="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700">
+            Приостановить
+        </button>
+        <button type="button" onclick="bulkAction('delete')" class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+            Удалить
+        </button>
+        <button type="button" onclick="clearSelection()" class="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600">
+            Отменить
+        </button>
+    </div>
+</div>
+
+<form id="bulk-form" method="POST" action="{{ path('admin_ads_bulk_action') }}">
+<div class="bg-white shadow overflow-hidden sm:rounded-md">
+    {% if ads is not empty %}
+        {# Заголовок с чекбоксом "выбрать все" #}
+        <div class="px-4 py-2 bg-gray-50 border-b flex items-center">
+            <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer"
+                   onchange="toggleSelectAll(this)">
+            <label for="select-all" class="ml-2 text-sm text-gray-600 cursor-pointer">Выбрать все</label>
+        </div>
+        
+        <ul class="divide-y divide-gray-200">
+            {% for ad in ads %}
+                <li>
+                    <div class="px-4 py-4 flex items-center justify-between">
+                        <div class="flex items-center flex-1">
+                            {# Чекбокс #}
+                            <div class="flex-shrink-0 mr-3">
+                                <input type="checkbox" name="ids[]" value="{{ ad.id }}" 
+                                       class="ad-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded cursor-pointer"
+                                       onchange="updateBulkActions()">
+                            </div>
+                            
+                            <div class="flex-shrink-0">
+                                {% if ad.format == 'image' and ad.imageUrl %}
+                                    <img class="h-12 w-12 object-cover rounded" src="{{ ad.imageUrl }}" alt="{{ ad.name }}">
+                                {% else %}
+                                    <div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ ad.name }}</p>
+                                        <p class="text-sm text-gray-500">{{ ad.placement.name }} • {{ ad.format|title }}</p>
+                                    </div>
+                                    
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <div class="text-center">
+                                            <p class="font-medium text-gray-900">{{ ad.impressionsCount|number_format }}</p>
+                                            <p class="text-xs">показов</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-medium text-gray-900">{{ ad.clicksCount|number_format }}</p>
+                                            <p class="text-xs">кликов</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-medium text-gray-900">{{ ad.ctr }}%</p>
+                                            <p class="text-xs">CTR</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-2 flex items-center space-x-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if ad.status == 'active' %}bg-green-100 text-green-800
+                                        {% elseif ad.status == 'paused' %}bg-yellow-100 text-yellow-800
+                                        {% elseif ad.status == 'draft' %}bg-gray-100 text-gray-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% set statusLabels = {
+                                            'draft': 'Черновик',
+                                            'pending': 'На модерации', 
+                                            'active': 'Активна',
+                                            'paused': 'Приостановлена',
+                                            'completed': 'Завершена',
+                                            'rejected': 'Отклонена'
+                                        } %}
+                                        {{ statusLabels[ad.status] ?? ad.status }}
+                                    </span>
+                                    
+                                    {% if ad.campaign %}
+                                        <span class="text-xs text-gray-500">Кампания: {{ ad.campaign.name }}</span>
+                                    {% endif %}
+                                    
+                                    {% if not ad.isActive %}
+                                        <span class="text-xs text-red-500">Неактивно</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-1">
+                            {# Быстрые действия #}
+                            <div class="flex items-center space-x-1 mr-2 border-r border-gray-200 pr-2">
+                                {# Toggle Active #}
+                                <form method="POST" action="{{ path('admin_ads_toggle', {id: ad.id}) }}" class="inline">
+                                    <button type="submit" 
+                                            class="p-1 rounded hover:bg-gray-100 {{ ad.isActive ? 'text-green-600' : 'text-gray-400' }}"
+                                            title="{{ ad.isActive ? 'Деактивировать' : 'Активировать' }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                                
+                                {# Pause/Resume #}
+                                {% if ad.status == 'active' %}
+                                <form method="POST" action="{{ path('admin_ads_pause', {id: ad.id}) }}" class="inline">
+                                    <button type="submit" class="p-1 rounded hover:bg-gray-100 text-yellow-600" title="Приостановить">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                                {% elseif ad.status == 'paused' %}
+                                <form method="POST" action="{{ path('admin_ads_resume', {id: ad.id}) }}" class="inline">
+                                    <button type="submit" class="p-1 rounded hover:bg-gray-100 text-green-600" title="Возобновить">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                {# Duplicate #}
+                                <form method="POST" action="{{ path('admin_ads_duplicate', {id: ad.id}) }}" class="inline">
+                                    <button type="submit" class="p-1 rounded hover:bg-gray-100 text-blue-600" title="Дублировать">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                                
+                                {# Reset Stats #}
+                                <form method="POST" action="{{ path('admin_ads_reset_stats', {id: ad.id}) }}" class="inline" onsubmit="return confirm('Сбросить статистику?')">
+                                    <button type="submit" class="p-1 rounded hover:bg-gray-100 text-orange-600" title="Сбросить статистику">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            {# Основные действия #}
+                            <a href="{{ path('admin_ads_stats', {id: ad.id}) }}" 
+                               class="p-1 rounded hover:bg-gray-100 text-gray-600" title="Статистика">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </a>
+                            
+                            <a href="{{ path('admin_ads_edit', {id: ad.id}) }}" 
+                               class="p-1 rounded hover:bg-gray-100 text-gray-600" title="Редактировать">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </a>
+                            
+                            <form method="POST" action="{{ path('admin_ads_delete', {id: ad.id}) }}" 
+                                  onsubmit="return confirm('Удалить объявление?')" class="inline">
+                                <button type="submit" class="p-1 rounded hover:bg-gray-100 text-red-600" title="Удалить">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        {% if totalPages > 1 %}
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if currentPage > 1 %}
+                        <a href="?page={{ currentPage - 1 }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}" 
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Предыдущая
+                        </a>
+                    {% endif %}
+                    {% if currentPage < totalPages %}
+                        <a href="?page={{ currentPage + 1 }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}" 
+                           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Следующая
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Показано <span class="font-medium">{{ ((currentPage - 1) * 20) + 1 }}</span> 
+                            до <span class="font-medium">{{ ((currentPage - 1) * 20) + ads|length }}</span> 
+                            из <span class="font-medium">{{ total }}</span> результатов
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            {% for page in 1..totalPages %}
+                                {% if page == currentPage %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                        {{ page }}
+                                    </span>
+                                {% else %}
+                                    <a href="?page={{ page }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}" 
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        {{ page }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет объявлений</h3>
+            <p class="mt-1 text-sm text-gray-500">Начните с создания первого объявления.</p>
+            <div class="mt-6">
+                <a href="{{ path('admin_ads_new') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    Создать объявление
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+</form>
+
+<script>
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.ad-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateBulkActions();
+}
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.ad-checkbox:checked');
+    const bulkActions = document.getElementById('bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+    const selectAll = document.getElementById('select-all');
+    const allCheckboxes = document.querySelectorAll('.ad-checkbox');
+    
+    selectedCount.textContent = checkboxes.length;
+    
+    if (checkboxes.length > 0) {
+        bulkActions.classList.remove('hidden');
+    } else {
+        bulkActions.classList.add('hidden');
+    }
+    
+    // Обновляем состояние "выбрать все"
+    selectAll.checked = checkboxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+    selectAll.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
+}
+
+function clearSelection() {
+    const checkboxes = document.querySelectorAll('.ad-checkbox');
+    const selectAll = document.getElementById('select-all');
+    checkboxes.forEach(cb => cb.checked = false);
+    selectAll.checked = false;
+    updateBulkActions();
+}
+
+function bulkAction(action) {
+    const checkboxes = document.querySelectorAll('.ad-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('Выберите хотя бы одно объявление');
+        return;
+    }
+    
+    const actionLabels = {
+        'activate': 'активировать',
+        'deactivate': 'деактивировать',
+        'pause': 'приостановить',
+        'delete': 'удалить'
+    };
+    
+    if (!confirm(`Вы уверены, что хотите ${actionLabels[action]} ${checkboxes.length} объявлений?`)) {
+        return;
+    }
+    
+    const form = document.getElementById('bulk-form');
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = action;
+    form.appendChild(actionInput);
+    form.submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{# 
+    Универсальный компонент пагинации
+    
+    Параметры:
+    - currentPage: текущая страница
+    - totalPages: общее количество страниц
+    - route: имя маршрута
+    - routeParams: дополнительные параметры маршрута (опционально)
+#}
+
+{% if totalPages > 1 %}
+<div class="flex justify-center gap-2">
+    {# Предыдущая страница #}
+    {% if currentPage > 1 %}
+        <a href="{{ path(route, routeParams|default({})|merge({page: currentPage - 1})) }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            ← {{ 'pagination.previous'|trans }}
+        </a>
+    {% endif %}
+    
+    {# Номера страниц #}
+    {% set startPage = max(1, currentPage - 2) %}
+    {% set endPage = min(totalPages, currentPage + 2) %}
+    
+    {# Первая страница #}
+    {% if startPage > 1 %}
+        <a href="{{ path(route, routeParams|default({})|merge({page: 1})) }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            1
+        </a>
+        {% if startPage > 2 %}
+            <span class="px-4 py-2 text-gray-500">...</span>
+        {% endif %}
+    {% endif %}
+    
+    {# Страницы вокруг текущей #}
+    {% for page in startPage..endPage %}
+        {% if page == currentPage %}
+            <span class="px-4 py-2 bg-orange-600 text-white rounded-md">
+                {{ page }}
+            </span>
+        {% else %}
+            <a href="{{ path(route, routeParams|default({})|merge({page: page})) }}" 
+               class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                {{ page }}
+            </a>
+        {% endif %}
+    {% endfor %}
+    
+    {# Последняя страница #}
+    {% if endPage < totalPages %}
+        {% if endPage < totalPages - 1 %}
+            <span class="px-4 py-2 text-gray-500">...</span>
+        {% endif %}
+        <a href="{{ path(route, routeParams|default({})|merge({page: totalPages})) }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            {{ totalPages }}
+        </a>
+    {% endif %}
+    
+    {# Следующая страница #}
+    {% if currentPage < totalPages %}
+        <a href="{{ path(route, routeParams|default({})|merge({page: currentPage + 1})) }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+            {{ 'pagination.next'|trans }} →
+        </a>
+    {% endif %}
+</div>
+{% endif %}

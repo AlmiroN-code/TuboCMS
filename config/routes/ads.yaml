@@ -1,0 +1,180 @@
+# Маршруты для рекламной системы
+
+# Фронтенд маршруты
+ad_show:
+    path: /ads/show/{placement}
+    controller: App\Controller\AdController::show
+    methods: [GET]
+
+ad_click:
+    path: /ads/click/{id}
+    controller: App\Controller\AdController::click
+    requirements:
+        id: '\d+'
+
+ad_impression:
+    path: /ads/impression/{id}
+    controller: App\Controller\AdController::impression
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+ad_conversion:
+    path: /ads/conversion/{id}
+    controller: App\Controller\AdController::conversion
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+ad_vast:
+    path: /ads/vast/{id}
+    controller: App\Controller\AdController::vast
+    requirements:
+        id: '\d+'
+
+ad_js:
+    path: /ads/js/{placement}
+    controller: App\Controller\AdController::javascript
+    methods: [GET]
+
+# Админ маршруты
+admin_ads:
+    path: /admin/ads
+    controller: App\Controller\Admin\AdminAdController::index
+
+admin_ads_list:
+    path: /admin/ads/list
+    controller: App\Controller\Admin\AdminAdController::adsList
+
+admin_ads_new:
+    path: /admin/ads/new
+    controller: App\Controller\Admin\AdminAdController::newAd
+
+admin_ads_edit:
+    path: /admin/ads/{id}/edit
+    controller: App\Controller\Admin\AdminAdController::editAd
+    requirements:
+        id: '\d+'
+
+admin_ads_delete:
+    path: /admin/ads/{id}/delete
+    controller: App\Controller\Admin\AdminAdController::deleteAd
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+admin_ads_toggle:
+    path: /admin/ads/{id}/toggle
+    controller: App\Controller\Admin\AdminAdController::toggleAd
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+admin_ads_stats:
+    path: /admin/ads/{id}/stats
+    controller: App\Controller\Admin\AdminAdController::adStats
+    requirements:
+        id: '\d+'
+
+# Места размещения
+admin_ads_placements:
+    path: /admin/ads/placements
+    controller: App\Controller\Admin\AdminAdController::placements
+
+admin_ads_placements_new:
+    path: /admin/ads/placements/new
+    controller: App\Controller\Admin\AdminAdController::newPlacement
+
+admin_ads_placements_edit:
+    path: /admin/ads/placements/{id}/edit
+    controller: App\Controller\Admin\AdminAdController::editPlacement
+    requirements:
+        id: '\d+'
+
+admin_ads_placements_delete:
+    path: /admin/ads/placements/{id}/delete
+    controller: App\Controller\Admin\AdminAdController::deletePlacement
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+# Кампании
+admin_ads_campaigns:
+    path: /admin/ads/campaigns
+    controller: App\Controller\Admin\AdminAdController::campaigns
+
+admin_ads_campaigns_new:
+    path: /admin/ads/campaigns/new
+    controller: App\Controller\Admin\AdminAdController::newCampaign
+
+admin_ads_campaigns_edit:
+    path: /admin/ads/campaigns/{id}/edit
+    controller: App\Controller\Admin\AdminAdController::editCampaign
+    requirements:
+        id: '\d+'
+
+admin_ads_campaigns_delete:
+    path: /admin/ads/campaigns/{id}/delete
+    controller: App\Controller\Admin\AdminAdController::deleteCampaign
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+# Сегменты
+admin_ads_segments:
+    path: /admin/ads/segments
+    controller: App\Controller\Admin\AdminAdController::segments
+
+admin_ads_segments_new:
+    path: /admin/ads/segments/new
+    controller: App\Controller\Admin\AdminAdController::newSegment
+
+admin_ads_segments_edit:
+    path: /admin/ads/segments/{id}/edit
+    controller: App\Controller\Admin\AdminAdController::editSegment
+    requirements:
+        id: '\d+'
+
+admin_ads_segments_delete:
+    path: /admin/ads/segments/{id}/delete
+    controller: App\Controller\Admin\AdminAdController::deleteSegment
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+# A/B тесты
+admin_ads_abtests:
+    path: /admin/ads/ab-tests
+    controller: App\Controller\Admin\AdminAdController::abTests
+
+admin_ads_abtests_new:
+    path: /admin/ads/ab-tests/new
+    controller: App\Controller\Admin\AdminAdController::newAbTest
+
+admin_ads_abtests_edit:
+    path: /admin/ads/ab-tests/{id}/edit
+    controller: App\Controller\Admin\AdminAdController::editAbTest
+    requirements:
+        id: '\d+'
+
+admin_ads_abtests_delete:
+    path: /admin/ads/ab-tests/{id}/delete
+    controller: App\Controller\Admin\AdminAdController::deleteAbTest
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+admin_ads_abtests_results:
+    path: /admin/ads/ab-tests/{id}/results
+    controller: App\Controller\Admin\AdminAdController::abTestResults
+    requirements:
+        id: '\d+'
+
+# Статистика
+admin_ads_statistics:
+    path: /admin/ads/statistics
+    controller: App\Controller\Admin\AdminAdController::statistics
+
+admin_ads_statistics_export:
+    path: /admin/ads/statistics/export
+    controller: App\Controller\Admin\AdminAdController::exportStatistics

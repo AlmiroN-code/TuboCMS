@@ -1,0 +1,41 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Mailer - Admin{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Mailer Configuration</h1>
+    
+    <div class="bg-white rounded-md shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Email Templates</h2>
+        <ul class="space-y-2">
+            <li class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Video Processed Notification
+            </li>
+            <li class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Video Processing Failed Notification
+            </li>
+        </ul>
+    </div>
+    
+    <div class="bg-white rounded-md shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Configuration</h2>
+        <div class="space-y-2">
+            <p><span class="text-gray-600">DSN:</span> <code class="bg-gray-100 px-2 py-1 rounded">{{ app.request.server.get('MAILER_DSN') ?? 'null://null' }}</code></p>
+            <p><span class="text-gray-600">From:</span> <code class="bg-gray-100 px-2 py-1 rounded">{{ app.request.server.get('MAILER_FROM') ?? 'noreply@rextube.test' }}</code></p>
+        </div>
+    </div>
+    
+    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mt-6">
+        <p class="text-sm text-yellow-800">
+            <strong>Development Mode:</strong> Configure MAILER_DSN in .env to send real emails. Currently using null transport.
+        </p>
+    </div>
+</div>
+{% endblock %}

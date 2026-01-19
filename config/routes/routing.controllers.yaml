@@ -1,0 +1,8 @@
+# Controllers routing configuration
+# Auto-import all controllers with #[Route] attributes
+
+controllers:
+    resource:
+        path: ../../src/Controller/
+        namespace: App\Controller
+    type: attribute

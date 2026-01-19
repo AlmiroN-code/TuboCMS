@@ -1,0 +1,289 @@
+{% extends 'base.html.twig' %}
+
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'models.title'|trans, 'url': path('app_models')},
+    {'label': model.displayName, 'url': ''}
+] %}
+
+{% block title %}{{ auto_meta_title(model) ?: model.displayName }}{% endblock %}
+
+{% block meta_description %}{{ auto_meta_description(model) }}{% endblock %}
+
+{% block og_title %}{{ model.displayName }} - {{ site_name() }}{% endblock %}
+{% block og_description %}{{ 'model.meta_description'|trans({'%name%': model.displayName, '%videos%': model.videosCount}) }}{% endblock %}
+{% block og_type %}profile{% endblock %}
+{% block og_image %}{% if model.avatar %}<meta property="og:image" content="{{ absolute_url('/media/avatars/' ~ model.avatar) }}">{% endif %}{% endblock %}
+
+{# Person JSON-LD structured data #}
+{% block structured_data %}
+{{ person_schema(model) }}
+{% endblock %}
+
+{# Pagination SEO #}
+{% block pagination_seo %}
+{% if videosPages is defined and videosPages > 1 %}
+{% set prev_url = pagination_prev_url(page, videosPages) %}
+{% set next_url = pagination_next_url(page, videosPages) %}
+{% if prev_url %}<link rel="prev" href="{{ prev_url }}">{% endif %}
+{% if next_url %}<link rel="next" href="{{ next_url }}">{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="flex gap-8">
+    {% include 'partials/_sidebar.html.twig' %}
+    
+    <div class="flex-1">
+        {# Обложка профиля #}
+        {% if model.coverPhoto %}
+            <div class="h-48 md:h-64 bg-gray-200 dark:bg-slate-700 rounded-md overflow-hidden mb-6">
+                {{ lazy_img('/media/covers/' ~ model.coverPhoto, model.displayName ~ ' - ' ~ ('model.cover'|trans), 'w-full h-full object-cover') }}
+            </div>
+        {% endif %}
+
+        {# Шапка профиля #}
+        <div class="bg-white dark:bg-slate-800 rounded-md shadow p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                {# Аватар #}
+                <div class="flex-shrink-0">
+                    <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-gray-200 dark:bg-slate-700 mx-auto md:mx-0">
+                        {% if model.avatar %}
+                            {{ lazy_img('/media/avatars/' ~ model.avatar, model.displayName ~ ' - ' ~ ('model.profile'|trans), 'w-full h-full object-cover', 160, 160, true) }}
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                                <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Информация #}
+                <div class="flex-1 text-center md:text-left">
+                    <div class="flex flex-col md:flex-row md:items-center gap-2 mb-4">
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                            {{ model.displayName }}
+                        </h1>
+                        <div class="flex gap-2 justify-center md:justify-start">
+                            {% if model.isVerified %}
+                                <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                                    {{ 'model.verified'|trans }}
+                                </span>
+                            {% endif %}
+                            {% if model.isPremium %}
+                                <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                                    {{ 'model.premium'|trans }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Статистика #}
+                    <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-4">
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-gray-900 dark:text-white">{{ model.viewsCount|number_format }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.stats.views'|trans }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-gray-900 dark:text-white">{{ model.subscribersCount|number_format }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.stats.subscribers'|trans }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-gray-900 dark:text-white">{{ model.videosCount|number_format }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.stats.videos'|trans }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-green-600">{{ model.likesCount|number_format }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.stats.likes'|trans }}</div>
+                        </div>
+                    </div>
+
+                    {# Кнопки действий #}
+                    <div class="flex gap-3 justify-center md:justify-start">
+                        {% include 'model/_subscribe_button.html.twig' ignore missing with {'model': model} %}
+                        {% include 'model/_like_buttons.html.twig' ignore missing with {'model': model} %}
+                    </div>
+                </div>
+            </div>
+
+            {# Биография #}
+            {% if model.bio %}
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ 'model.bio'|trans }}</h2>
+                    <p class="text-gray-600 dark:text-gray-300 whitespace-pre-line">{{ model.bio }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Информация о модели #}
+        <div class="bg-white dark:bg-slate-800 rounded-md shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ 'model.info.title'|trans }}</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% if model.aliases and model.aliases|length > 0 %}
+                    <div class="col-span-2 md:col-span-3 lg:col-span-4">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.aliases'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.aliasesAsString }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.gender %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.gender'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ ('model.gender.' ~ model.gender)|trans }}</div>
+                    </div>
+                {% endif %}
+
+                {% if calculatedAge %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.age'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ calculatedAge }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.birthDate %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.birth_date'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.birthDate|date('d.m.Y') }}</div>
+                    </div>
+                {% endif %}
+
+                {% if zodiacSign %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.zodiac'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ ('model.zodiac.' ~ zodiacSign)|trans }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.country %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.country'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.country }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.ethnicity %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.ethnicity'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.ethnicity }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.careerStart %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.career_start'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.careerStart|date('Y') }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.hairColor %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.hair_color'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.hairColor }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.eyeColor %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.eye_color'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.eyeColor }}</div>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.tattoos'|trans }}</div>
+                    <div class="text-gray-900 dark:text-white">{{ model.hasTattoos ? 'common.yes'|trans : 'common.no'|trans }}</div>
+                </div>
+
+                <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.piercings'|trans }}</div>
+                    <div class="text-gray-900 dark:text-white">{{ model.hasPiercings ? 'common.yes'|trans : 'common.no'|trans }}</div>
+                </div>
+
+                {% if model.breastSize %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.breast_size'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.breastSize }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.height %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.height'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.height }} {{ 'common.cm'|trans }}</div>
+                    </div>
+                {% endif %}
+
+                {% if model.weight %}
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.weight'|trans }}</div>
+                        <div class="text-gray-900 dark:text-white">{{ model.weight }} {{ 'common.kg'|trans }}</div>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ 'model.info.added'|trans }}</div>
+                    <div class="text-gray-900 dark:text-white">{{ model.createdAt|date('d.m.Y') }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# Видео модели #}
+        <div class="bg-white dark:bg-slate-800 rounded-md shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {{ 'model.videos_title'|trans({'%count%': videosTotal}) }}
+            </h2>
+
+            {% if videos|length > 0 %}
+                <div class="video-grid">
+                    {% for video in videos %}
+                        {% include 'video/_card.html.twig' with {'video': video} %}
+                    {% endfor %}
+                </div>
+
+                {# Пагинация видео #}
+                {% if videosPages > 1 %}
+                    <div class="mt-6 flex justify-center gap-2">
+                        {% if page > 1 %}
+                            <a href="{{ path('app_model_show', {slug: model.slug, page: page - 1}) }}" 
+                               class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200">
+                                ← {{ 'pagination.previous'|trans }}
+                            </a>
+                        {% endif %}
+                        
+                        <span class="px-4 py-2 bg-orange-600 text-white rounded-md">
+                            {{ 'pagination.page_of'|trans({'%page%': page, '%pages%': videosPages}) }}
+                        </span>
+                        
+                        {% if page < videosPages %}
+                            <a href="{{ path('app_model_show', {slug: model.slug, page: page + 1}) }}" 
+                               class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200">
+                                {{ 'pagination.next'|trans }} →
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-8">
+                    <p class="text-gray-500 dark:text-gray-400">{{ 'model.no_videos'|trans }}</p>
+                </div>
+            {% endif %}
+
+            {# Блок "Смотрите также" #}
+            {% if see_also %}
+                <div class="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8">
+                    {% include 'partials/_see_also.html.twig' with {
+                        'title': 'Смотрите также',
+                        'videos': see_also.other_videos ?? [],
+                        'categories': see_also.related_categories ?? [],
+                        'tags': see_also.related_tags ?? [],
+                        'class': 'model-see-also'
+                    } %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

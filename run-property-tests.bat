@@ -1,0 +1,3 @@
+@echo off
+echo Running Property-Based Tests...
+php vendor/bin/phpunit --testsuite "Property Tests" %*

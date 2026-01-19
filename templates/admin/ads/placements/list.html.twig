@@ -1,0 +1,257 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Места размещения рекламы{% endblock %}
+{% block page_title %}Места размещения рекламы{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+        <h1 class="text-2xl font-bold text-gray-900">Места размещения</h1>
+        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded">
+            {{ placements|length }} мест
+        </span>
+    </div>
+    <a href="{{ path('admin_ads_placements_new') }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Создать место размещения
+    </a>
+</div>
+
+{% if placements|length > 0 %}
+    <div class="bg-white shadow rounded-md overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Название
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Тип / Позиция
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Размер
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Объявления
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Статус
+                    </th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Действия
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for placement in placements %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ placement.name }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ placement.slug }}
+                                    </div>
+                                    {% if placement.description %}
+                                        <div class="text-xs text-gray-400 mt-1">
+                                            {{ placement.description|slice(0, 50) }}{% if placement.description|length > 50 %}...{% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {% set typeLabels = {
+                                    'banner': 'Баннер',
+                                    'video': 'Видео',
+                                    'vast': 'VAST',
+                                    'native': 'Нативная',
+                                    'text': 'Текст',
+                                    'popup': 'Popup'
+                                } %}
+                                {{ typeLabels[placement.type]|default(placement.type) }}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {% set positionLabels = {
+                                    'header': 'Шапка',
+                                    'sidebar': 'Сайдбар',
+                                    'content': 'Контент',
+                                    'footer': 'Подвал',
+                                    'video_preroll': 'Preroll',
+                                    'video_midroll': 'Midroll',
+                                    'video_postroll': 'Postroll',
+                                    'video_overlay': 'Overlay',
+                                    'between_videos': 'Между видео'
+                                } %}
+                                {{ positionLabels[placement.position]|default(placement.position) }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if placement.width and placement.height %}
+                                {{ placement.width }}×{{ placement.height }}px
+                            {% elseif placement.width %}
+                                {{ placement.width }}px ширина
+                            {% elseif placement.height %}
+                                {{ placement.height }}px высота
+                            {% else %}
+                                <span class="text-gray-400">Не задан</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900">
+                                    {{ placement.ads|length }}
+                                </span>
+                                {% if placement.ads|length > 0 %}
+                                    {% set activeAds = 0 %}
+                                    {% for ad in placement.ads %}
+                                        {% if ad.isActive %}
+                                            {% set activeAds = activeAds + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ml-2 text-xs text-gray-500">
+                                        ({{ activeAds }} активных)
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if placement.isActive %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3"/>
+                                    </svg>
+                                    Активно
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3"/>
+                                    </svg>
+                                    Неактивно
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{{ path('admin_ads_placements_edit', {id: placement.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-900 transition"
+                                   title="Редактировать">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </a>
+                                
+                                {% if placement.ads|length == 0 %}
+                                    <form method="POST" action="{{ path('admin_ads_placements_delete', {id: placement.id}) }}" 
+                                          class="inline" 
+                                          onsubmit="return confirm('Вы уверены, что хотите удалить это место размещения?')">
+                                        <button type="submit" 
+                                                class="text-red-600 hover:text-red-900 transition"
+                                                title="Удалить">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-gray-400" title="Нельзя удалить: есть связанные объявления">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Дополнительная информация #}
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-md shadow">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">Разрешенные страницы</h3>
+            {% set pageLabels = {
+                'home': 'Главная',
+                'videos': 'Список видео',
+                'video_detail': 'Страница видео',
+                'categories': 'Категории',
+                'search': 'Поиск',
+                'upload': 'Загрузка',
+                'profile': 'Профиль'
+            } %}
+            
+            {% for placement in placements %}
+                {% if placement.allowedPages|length > 0 %}
+                    <div class="mb-2">
+                        <span class="text-sm font-medium text-gray-900">{{ placement.name }}:</span>
+                        <div class="text-xs text-gray-600">
+                            {% for page in placement.allowedPages %}
+                                {{ pageLabels[page]|default(page) }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="bg-white p-4 rounded-md shadow">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">Статистика по типам</h3>
+            {% set typeStats = {} %}
+            {% for placement in placements %}
+                {% set type = placement.type %}
+                {% set typeStats = typeStats|merge({(type): (typeStats[type]|default(0) + 1)}) %}
+            {% endfor %}
+            
+            {% for type, count in typeStats %}
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">{{ typeLabels[type]|default(type) }}:</span>
+                    <span class="font-medium">{{ count }}</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="bg-white p-4 rounded-md shadow">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">Статистика по позициям</h3>
+            {% set positionStats = {} %}
+            {% for placement in placements %}
+                {% set position = placement.position %}
+                {% set positionStats = positionStats|merge({(position): (positionStats[position]|default(0) + 1)}) %}
+            {% endfor %}
+            
+            {% for position, count in positionStats %}
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">{{ positionLabels[position]|default(position) }}:</span>
+                    <span class="font-medium">{{ count }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% else %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Нет мест размещения</h3>
+        <p class="mt-1 text-sm text-gray-500">Создайте первое место размещения для рекламы.</p>
+        <div class="mt-6">
+            <a href="{{ path('admin_ads_placements_new') }}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Создать место размещения
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+<div id="subscribe-btn-{{ channel.id }}">
+    {% if app.user %}
+        {% if app.user.id != channel.id %}
+            <button 
+                onclick="toggleSubscription({{ channel.id }}, this)"
+                data-subscribed="{{ is_subscribed ? 'true' : 'false' }}"
+                class="subscribe-btn px-4 py-2 rounded-md font-medium transition {{ is_subscribed ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600' : 'bg-orange-600 text-white hover:bg-orange-700' }}">
+                <span class="btn-text">{{ is_subscribed ? 'toast.unsubscribed'|trans({}, 'messages')|replace({'Вы отписались от канала': 'Отписаться', 'You unsubscribed': 'Unsubscribe'}) : 'model.subscribe'|trans }}</span>
+            </button>
+        {% endif %}
+    {% else %}
+        <a href="{{ path('app_login') }}" class="px-4 py-2 bg-orange-600 text-white rounded-md font-medium hover:bg-orange-700 transition">
+            {{ 'model.subscribe'|trans }}
+        </a>
+    {% endif %}
+</div>
