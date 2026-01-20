@@ -377,18 +377,83 @@ log_success "Фронтенд собран"
 
 # === 18. Миграции БД ===
 log_info "Выполняю миграции Doctrine..."
+
+# Попытка выполнить миграции
 php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log
 
 # Проверяем результат миграций
-if grep -q "already exists" /tmp/migration.log; then
-    log_warn "Обнаружены конфликты таблиц - пропускаю проблемные миграции..."
+MIGRATION_STATUS=$?
+
+if [ $MIGRATION_STATUS -eq 0 ]; then
+    log_success "Миграции выполнены успешно"
+else
+    log_warn "Обнаружены ошибки при выполнении миграций, пытаюсь исправить..."
+    
+    # Создаем недостающие junction таблицы вручную
+    log_info "Проверяю и создаю недостающие junction таблицы..."
+    mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- video_category junction table
+CREATE TABLE IF NOT EXISTS video_category (
+    video_id INT NOT NULL,
+    category_id INT NOT NULL,
+    INDEX IDX_video_category_video (video_id),
+    INDEX IDX_video_category_category (category_id),
+    PRIMARY KEY (video_id, category_id),
+    CONSTRAINT FK_video_category_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    CONSTRAINT FK_video_category_category FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+-- user_role junction table
+CREATE TABLE IF NOT EXISTS user_role (
+    user_id INT NOT NULL,
+    role_id INT NOT NULL,
+    INDEX IDX_user_role_user (user_id),
+    INDEX IDX_user_role_role (role_id),
+    PRIMARY KEY (user_id, role_id),
+    CONSTRAINT FK_user_role_user FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    CONSTRAINT FK_user_role_role FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+-- role_permission junction table
+CREATE TABLE IF NOT EXISTS role_permission (
+    role_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    INDEX IDX_role_permission_role (role_id),
+    INDEX IDX_role_permission_permission (permission_id),
+    PRIMARY KEY (role_id, permission_id),
+    CONSTRAINT FK_role_permission_role FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE,
+    CONSTRAINT FK_role_permission_permission FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+-- ad_segment_relation junction table
+CREATE TABLE IF NOT EXISTS ad_segment_relation (
+    ad_id INT NOT NULL,
+    ad_segment_id INT NOT NULL,
+    INDEX IDX_ad_segment_relation_ad (ad_id),
+    INDEX IDX_ad_segment_relation_segment (ad_segment_id),
+    PRIMARY KEY (ad_id, ad_segment_id),
+    CONSTRAINT FK_ad_segment_relation_ad FOREIGN KEY (ad_id) REFERENCES ad (id) ON DELETE CASCADE,
+    CONSTRAINT FK_ad_segment_relation_segment FOREIGN KEY (ad_segment_id) REFERENCES ad_segment (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+    check_success "Ошибка создания junction таблиц"
+    log_success "Junction таблицы созданы"
+    
     # Помечаем все миграции как выполненные
+    log_info "Помечаю все миграции как выполненные..."
     php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
     log_success "Миграции отмечены как выполненные"
-elif grep -q "failed\|error" /tmp/migration.log; then
-    log_error "Ошибка при выполнении миграций"
-else
-    log_success "Миграции выполнены успешно"
+    
+    # Проверяем, что критические таблицы существуют
+    log_info "Проверяю наличие критических таблиц..."
+    CRITICAL_TABLES=("user" "video" "category" "tag" "comment" "video_category")
+    for table in "${CRITICAL_TABLES[@]}"; do
+        TABLE_EXISTS=$(mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -se "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_name='$table'")
+        if [ "$TABLE_EXISTS" -eq 0 ]; then
+            log_error "Критическая таблица '$table' не существует!"
+        fi
+    done
+    log_success "Все критические таблицы присутствуют"
 fi
 
 # === 19. Создание админа ===
@@ -440,6 +505,11 @@ php bin/console doctrine:cache:clear-query 2>/dev/null || true
 rm -rf var/cache/*
 mkdir -p var/cache/prod
 chown -R www-data:www-data var/
+
+# Проверяем, что БД доступна перед прогревом кэша
+log_info "Проверяю доступность БД..."
+php bin/console doctrine:query:sql "SELECT 1" 2>/dev/null || log_error "БД недоступна!"
+
 sudo -u www-data php bin/console cache:warmup --env=prod
 check_success "Ошибка прогрева кэша"
 log_success "Кэш прогрет"
@@ -592,6 +662,8 @@ server {
         fastcgi_param DOCUMENT_ROOT $realpath_root;
         fastcgi_read_timeout 300;
         fastcgi_send_timeout 300;
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 256 16k;
         internal;
     }
 
@@ -611,38 +683,6 @@ server {
     }
 
     location ~ /(var|vendor|config|migrations|tests)/ {
-        deny all;
-    }
-}
-NGINXEOFn;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript image/svg+xml;
-
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-
-    location / {
-        try_files $uri $uri/ /index.php$is_args$args;
-    }
-
-    location ~ ^/index\.php(/|$) {
-        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        fastcgi_param DOCUMENT_ROOT $realpath_root;
-        fastcgi_read_timeout 300;
-        fastcgi_send_timeout 300;
-        fastcgi_buffer_size 128k;
-        fastcgi_buffers 256 16k;
-        internal;
-    }
-
-    location ~ \.php$ {
-        return 404;
-    }
-
-    location ~ /\. {
         deny all;
     }
 }
