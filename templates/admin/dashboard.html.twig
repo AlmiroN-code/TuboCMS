@@ -7,7 +7,7 @@
 {# Основные карточки статистики #}
 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
     {# Видео #}
-    <div class="bg-white  shadow p-4">
+    <div class="bg-white rounded-md shadow p-4">
         <div class="flex items-center justify-between">
             <div class="p-2 bg-blue-100 ">
                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
     </div>
 
     {# Пользователи #}
-    <div class="bg-white  shadow p-4">
+    <div class="bg-white rounded-md shadow p-4">
         <div class="flex items-center justify-between">
             <div class="p-2 bg-pink-100 ">
                 <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
     </div>
 
     {# Просмотры #}
-    <div class="bg-white  shadow p-4">
+    <div class="bg-white rounded-md shadow p-4">
         <div class="flex items-center justify-between">
             <div class="p-2 bg-green-100 ">
                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +53,7 @@
     </div>
 
     {# Комментарии #}
-    <div class="bg-white  shadow p-4">
+    <div class="bg-white rounded-md shadow p-4">
         <div class="flex items-center justify-between">
             <div class="p-2 bg-yellow-100 ">
                 <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
     </div>
 
     {# Модели #}
-    <div class="bg-white  shadow p-4">
+    <div class="bg-white rounded-md shadow p-4">
         <div class="flex items-center justify-between">
             <div class="p-2 bg-purple-100 ">
                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@
     </div>
 
     {# Лайки #}
-    <div class="bg-white  shadow p-4">
+    <div class="bg-white rounded-md shadow p-4">
         <div class="flex items-center justify-between">
             <div class="p-2 bg-red-100 ">
                 <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@
 
 {# Статусы видео #}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white  shadow p-4 border-l-4 border-green-500">
+    <div class="bg-white rounded-md shadow p-4 border-l-4 border-green-500">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-500">Опубликовано</p>
@@ -107,7 +107,7 @@
         </div>
     </div>
     
-    <div class="bg-white  shadow p-4 border-l-4 border-blue-500">
+    <div class="bg-white rounded-md shadow p-4 border-l-4 border-blue-500">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-500">В обработке</p>
@@ -117,7 +117,7 @@
         </div>
     </div>
     
-    <div class="bg-white  shadow p-4 border-l-4 border-gray-500">
+    <div class="bg-white rounded-md shadow p-4 border-l-4 border-gray-500">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-500">Черновики</p>
@@ -127,7 +127,7 @@
         </div>
     </div>
     
-    <div class="bg-white  shadow p-4 border-l-4 border-yellow-500">
+    <div class="bg-white rounded-md shadow p-4 border-l-4 border-yellow-500">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-500">Приватные</p>
@@ -140,15 +140,15 @@
 
 {# Графики статистики #}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white  shadow p-6">
+    <div class="bg-white rounded-md shadow p-6">
         <h3 class="text-sm font-semibold text-gray-900 mb-4">📈 Загрузки видео (30 дней)</h3>
         {{ component('stats_chart', {type: 'uploads', days: 30}) }}
     </div>
-    <div class="bg-white  shadow p-6">
+    <div class="bg-white rounded-md shadow p-6">
         <h3 class="text-sm font-semibold text-gray-900 mb-4">👥 Новые пользователи (30 дней)</h3>
         {{ component('stats_chart', {type: 'users', days: 30}) }}
     </div>
-    <div class="bg-white  shadow p-6">
+    <div class="bg-white rounded-md shadow p-6">
         <h3 class="text-sm font-semibold text-gray-900 mb-4">👁 Просмотры (30 дней)</h3>
         {{ component('stats_chart', {type: 'views', days: 30}) }}
     </div>
@@ -156,7 +156,7 @@
 
 {# Storage Dashboard Widget #}
 {% if storage_stats is defined and storage_stats|length > 0 %}
-<div class="bg-white  shadow mb-6">
+<div class="bg-white rounded-md shadow mb-6">
     <div class="px-6 py-4 border-b flex items-center justify-between">
         <div>
             <h3 class="text-sm font-semibold text-gray-900">Хранилища</h3>
@@ -202,7 +202,7 @@
 {% endif %}
 
 {# Последние видео #}
-<div class="bg-white  shadow">
+<div class="bg-white rounded-md shadow">
     <div class="px-6 py-4 border-b flex items-center justify-between">
         <div>
             <h3 class="text-sm font-semibold text-gray-900">Последние видео</h3>
@@ -222,7 +222,7 @@
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Дата</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white rounded-md divide-y divide-gray-200">
                 {% for video in recent_videos %}
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-2">
