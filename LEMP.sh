@@ -323,7 +323,11 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         profiling_collect_backtrace: '%kernel.debug%'
-        use_savepoints: true
+        options:
+            charset: utf8mb4
+        default_table_options:
+            charset: utf8mb4
+            collate: utf8mb4_unicode_ci
 
     orm:
         auto_generate_proxy_classes: true
@@ -343,7 +347,6 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
