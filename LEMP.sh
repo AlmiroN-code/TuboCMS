@@ -390,9 +390,8 @@ else
     log_warn "Обнаружены ошибки при выполнении миграций, пытаюсь исправить..."
     
     # Создаем недостающие junction таблицы вручную
-    log_info "Проверяю и создаю недостающие junction таблицы..."
+    log_info "Создаю недостающие junction таблицы..."
     mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
--- video_category junction table
 CREATE TABLE IF NOT EXISTS video_category (
     video_id INT NOT NULL,
     category_id INT NOT NULL,
@@ -403,7 +402,6 @@ CREATE TABLE IF NOT EXISTS video_category (
     CONSTRAINT FK_video_category_category FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
--- user_role junction table
 CREATE TABLE IF NOT EXISTS user_role (
     user_id INT NOT NULL,
     role_id INT NOT NULL,
@@ -414,7 +412,6 @@ CREATE TABLE IF NOT EXISTS user_role (
     CONSTRAINT FK_user_role_role FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
--- role_permission junction table
 CREATE TABLE IF NOT EXISTS role_permission (
     role_id INT NOT NULL,
     permission_id INT NOT NULL,
@@ -423,17 +420,6 @@ CREATE TABLE IF NOT EXISTS role_permission (
     PRIMARY KEY (role_id, permission_id),
     CONSTRAINT FK_role_permission_role FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE,
     CONSTRAINT FK_role_permission_permission FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
--- ad_segment_relation junction table
-CREATE TABLE IF NOT EXISTS ad_segment_relation (
-    ad_id INT NOT NULL,
-    ad_segment_id INT NOT NULL,
-    INDEX IDX_ad_segment_relation_ad (ad_id),
-    INDEX IDX_ad_segment_relation_segment (ad_segment_id),
-    PRIMARY KEY (ad_id, ad_segment_id),
-    CONSTRAINT FK_ad_segment_relation_ad FOREIGN KEY (ad_id) REFERENCES ad (id) ON DELETE CASCADE,
-    CONSTRAINT FK_ad_segment_relation_segment FOREIGN KEY (ad_segment_id) REFERENCES ad_segment (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 SQLEOF
     check_success "Ошибка создания junction таблиц"
@@ -444,8 +430,8 @@ SQLEOF
     php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
     log_success "Миграции отмечены как выполненные"
     
-    # Проверяем, что критические таблицы существуют
-    log_info "Проверяю наличие критических таблиц..."
+    # Проверяем критические таблицы
+    log_info "Проверяю критические таблицы..."
     CRITICAL_TABLES=("user" "video" "category" "tag" "comment" "video_category")
     for table in "${CRITICAL_TABLES[@]}"; do
         TABLE_EXISTS=$(mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -se "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_name='$table'")
@@ -505,10 +491,6 @@ php bin/console doctrine:cache:clear-query 2>/dev/null || true
 rm -rf var/cache/*
 mkdir -p var/cache/prod
 chown -R www-data:www-data var/
-
-# Проверяем, что БД доступна перед прогревом кэша
-log_info "Проверяю доступность БД..."
-php bin/console doctrine:query:sql "SELECT 1" 2>/dev/null || log_error "БД недоступна!"
 
 sudo -u www-data php bin/console cache:warmup --env=prod
 check_success "Ошибка прогрева кэша"

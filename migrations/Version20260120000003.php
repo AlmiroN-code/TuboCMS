@@ -19,7 +19,8 @@ final class Version20260120000003 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        if (!$schema->hasTable('ad_segment_relation')) {
+        // Only create if both parent tables exist
+        if (!$schema->hasTable('ad_segment_relation') && $schema->hasTable('ad') && $schema->hasTable('ad_segment')) {
             $this->addSql('CREATE TABLE ad_segment_relation (
                 ad_id INT NOT NULL,
                 ad_segment_id INT NOT NULL,
