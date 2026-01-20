@@ -74,13 +74,14 @@ if (Encore.isProduction()) {
         // Минификация JS
         .enableIntegrityHashes(true)
         
-        // Оптимизация размера бандла
-        .configureOptimization((optimization) => {
-            optimization.minimize = true;
-            optimization.sideEffects = false;
+        // Настройка Webpack напрямую для оптимизации
+        .configureWebpack((config) => {
+            config.optimization = config.optimization || {};
+            config.optimization.minimize = true;
+            config.optimization.sideEffects = false;
             
             // Разделение vendor библиотек
-            optimization.splitChunks = {
+            config.optimization.splitChunks = {
                 cacheGroups: {
                     vendor: {
                         test: /[\\/]node_modules[\\/]/,
@@ -98,9 +99,6 @@ if (Encore.isProduction()) {
                 }
             };
         })
-        
-        // Анализ размера бандла (опционально)
-        // .addPlugin(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)())
     ;
 }
 
@@ -118,5 +116,7 @@ if (!Encore.isProduction()) {
             };
         });
 }
+
+module.exports = Encore.getWebpackConfig();
 
 module.exports = Encore.getWebpackConfig();

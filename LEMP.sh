@@ -36,7 +36,14 @@ NC='\033[0m'
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+
+# Функция проверки успешности команд
+check_success() {
+    if [ $? -ne 0 ]; then
+        log_error "$1"
+    fi
+}
 
 echo ""
 echo "=============================================="
@@ -61,15 +68,40 @@ log_success "Hostname установлен"
 # === 3. Обновление системы ===
 log_info "Обновляю систему..."
 apt update && apt upgrade -y
+check_success "Ошибка обновления системы"
 apt install -y curl wget gnupg2 software-properties-common ca-certificates \
     lsb-release apt-transport-https git unzip htop fail2ban ufw
+check_success "Ошибка установки базовых пакетов"
 log_success "Система обновлена"
+
+# === 3.1. Настройка SWAP для обработки видео ===
+log_info "Настраиваю SWAP для обработки видео..."
+SWAP_SIZE="4G"
+if [ ! -f /swapfile ]; then
+    fallocate -l $SWAP_SIZE /swapfile
+    check_success "Ошибка создания swap файла"
+    chmod 600 /swapfile
+    mkswap /swapfile
+    check_success "Ошибка форматирования swap"
+    swapon /swapfile
+    check_success "Ошибка активации swap"
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    # Оптимизация для видео обработки
+    echo 'vm.swappiness=10' >> /etc/sysctl.conf
+    echo 'vm.vfs_cache_pressure=50' >> /etc/sysctl.conf
+    sysctl -p
+    log_success "SWAP $SWAP_SIZE настроен для видео обработки"
+else
+    log_warn "SWAP уже настроен"
+fi
 
 # === 4. Nginx ===
 if ! command -v nginx &> /dev/null; then
     log_info "Устанавливаю Nginx..."
     apt install -y nginx
+    check_success "Ошибка установки Nginx"
     systemctl enable --now nginx
+    check_success "Ошибка запуска Nginx"
     log_success "Nginx установлен"
 else
     log_warn "Nginx уже установлен"
@@ -79,7 +111,9 @@ fi
 if ! command -v mariadb &> /dev/null; then
     log_info "Устанавливаю MariaDB..."
     apt install -y mariadb-server mariadb-client
+    check_success "Ошибка установки MariaDB"
     systemctl enable --now mariadb
+    check_success "Ошибка запуска MariaDB"
     log_success "MariaDB установлен"
 else
     log_warn "MariaDB уже установлен"
@@ -89,7 +123,9 @@ fi
 if ! command -v php8.4 &> /dev/null; then
     log_info "Добавляю репозиторий PHP 8.4..."
     add-apt-repository -y ppa:ondrej/php
+    check_success "Ошибка добавления репозитория PHP"
     apt update
+    check_success "Ошибка обновления пакетов после добавления репозитория PHP"
 
     log_info "Устанавливаю PHP 8.4 и все расширения..."
     apt install -y \
@@ -117,8 +153,10 @@ if ! command -v php8.4 &> /dev/null; then
         php8.4-igbinary \
         php8.4-msgpack \
         php8.4-yaml
+    check_success "Ошибка установки PHP 8.4 и расширений"
     
     systemctl enable --now php8.4-fpm
+    check_success "Ошибка запуска PHP-FPM"
     log_success "PHP 8.4 установлен"
 else
     log_warn "PHP 8.4 уже установлен"
@@ -181,9 +219,13 @@ log_success "PHP CLI = 8.4"
 if ! mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME" 2>/dev/null; then
     log_info "Создаю БД $DB_NAME..."
     sudo mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    check_success "Ошибка создания базы данных"
     sudo mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';"
+    check_success "Ошибка создания пользователя БД"
     sudo mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
+    check_success "Ошибка назначения прав пользователю БД"
     sudo mysql -e "FLUSH PRIVILEGES;"
+    check_success "Ошибка применения прав БД"
     log_success "БД создана"
 else
     log_warn "БД уже существует"
@@ -222,6 +264,7 @@ log_success ".env.local создан"
 # === 16. Composer зависимости ===
 log_info "Устанавливаю Composer зависимости..."
 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+check_success "Ошибка установки Composer зависимостей"
 # symfony/process нужен для обработки видео (FFmpeg)
 composer require symfony/process --no-interaction --no-scripts 2>/dev/null || true
 # Выполняем assets:install вручную
@@ -231,424 +274,60 @@ log_success "Composer установлен"
 # === 17. NPM зависимости ===
 log_info "Устанавливаю npm зависимости..."
 npm ci
+check_success "Ошибка установки npm зависимостей"
 log_success "npm установлен"
+
+# === 17.1. Исправление webpack.config.js ===
+log_info "Исправляю webpack.config.js..."
+cat > "$SITE_ROOT/webpack.config.js" << 'WEBPACKEOF'
+const Encore = require('@symfony/webpack-encore');
+
+if (!Encore.isRuntimeEnvironmentConfigured()) {
+    Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
+}
+
+Encore
+    .setOutputPath('public/build/')
+    .setPublicPath('/build')
+    .addEntry('app', './assets/app.js')
+    .enableStimulusBridge('./assets/controllers.json')
+    .splitEntryChunks()
+    .enableSingleRuntimeChunk()
+    .cleanupOutputBeforeBuild()
+    .enableBuildNotifications(!Encore.isProduction())
+    .enableSourceMaps(!Encore.isProduction())
+    .enableVersioning(Encore.isProduction())
+    .configureBabelPresetEnv((config) => {
+        config.useBuiltIns = 'usage';
+        config.corejs = '3.39';
+    })
+    .enablePostCssLoader((options) => {
+        options.postcssOptions = {
+            plugins: [
+                require('tailwindcss'),
+                require('autoprefixer')
+            ]
+        };
+    })
+;
+
+module.exports = Encore.getWebpackConfig();
+WEBPACKEOF
+check_success "Ошибка исправления webpack.config.js"
+log_success "webpack.config.js исправлен"
 
 log_info "Собираю фронтенд..."
 npm run build
+check_success "Ошибка сборки фронтенда"
 log_success "Фронтенд собран"
 
 # === 18. Миграции БД ===
-log_info "Выполняю миграции..."
-php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log || true
+log_info "Выполняю миграции Doctrine..."
+php bin/console doctrine:migrations:migrate --no-interaction
+check_success "Ошибка выполнения миграций Doctrine"
+log_success "Миграции выполнены"
 
-if grep -q "error" /tmp/migration.log; then
-    log_warn "Пропускаю проблемные миграции..."
-    php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
-fi
-
-# === 19. Добавляем недостающие колонки в user ===
-log_info "Проверяю структуру таблицы user..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS cover_image VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS orientation VARCHAR(20) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS marital_status VARCHAR(20) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS education VARCHAR(200) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS website VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS birth_date DATE DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE user ADD COLUMN IF NOT EXISTS location VARCHAR(100) DEFAULT NULL;" 2>/dev/null || true
-log_success "Структура user обновлена"
-
-# === 20. Добавляем likes_count и dislikes_count в video ===
-log_info "Проверяю структуру таблицы video..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS likes_count INT NOT NULL DEFAULT 0;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS dislikes_count INT NOT NULL DEFAULT 0;" 2>/dev/null || true
-log_success "Структура video обновлена"
-
-# === 20.1. Добавляем poster в category ===
-log_info "Проверяю структуру таблицы category..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE category ADD COLUMN IF NOT EXISTS poster VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
-log_success "Структура category обновлена"
-
-# === 21. Создаём таблицу video_like если не существует ===
-log_info "Проверяю таблицу video_like..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS video_like (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT NOT NULL,
-    video_id INT NOT NULL,
-    is_like TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_ABF41D6FA76ED395 (user_id),
-    INDEX IDX_ABF41D6F29C1004E (video_id),
-    UNIQUE INDEX unique_user_video_like (user_id, video_id),
-    PRIMARY KEY (id),
-    CONSTRAINT FK_ABF41D6FA76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_ABF41D6F29C1004E FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица video_like готова"
-
-# === 22. Создаём таблицы role и permission ===
-log_info "Проверяю таблицы ролей и разрешений..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS permission (
-    id INT AUTO_INCREMENT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    display_name VARCHAR(150) NOT NULL,
-    description LONGTEXT DEFAULT NULL,
-    category VARCHAR(50) NOT NULL,
-    is_active TINYINT NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    UNIQUE INDEX UNIQ_E04992AA5E237E06 (name),
-    PRIMARY KEY (id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS role (
-    id INT AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    display_name VARCHAR(100) NOT NULL,
-    description LONGTEXT DEFAULT NULL,
-    is_active TINYINT NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    UNIQUE INDEX UNIQ_57698A6A5E237E06 (name),
-    PRIMARY KEY (id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS role_permission (
-    role_id INT NOT NULL,
-    permission_id INT NOT NULL,
-    INDEX IDX_6F7DF886D60322AC (role_id),
-    INDEX IDX_6F7DF886FED90CCA (permission_id),
-    PRIMARY KEY (role_id, permission_id),
-    CONSTRAINT FK_6F7DF886D60322AC FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE,
-    CONSTRAINT FK_6F7DF886FED90CCA FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS user_role (
-    user_id INT NOT NULL,
-    role_id INT NOT NULL,
-    INDEX IDX_2DE8C6A3A76ED395 (user_id),
-    INDEX IDX_2DE8C6A3D60322AC (role_id),
-    PRIMARY KEY (user_id, role_id),
-    CONSTRAINT FK_2DE8C6A3A76ED395 FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_2DE8C6A3D60322AC FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблицы ролей готовы"
-
-# === 22.1. Создаём таблицу subscription (подписки на каналы) ===
-log_info "Проверяю таблицу subscription..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS subscription (
-    id INT AUTO_INCREMENT NOT NULL,
-    subscriber_id INT NOT NULL,
-    channel_id INT NOT NULL,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_subscription_subscriber (subscriber_id),
-    INDEX IDX_subscription_channel (channel_id),
-    UNIQUE INDEX unique_subscription (subscriber_id, channel_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_subscription_subscriber FOREIGN KEY (subscriber_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_subscription_channel FOREIGN KEY (channel_id) REFERENCES `user` (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица subscription готова"
-
-# === 22.2. Создаём таблицу site_settings ===
-log_info "Проверяю таблицу site_settings..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS site_settings (
-    id INT AUTO_INCREMENT NOT NULL,
-    setting_key VARCHAR(255) NOT NULL,
-    setting_value LONGTEXT DEFAULT NULL,
-    setting_type VARCHAR(50) NOT NULL DEFAULT 'string',
-    description VARCHAR(255) DEFAULT NULL,
-    UNIQUE INDEX UNIQ_site_settings_key (setting_key),
-    PRIMARY KEY(id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица site_settings готова"
-
-# === 23. Создаём таблицу storage ===
-log_info "Проверяю таблицу storage..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS storage (
-    id INT AUTO_INCREMENT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    type VARCHAR(20) NOT NULL,
-    config JSON NOT NULL,
-    is_default TINYINT(1) NOT NULL DEFAULT 0,
-    is_enabled TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    PRIMARY KEY(id),
-    INDEX idx_storage_default (is_default),
-    INDEX idx_storage_type (type),
-    INDEX idx_storage_enabled (is_enabled)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица storage готова"
-
-# === 24. Добавляем колонки storage в video_file ===
-log_info "Проверяю структуру video_file..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video_file ADD COLUMN IF NOT EXISTS storage_id INT DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video_file ADD COLUMN IF NOT EXISTS remote_path VARCHAR(500) DEFAULT NULL;" 2>/dev/null || true
-log_success "Структура video_file обновлена"
-
-# === 25. Создаём таблицы для моделей ===
-log_info "Проверяю таблицы моделей..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS model_profile (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT DEFAULT NULL,
-    display_name VARCHAR(100) NOT NULL,
-    slug VARCHAR(200) NOT NULL,
-    bio LONGTEXT DEFAULT NULL,
-    avatar VARCHAR(255) DEFAULT NULL,
-    cover_photo VARCHAR(255) DEFAULT NULL,
-    gender VARCHAR(10) NOT NULL DEFAULT 'female',
-    age INT DEFAULT NULL,
-    birth_date DATE DEFAULT NULL,
-    country VARCHAR(100) DEFAULT NULL,
-    ethnicity VARCHAR(100) DEFAULT NULL,
-    career_start DATE DEFAULT NULL,
-    hair_color VARCHAR(20) DEFAULT NULL,
-    eye_color VARCHAR(20) DEFAULT NULL,
-    has_tattoos TINYINT(1) NOT NULL DEFAULT 0,
-    has_piercings TINYINT(1) NOT NULL DEFAULT 0,
-    breast_size VARCHAR(20) DEFAULT NULL,
-    height INT DEFAULT NULL,
-    weight INT DEFAULT NULL,
-    views_count INT NOT NULL DEFAULT 0,
-    subscribers_count INT NOT NULL DEFAULT 0,
-    videos_count INT NOT NULL DEFAULT 0,
-    likes_count INT NOT NULL DEFAULT 0,
-    dislikes_count INT NOT NULL DEFAULT 0,
-    is_verified TINYINT(1) NOT NULL DEFAULT 0,
-    is_active TINYINT(1) NOT NULL DEFAULT 1,
-    is_premium TINYINT(1) NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    UNIQUE INDEX UNIQ_model_slug (slug),
-    INDEX IDX_model_user (user_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_model_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS video_model (
-    video_id INT NOT NULL,
-    model_profile_id INT NOT NULL,
-    INDEX IDX_video_model_video (video_id),
-    INDEX IDX_video_model_model (model_profile_id),
-    PRIMARY KEY (video_id, model_profile_id),
-    CONSTRAINT FK_video_model_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
-    CONSTRAINT FK_video_model_model FOREIGN KEY (model_profile_id) REFERENCES model_profile (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS model_subscription (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT NOT NULL,
-    model_id INT NOT NULL,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_model_sub_user (user_id),
-    INDEX IDX_model_sub_model (model_id),
-    UNIQUE INDEX unique_model_subscription (user_id, model_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_model_sub_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_model_sub_model FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS model_like (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT NOT NULL,
-    model_id INT NOT NULL,
-    is_like TINYINT(1) NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_model_like_user (user_id),
-    INDEX IDX_model_like_model (model_id),
-    UNIQUE INDEX unique_model_like (user_id, model_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_model_like_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_model_like_model FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблицы моделей готовы"
-
-# === 26. Создаём таблицу video_encoding_profile ===
-log_info "Проверяю таблицу video_encoding_profile..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS video_encoding_profile (
-    id INT AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    resolution VARCHAR(20) NOT NULL,
-    bitrate INT NOT NULL,
-    codec VARCHAR(10) NOT NULL DEFAULT 'libx264',
-    is_active TINYINT(1) NOT NULL DEFAULT 1,
-    order_position INT NOT NULL DEFAULT 0,
-    PRIMARY KEY(id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-INSERT IGNORE INTO video_encoding_profile (name, resolution, bitrate, codec, is_active, order_position) VALUES
-    ('360p', '640x360', 800, 'libx264', 1, 1),
-    ('480p', '854x480', 1200, 'libx264', 1, 2),
-    ('720p', '1280x720', 2500, 'libx264', 1, 3),
-    ('1080p', '1920x1080', 5000, 'libx264', 1, 4);
-SQLEOF
-log_success "Профили кодирования готовы"
-
-# === 26.1. Создаём таблицы плейлистов ===
-log_info "Проверяю таблицы плейлистов..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS playlist (
-    id INT AUTO_INCREMENT NOT NULL,
-    owner_id INT NOT NULL,
-    title VARCHAR(200) NOT NULL,
-    description LONGTEXT DEFAULT NULL,
-    thumbnail VARCHAR(255) DEFAULT NULL,
-    is_public TINYINT(1) NOT NULL DEFAULT 1,
-    videos_count INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    INDEX IDX_playlist_owner (owner_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_playlist_owner FOREIGN KEY (owner_id) REFERENCES `user` (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS playlist_video (
-    id INT AUTO_INCREMENT NOT NULL,
-    playlist_id INT NOT NULL,
-    video_id INT NOT NULL,
-    position INT NOT NULL DEFAULT 0,
-    added_at DATETIME NOT NULL,
-    INDEX IDX_playlist_video_playlist (playlist_id),
-    INDEX IDX_playlist_video_video (video_id),
-    UNIQUE INDEX unique_playlist_video (playlist_id, video_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_playlist_video_playlist FOREIGN KEY (playlist_id) REFERENCES playlist (id) ON DELETE CASCADE,
-    CONSTRAINT FK_playlist_video_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблицы плейлистов готовы"
-
-# === 26.2. Создаём таблицу истории просмотров ===
-log_info "Проверяю таблицу watch_history..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS watch_history (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT NOT NULL,
-    video_id INT NOT NULL,
-    watched_seconds INT NOT NULL DEFAULT 0,
-    watch_progress INT NOT NULL DEFAULT 0,
-    watched_at DATETIME NOT NULL,
-    INDEX IDX_watch_history_user (user_id),
-    INDEX IDX_watch_history_video (video_id),
-    INDEX idx_user_watched (user_id, watched_at),
-    UNIQUE INDEX unique_user_video (user_id, video_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_watch_history_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_watch_history_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица watch_history готова"
-
-# === 26.3. Создаём таблицу закладок ===
-log_info "Проверяю таблицу bookmark..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS bookmark (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT NOT NULL,
-    video_id INT NOT NULL,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_bookmark_user (user_id),
-    INDEX IDX_bookmark_video (video_id),
-    UNIQUE INDEX unique_user_video_bookmark (user_id, video_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_bookmark_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
-    CONSTRAINT FK_bookmark_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица bookmark готова"
-
-# === 26.4. Создаём таблицу уведомлений ===
-log_info "Проверяю таблицу notification..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS notification (
-    id INT AUTO_INCREMENT NOT NULL,
-    user_id INT NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    data JSON NOT NULL,
-    is_read TINYINT(1) NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_notification_user (user_id),
-    INDEX idx_user_unread (user_id, is_read, created_at),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_notification_user FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблица notification готова"
-
-# === 26.5. Создаём таблицы сериалов ===
-log_info "Проверяю таблицы сериалов..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
-CREATE TABLE IF NOT EXISTS series (
-    id INT AUTO_INCREMENT NOT NULL,
-    author_id INT NOT NULL,
-    title VARCHAR(200) NOT NULL,
-    description LONGTEXT DEFAULT NULL,
-    thumbnail VARCHAR(255) DEFAULT NULL,
-    slug VARCHAR(250) NOT NULL,
-    videos_count INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL,
-    INDEX IDX_series_author (author_id),
-    UNIQUE INDEX UNIQ_series_slug (slug),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_series_author FOREIGN KEY (author_id) REFERENCES `user` (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-
-CREATE TABLE IF NOT EXISTS season (
-    id INT AUTO_INCREMENT NOT NULL,
-    series_id INT NOT NULL,
-    number INT NOT NULL DEFAULT 1,
-    title VARCHAR(200) DEFAULT NULL,
-    INDEX IDX_season_series (series_id),
-    PRIMARY KEY(id),
-    CONSTRAINT FK_season_series FOREIGN KEY (series_id) REFERENCES series (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-SQLEOF
-log_success "Таблицы сериалов готовы"
-
-# === 26.6. Добавляем колонки сериалов в video ===
-log_info "Добавляю колонки сериалов в video..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS season_id INT DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS episode_number INT DEFAULT NULL;" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "ALTER TABLE video ADD COLUMN IF NOT EXISTS animated_preview VARCHAR(255) DEFAULT NULL;" 2>/dev/null || true
-log_success "Колонки сериалов в video добавлены"
-
-# === 26.7. Обновляем таблицу video_like ===
-log_info "Обновляю таблицу video_like..."
-# Проверяем есть ли колонка is_like, если нет - добавляем и мигрируем данные
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
--- Добавляем is_like если не существует
-SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'video_like' AND COLUMN_NAME = 'is_like');
-SET @sql = IF(@col_exists = 0, 'ALTER TABLE video_like ADD COLUMN is_like TINYINT(1) NOT NULL DEFAULT 1', 'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
--- Мигрируем данные из type в is_like если колонка type существует
-SET @type_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'video_like' AND COLUMN_NAME = 'type');
-SET @sql = IF(@type_exists > 0, 'UPDATE video_like SET is_like = CASE WHEN type = "like" THEN 1 ELSE 0 END', 'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-SQLEOF
-log_success "Таблица video_like обновлена"
-
-# === 27. Создание админа ===
+# === 19. Создание админа ===
 log_info "Создаю супер админа..."
 ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$defaulthash')
 
@@ -669,22 +348,25 @@ VALUES (
     NOW()
 ) ON DUPLICATE KEY UPDATE password='$ADMIN_HASH', roles='["ROLE_ADMIN","ROLE_USER"]';
 SQLEOF
-
+check_success "Ошибка создания администратора"
 log_success "Админ создан: $ADMIN_EMAIL / $ADMIN_PASSWORD"
 
 # === 28. Инициализация ролей и разрешений ===
 log_info "Инициализирую роли и разрешения..."
 php bin/console app:init-roles-permissions 2>/dev/null || true
+check_success "Ошибка инициализации ролей и разрешений"
 log_success "Роли и разрешения инициализированы"
 
 # === 29. Инициализация профилей кодирования ===
 log_info "Инициализирую профили кодирования..."
 php bin/console app:video:init-profiles 2>/dev/null || true
+check_success "Ошибка инициализации профилей кодирования"
 log_success "Профили кодирования инициализированы"
 
 # === 30. Messenger ===
 log_info "Настраиваю Messenger..."
 php bin/console messenger:setup-transports 2>/dev/null || true
+check_success "Ошибка настройки Messenger"
 log_success "Messenger настроен"
 
 # === 31. Кэш ===
@@ -695,6 +377,7 @@ rm -rf var/cache/*
 mkdir -p var/cache/prod
 chown -R www-data:www-data var/
 sudo -u www-data php bin/console cache:warmup --env=prod
+check_success "Ошибка прогрева кэша"
 log_success "Кэш прогрет"
 
 # === 32. Права ===
@@ -712,8 +395,10 @@ mkdir -p "$SITE_ROOT/public/media/playlists"
 mkdir -p "$SITE_ROOT/public/media/models"
 mkdir -p "$SITE_ROOT/public/media/animated"
 chown -R www-data:www-data "$SITE_ROOT"
-chmod -R 775 "$SITE_ROOT/var"
-chmod -R 775 "$SITE_ROOT/public/media"
+check_success "Ошибка установки владельца файлов"
+chmod -R 755 "$SITE_ROOT/var"
+chmod -R 755 "$SITE_ROOT/public/media"
+check_success "Ошибка установки прав доступа"
 log_success "Права настроены"
 
 # === 33. phpMyAdmin ===
@@ -752,6 +437,12 @@ PHP_SOCKET="/run/php/php8.4-fpm.sock"
 rm -f /etc/nginx/sites-enabled/default
 
 cat > /etc/nginx/sites-available/$DOMAIN << 'NGINXEOF'
+# Rate limiting zones
+limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
+limit_req_zone $binary_remote_addr zone=api:10m rate=30r/m;
+limit_req_zone $binary_remote_addr zone=upload:10m rate=2r/m;
+limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+
 server {
     listen 80;
     listen [::]:80;
@@ -765,9 +456,101 @@ server {
 
     client_max_body_size 2G;
     client_body_timeout 300s;
+    client_header_timeout 60s;
+    send_timeout 300s;
 
+    # Rate limiting
+    limit_req zone=general burst=20 nodelay;
+
+    # Gzip compression
     gzip on;
     gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+    # Hide server version
+    server_tokens off;
+
+    # Media files with long cache
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Video files
+    location ~* \.(mp4|webm|ogg|avi|mov)$ {
+        expires 1d;
+        add_header Cache-Control "public";
+        try_files $uri =404;
+    }
+
+    # Rate limiting for specific endpoints
+    location /login {
+        limit_req zone=login burst=3 nodelay;
+        try_files $uri /index.php$is_args$args;
+    }
+
+    location /api/ {
+        limit_req zone=api burst=10 nodelay;
+        try_files $uri /index.php$is_args$args;
+    }
+
+    location /videos/upload {
+        limit_req zone=upload burst=1 nodelay;
+        try_files $uri /index.php$is_args$args;
+    }
+
+    # PHP-FPM configuration
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        fastcgi_read_timeout 300;
+        fastcgi_send_timeout 300;
+        internal;
+    }
+
+    # Deny access to .php files in subdirectories
+    location ~ \.php$ {
+        return 404;
+    }
+
+    # Main location block
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+
+    # Deny access to sensitive files
+    location ~ /\. {
+        deny all;
+    }
+
+    location ~ /(var|vendor|config|migrations|tests)/ {
+        deny all;
+    }
+}
+NGINXEOFn;
     gzip_min_length 1024;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript image/svg+xml;
 
@@ -837,7 +620,12 @@ NGINXEOF2
 ln -sf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/$HOSTNAME /etc/nginx/sites-enabled/
 
+# Проверяем конфигурацию Nginx
 nginx -t
+check_success "Ошибка в конфигурации Nginx"
+
+systemctl reload nginx
+check_success "Ошибка перезагрузки Nginx"
 log_success "Nginx настроен"
 
 # === 35. PHP-FPM конфигурация ===
@@ -884,6 +672,7 @@ maxretry = 3
 enabled = true
 F2BEOF
 systemctl enable --now fail2ban
+check_success "Ошибка запуска Fail2Ban"
 log_success "Fail2Ban настроен"
 
 # === 38. Certbot ===
@@ -918,14 +707,19 @@ WantedBy=multi-user.target
 SVCEOF
 
 systemctl daemon-reload
+check_success "Ошибка перезагрузки systemd"
 systemctl enable seexxx-messenger
+check_success "Ошибка включения Messenger Worker"
 systemctl start seexxx-messenger
+check_success "Ошибка запуска Messenger Worker"
 log_success "Messenger Worker запущен"
 
 # === 40. Перезапуск сервисов ===
 log_info "Перезапускаю сервисы..."
 systemctl restart php8.4-fpm
+check_success "Ошибка перезапуска PHP-FPM"
 systemctl restart nginx
+check_success "Ошибка перезапуска Nginx"
 log_success "Сервисы перезапущены"
 
 # === 41. Сохранение данных ===
@@ -967,6 +761,21 @@ SERVICES:
 ============================================
 CREDEOF
 chmod 600 /root/.server_credentials
+check_success "Ошибка установки прав на файл с учетными данными"
+
+# === ФИНАЛЬНАЯ ПРОВЕРКА ===
+log_info "Выполняю финальную проверку..."
+
+# Проверяем что все сервисы запущены
+systemctl is-active --quiet nginx || log_error "Nginx не запущен"
+systemctl is-active --quiet mariadb || log_error "MariaDB не запущен"
+systemctl is-active --quiet php8.4-fpm || log_error "PHP-FPM не запущен"
+systemctl is-active --quiet seexxx-messenger || log_error "Messenger Worker не запущен"
+
+# Проверяем что сайт отвечает
+curl -f -s http://localhost > /dev/null || log_error "Сайт не отвечает на localhost"
+
+log_success "Все сервисы работают корректно"
 
 # === ФИНАЛ ===
 echo ""
