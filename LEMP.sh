@@ -1577,6 +1577,25 @@ else
     log_error "Symfony не работает! Проверьте логи в $SITE_ROOT/var/log/"
 fi
 
+# Исправляем таблицу video_model
+log_info "Исправляю таблицу video_model..."
+php bin/console app:fix-video-model-table --force 2>/dev/null || {
+    log_warn "Команда исправления не найдена, исправляю вручную..."
+    mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+DROP TABLE IF EXISTS video_model;
+CREATE TABLE video_model (
+    video_id INT NOT NULL,
+    model_profile_id INT NOT NULL,
+    PRIMARY KEY (video_id, model_profile_id),
+    INDEX IDX_video_model_video (video_id),
+    INDEX IDX_video_model_model (model_profile_id),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_profile_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+}
+log_success "Таблица video_model исправлена"
+
 # Проверяем права доступа
 if [ -w "$SITE_ROOT/var/cache" ] && [ -w "$SITE_ROOT/var/log" ]; then
     log_success "Права доступа настроены корректно"
