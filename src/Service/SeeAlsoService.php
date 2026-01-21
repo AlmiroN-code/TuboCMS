@@ -160,9 +160,9 @@ class SeeAlsoService
                 
                 $conn = $this->videoRepository->getEntityManager()->getConnection();
                 $sql = "
-                    SELECT DISTINCT mp.id, mp.display_name, COUNT(vm.model_id) as model_count
+                    SELECT DISTINCT mp.id, mp.display_name, COUNT(vm.model_profile_id) as model_count
                     FROM model_profile mp
-                    INNER JOIN video_model vm ON mp.id = vm.model_id
+                    INNER JOIN video_model vm ON mp.id = vm.model_profile_id
                     INNER JOIN video v ON vm.video_id = v.id
                     INNER JOIN video_category vc ON v.id = vc.video_id
                     WHERE vc.category_id = :categoryId
@@ -206,7 +206,7 @@ class SeeAlsoService
                     INNER JOIN video_category vc ON c.id = vc.category_id
                     INNER JOIN video v ON vc.video_id = v.id
                     INNER JOIN video_model vm ON v.id = vm.video_id
-                    WHERE vm.model_id = :modelId
+                    WHERE vm.model_profile_id = :modelId
                     AND v.status = :status
                     ORDER BY c.name ASC
                     LIMIT " . (int)$limit . "
@@ -247,7 +247,7 @@ class SeeAlsoService
                     INNER JOIN video_tag vt ON t.id = vt.tag_id
                     INNER JOIN video v ON vt.video_id = v.id
                     INNER JOIN video_model vm ON v.id = vm.video_id
-                    WHERE vm.model_id = :modelId
+                    WHERE vm.model_profile_id = :modelId
                     AND v.status = :status
                     GROUP BY t.id, t.name
                     ORDER BY tag_count DESC, t.name ASC
@@ -326,9 +326,9 @@ class SeeAlsoService
                 // Получаем модели, которые часто встречаются в видео с этим тегом
                 $conn = $this->videoRepository->getEntityManager()->getConnection();
                 $sql = "
-                    SELECT DISTINCT mp.id, mp.display_name, COUNT(vm.model_id) as model_count
+                    SELECT DISTINCT mp.id, mp.display_name, COUNT(vm.model_profile_id) as model_count
                     FROM model_profile mp
-                    INNER JOIN video_model vm ON mp.id = vm.model_id
+                    INNER JOIN video_model vm ON mp.id = vm.model_profile_id
                     INNER JOIN video v ON vm.video_id = v.id
                     INNER JOIN video_tag vt ON v.id = vt.video_id
                     WHERE vt.tag_id = :tagId
