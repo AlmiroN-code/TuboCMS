@@ -979,6 +979,26 @@ SQLEOF
 check_success "Ошибка создания схемы БД"
 log_success "Полная схема БД создана"
 
+# Пересоздаем таблицу video_model с правильной структурой
+log_info "Пересоздаю таблицу video_model..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- Удаляем старую таблицу если существует
+DROP TABLE IF EXISTS video_model;
+
+-- Создаем новую таблицу с правильной структурой
+CREATE TABLE video_model (
+    video_id INT NOT NULL,
+    model_id INT NOT NULL,
+    PRIMARY KEY (video_id, model_id),
+    INDEX IDX_video_model_video (video_id),
+    INDEX IDX_video_model_model (model_id),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+check_success "Ошибка пересоздания таблицы video_model"
+log_success "Таблица video_model пересоздана"
+
 # Теперь выполняем миграции (они должны быть идемпотентными)
 php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log || true
 
@@ -1087,7 +1107,7 @@ INSERT IGNORE INTO `site_settings` (setting_key, setting_value, setting_type, de
 ('site_name', 'RexTube', 'string', 'Название сайта'),
 ('site_description', 'Видео хостинг', 'string', 'Описание сайта'),
 ('site_keywords', 'видео, хостинг, онлайн', 'string', 'Ключевые слова'),
-('contact_email', 'admin@rextube.test', 'string', 'Email для связи'),
+('contact_email', 'admin@sexvids.online', 'string', 'Email для связи'),
 ('max_video_size', '2000', 'integer', 'Максимальный размер видео (MB)'),
 ('allowed_video_formats', 'mp4,avi,mov,mkv', 'string', 'Разрешенные форматы видео'),
 ('videos_per_page', '24', 'integer', 'Видео на странице'),
@@ -1181,15 +1201,23 @@ fi
 log_info "Настраиваю Nginx..."
 PHP_SOCKET="/run/php/php8.4-fpm.sock"
 rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/sites-enabled/seexxx.online
+rm -f /etc/nginx/sites-available/seexxx.online
 
-# Создаем файл с rate limiting zones
-cat > /etc/nginx/conf.d/rate_limiting.conf << 'RATELIMITEOF'
+# Создаем файл с rate limiting zones (если его еще нет)
+if [ ! -f /etc/nginx/conf.d/rate_limiting.conf ]; then
+    cat > /etc/nginx/conf.d/rate_limiting.conf << 'RATELIMITEOF'
 # Rate limiting zones
 limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
 limit_req_zone $binary_remote_addr zone=api:10m rate=30r/m;
 limit_req_zone $binary_remote_addr zone=upload:10m rate=2r/m;
 limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
 RATELIMITEOF
+fi
+
+# Удаляем старый конфиг сайта если существует
+rm -f /etc/nginx/sites-available/$DOMAIN
+rm -f /etc/nginx/sites-enabled/$DOMAIN
 
 cat > /etc/nginx/sites-available/$DOMAIN << 'NGINXEOF'
 server {

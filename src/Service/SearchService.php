@@ -215,7 +215,7 @@ class SearchService
         $sql = "
             SELECT m.id, m.display_name, m.slug, m.avatar, COUNT(vm.video_id) as video_count
             FROM model_profile m
-            LEFT JOIN video_model vm ON m.id = vm.model_profile_id
+            LEFT JOIN video_model vm ON m.id = vm.model_id
             LEFT JOIN video v ON vm.video_id = v.id AND v.status = ?
             WHERE m.is_active = 1
               AND (

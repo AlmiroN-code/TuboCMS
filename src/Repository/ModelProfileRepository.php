@@ -158,7 +158,7 @@ class ModelProfileRepository extends ServiceEntityRepository
                 SELECT COUNT(DISTINCT vm.video_id)
                 FROM video_model vm
                 INNER JOIN video v ON vm.video_id = v.id
-                WHERE vm.model_profile_id = m.id
+                WHERE vm.model_id = m.id
                   AND v.status = ?
             )
         ";
