@@ -260,6 +260,7 @@ REDIS_URL=redis://localhost:6379
 CACHE_ADAPTER=cache.adapter.redis
 
 MAILER_DSN=null://null
+MAILER_FROM=noreply@$DOMAIN
 ENVEOF
 log_success ".env.local создан"
 
@@ -937,12 +938,12 @@ CREATE TABLE IF NOT EXISTS video_tag (
 
 CREATE TABLE IF NOT EXISTS video_model (
     video_id INT NOT NULL,
-    model_id INT NOT NULL,
-    PRIMARY KEY (video_id, model_id),
+    model_profile_id INT NOT NULL,
+    PRIMARY KEY (video_id, model_profile_id),
     INDEX IDX_video_model_video (video_id),
-    INDEX IDX_video_model_model (model_id),
+    INDEX IDX_video_model_model (model_profile_id),
     FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
-    FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+    FOREIGN KEY (model_profile_id) REFERENCES model_profile (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS user_role (
@@ -988,19 +989,49 @@ DROP TABLE IF EXISTS video_model;
 -- Создаем новую таблицу с правильной структурой
 CREATE TABLE video_model (
     video_id INT NOT NULL,
-    model_id INT NOT NULL,
-    PRIMARY KEY (video_id, model_id),
+    model_profile_id INT NOT NULL,
+    PRIMARY KEY (video_id, model_profile_id),
     INDEX IDX_video_model_video (video_id),
-    INDEX IDX_video_model_model (model_id),
+    INDEX IDX_video_model_model (model_profile_id),
     FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
-    FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+    FOREIGN KEY (model_profile_id) REFERENCES model_profile (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 SQLEOF
 check_success "Ошибка пересоздания таблицы video_model"
 log_success "Таблица video_model пересоздана"
 
+# Исправляем связи в VideoRepository - убираем несуществующие JOIN
+log_info "Проверяю таблицу video_model..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- Проверяем существование таблицы video_model
+SELECT COUNT(*) as table_exists FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'video_model';
+SQLEOF
+
+# Убеждаемся что таблица video_model создана правильно
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- Пересоздаем таблицу video_model если нужно
+DROP TABLE IF EXISTS video_model;
+CREATE TABLE video_model (
+    video_id INT NOT NULL,
+    model_profile_id INT NOT NULL,
+    PRIMARY KEY (video_id, model_profile_id),
+    INDEX idx_video_model_video (video_id),
+    INDEX idx_video_model_model (model_profile_id),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_profile_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+SQLEOF
+
+check_success "Ошибка создания таблицы video_model"
+log_success "Таблица video_model создана правильно"
+
 # Теперь выполняем миграции (они должны быть идемпотентными)
 php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log || true
+
+# Проверяем подключение к БД и схему
+log_info "Проверяю схему БД..."
+php bin/console doctrine:schema:validate --skip-sync || log_warn "Схема БД имеет предупреждения"
 
 # Помечаем все миграции как выполненные
 php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
@@ -1134,16 +1165,20 @@ log_success "Messenger настроен"
 
 # === 31. Кэш ===
 log_info "Прогреваю кэш..."
-php bin/console doctrine:cache:clear-metadata 2>/dev/null || true
-php bin/console doctrine:cache:clear-query 2>/dev/null || true
-rm -rf var/cache/*
+# Очищаем старый кеш
+rm -rf var/cache/prod/*
 rm -rf var/log/*
 mkdir -p var/cache/prod
 mkdir -p var/log
-chown -R www-data:www-data var/
-chmod -R 777 var/
 
-sudo -u www-data php bin/console cache:warmup --env=prod 2>/dev/null || true
+# Устанавливаем права перед прогревом кеша
+chown -R www-data:www-data var/
+chmod -R 755 var/
+chmod -R 775 var/cache var/log
+
+# Прогреваем кеш от имени www-data
+sudo -u www-data php bin/console cache:clear --env=prod --no-debug
+sudo -u www-data php bin/console cache:warmup --env=prod --no-debug
 log_success "Кэш прогрет"
 
 # === 32. Права ===
@@ -1529,6 +1564,26 @@ echo ""
 echo -e "${GREEN}============================================${NC}"
 echo -e "${GREEN}  ✅ УСТАНОВКА ЗАВЕРШЕНА!${NC}"
 echo -e "${GREEN}============================================${NC}"
+echo ""
+
+# === ФИНАЛЬНАЯ ПРОВЕРКА ===
+log_info "Выполняю финальную проверку..."
+
+# Проверяем что Symfony работает
+cd "$SITE_ROOT"
+if php bin/console debug:router > /dev/null 2>&1; then
+    log_success "Symfony работает корректно"
+else
+    log_error "Symfony не работает! Проверьте логи в $SITE_ROOT/var/log/"
+fi
+
+# Проверяем права доступа
+if [ -w "$SITE_ROOT/var/cache" ] && [ -w "$SITE_ROOT/var/log" ]; then
+    log_success "Права доступа настроены корректно"
+else
+    log_warn "Проблемы с правами доступа к var/"
+fi
+
 echo ""
 echo -e "🌐 ${BLUE}Сайт:${NC}        http://$DOMAIN"
 echo -e "🔧 ${BLUE}phpMyAdmin:${NC}  http://$HOSTNAME/phpmyadmin"
