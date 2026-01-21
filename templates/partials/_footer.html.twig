@@ -1,5 +1,5 @@
+    </turbo-frame>
 </div>
-
 {# Рекламные блоки перед футером #}
 <div class="bg-gray-50 py-6">
     <div class="wrap mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,9 +9,7 @@
                 'page': app.request.attributes.get('_route'),
                 'user_id': app.user ? app.user.id : null
             }) }}
-        </div>
-        
-        {# Два квадратных баннера #}
+        </div>{# Два квадратных баннера #}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="ad-block">
                 {{ show_ad('footer_left', {
