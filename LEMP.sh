@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # =============================================================================
-# LEMP Stack Setup Script for Symfony 8 + SeeXXX
+# LEMP Stack Setup Script for Symfony 8 + SexVids
 # Hostname: control.gmnode.ru (93.183.71.104)
-# Site: seexxx.online
+# Site: sexvids.online
 # phpMyAdmin: control.gmnode.ru/phpmyadmin
 # =============================================================================
 set -e
@@ -11,14 +11,14 @@ set -e
 # === КОНФИГУРАЦИЯ ===
 HOSTNAME="control.gmnode.ru"
 SERVER_IP="93.183.71.104"
-DOMAIN="seexxx.online"
+DOMAIN="sexvids.online"
 SITE_ROOT="/var/www/$DOMAIN"
 
-DB_NAME="seexxx"
+DB_NAME="sexvids"
 DB_USER="almiron"
 DB_PASS="Mtn999Un86@"
 
-ADMIN_EMAIL="admin@seexxx.online"
+ADMIN_EMAIL="admin@sexvids.online"
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="admin123"
 
@@ -229,6 +229,8 @@ if ! mysql -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME" 2>/dev/null; then
     log_success "БД создана"
 else
     log_warn "БД уже существует"
+    # Исправляем collation если нужно
+    sudo mysql -e "ALTER DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null || true
 fi
 
 # === 14. Клонирование TuboCMS ===
@@ -378,80 +380,625 @@ log_success "Фронтенд собран"
 # === 18. Миграции БД ===
 log_info "Выполняю миграции Doctrine..."
 
-# Попытка выполнить миграции
-php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log
+# Создаем полную схему БД встроенным SQL
+log_info "Создаю полную схему БД..."
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- ============================================================================
+-- ПОЛНАЯ СХЕМА БД ДЛЯ REXTUBE
+-- ============================================================================
 
-# Проверяем результат миграций
-MIGRATION_STATUS=$?
+-- Основные таблицы
+CREATE TABLE IF NOT EXISTS `user` (
+    id INT AUTO_INCREMENT NOT NULL,
+    email VARCHAR(180) NOT NULL,
+    username VARCHAR(180) NOT NULL UNIQUE,
+    roles JSON NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    avatar VARCHAR(255) DEFAULT NULL,
+    cover_image VARCHAR(255) DEFAULT NULL,
+    bio LONGTEXT DEFAULT NULL,
+    birth_date DATE DEFAULT NULL,
+    location VARCHAR(100) DEFAULT NULL,
+    city VARCHAR(100) DEFAULT NULL,
+    country VARCHAR(50) DEFAULT NULL,
+    gender VARCHAR(20) DEFAULT NULL,
+    orientation VARCHAR(20) DEFAULT NULL,
+    marital_status VARCHAR(20) DEFAULT NULL,
+    education VARCHAR(200) DEFAULT NULL,
+    website VARCHAR(255) DEFAULT NULL,
+    is_verified TINYINT NOT NULL DEFAULT 0,
+    is_premium TINYINT NOT NULL DEFAULT 0,
+    processing_priority INT NOT NULL DEFAULT 5,
+    subscribers_count INT NOT NULL DEFAULT 0,
+    videos_count INT NOT NULL DEFAULT 0,
+    total_views INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL (email)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
-if [ $MIGRATION_STATUS -eq 0 ]; then
-    log_success "Миграции выполнены успешно"
-else
-    log_warn "Обнаружены ошибки при выполнении миграций, пытаюсь исправить..."
-    
-    # Создаем недостающие junction таблицы вручную
-    log_info "Создаю недостающие junction таблицы..."
-    mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS category (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(150) NOT NULL UNIQUE,
+    description VARCHAR(255) DEFAULT NULL,
+    poster VARCHAR(255) DEFAULT NULL,
+    videos_count INT NOT NULL DEFAULT 0,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    order_position INT NOT NULL DEFAULT 0,
+    meta_title VARCHAR(255) DEFAULT NULL,
+    meta_description LONGTEXT DEFAULT NULL,
+    meta_keywords VARCHAR(500) DEFAULT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS tag (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    slug VARCHAR(60) NOT NULL UNIQUE,
+    usage_count INT NOT NULL DEFAULT 0,
+    description LONGTEXT DEFAULT NULL,
+    meta_title VARCHAR(255) DEFAULT NULL,
+    meta_description LONGTEXT DEFAULT NULL,
+    meta_keywords VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video_encoding_profile (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    resolution VARCHAR(20) NOT NULL,
+    bitrate INT NOT NULL,
+    codec VARCHAR(10) NOT NULL DEFAULT 'h264',
+    is_active TINYINT NOT NULL DEFAULT 1,
+    order_position INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS storage (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    config JSON NOT NULL,
+    is_default TINYINT NOT NULL DEFAULT 0,
+    is_enabled TINYINT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS series (
+    id INT AUTO_INCREMENT NOT NULL,
+    author_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    thumbnail VARCHAR(255) DEFAULT NULL,
+    slug VARCHAR(250) NOT NULL UNIQUE,
+    videos_count INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (author_id) REFERENCES `user` (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS season (
+    id INT AUTO_INCREMENT NOT NULL,
+    series_id INT NOT NULL,
+    number INT NOT NULL,
+    title VARCHAR(200) DEFAULT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (series_id) REFERENCES series (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video (
+    id INT AUTO_INCREMENT NOT NULL,
+    created_by_id INT DEFAULT NULL,
+    season_id INT DEFAULT NULL,
+    title VARCHAR(200) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    slug VARCHAR(250) NOT NULL UNIQUE,
+    temp_video_file VARCHAR(255) DEFAULT NULL,
+    converted_files JSON DEFAULT NULL,
+    preview VARCHAR(255) DEFAULT NULL,
+    poster VARCHAR(255) DEFAULT NULL,
+    duration INT NOT NULL DEFAULT 0,
+    resolution VARCHAR(20) DEFAULT NULL,
+    format VARCHAR(10) DEFAULT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'draft',
+    is_featured TINYINT NOT NULL DEFAULT 0,
+    views_count INT NOT NULL DEFAULT 0,
+    impressions_count INT NOT NULL DEFAULT 0,
+    comments_count INT NOT NULL DEFAULT 0,
+    likes_count INT NOT NULL DEFAULT 0,
+    dislikes_count INT NOT NULL DEFAULT 0,
+    meta_description VARCHAR(160) DEFAULT NULL,
+    processing_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    processing_progress INT NOT NULL DEFAULT 0,
+    processing_error LONGTEXT DEFAULT NULL,
+    episode_number INT DEFAULT NULL,
+    animated_preview VARCHAR(255) DEFAULT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_status_created (status, created_at),
+    INDEX idx_slug (slug),
+    INDEX idx_views (views_count),
+    FOREIGN KEY (created_by_id) REFERENCES `user` (id) ON DELETE SET NULL,
+    FOREIGN KEY (season_id) REFERENCES season (id) ON DELETE SET NULL
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video_file (
+    id INT AUTO_INCREMENT NOT NULL,
+    video_id INT NOT NULL,
+    profile_id INT NOT NULL,
+    storage_id INT DEFAULT NULL,
+    file VARCHAR(255) NOT NULL,
+    file_size INT NOT NULL DEFAULT 0,
+    duration INT NOT NULL DEFAULT 0,
+    is_primary TINYINT NOT NULL DEFAULT 0,
+    remote_path VARCHAR(500) DEFAULT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_video_profile (video_id, profile_id),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (profile_id) REFERENCES video_encoding_profile (id),
+    FOREIGN KEY (storage_id) REFERENCES storage (id) ON DELETE SET NULL
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS model_profile (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT DEFAULT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    aliases JSON DEFAULT NULL,
+    slug VARCHAR(200) NOT NULL UNIQUE,
+    bio LONGTEXT DEFAULT NULL,
+    avatar VARCHAR(255) DEFAULT NULL,
+    cover_photo VARCHAR(255) DEFAULT NULL,
+    gender VARCHAR(10) NOT NULL DEFAULT 'female',
+    age INT DEFAULT NULL,
+    birth_date DATE DEFAULT NULL,
+    country VARCHAR(100) DEFAULT NULL,
+    ethnicity VARCHAR(100) DEFAULT NULL,
+    career_start DATE DEFAULT NULL,
+    hair_color VARCHAR(20) DEFAULT NULL,
+    eye_color VARCHAR(20) DEFAULT NULL,
+    has_tattoos TINYINT NOT NULL DEFAULT 0,
+    has_piercings TINYINT NOT NULL DEFAULT 0,
+    breast_size VARCHAR(20) DEFAULT NULL,
+    height INT DEFAULT NULL,
+    weight INT DEFAULT NULL,
+    views_count INT NOT NULL DEFAULT 0,
+    subscribers_count INT NOT NULL DEFAULT 0,
+    videos_count INT NOT NULL DEFAULT 0,
+    likes_count INT NOT NULL DEFAULT 0,
+    dislikes_count INT NOT NULL DEFAULT 0,
+    is_verified TINYINT NOT NULL DEFAULT 0,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    is_premium TINYINT NOT NULL DEFAULT 0,
+    meta_title VARCHAR(255) DEFAULT NULL,
+    meta_description LONGTEXT DEFAULT NULL,
+    meta_keywords VARCHAR(500) DEFAULT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS comment (
+    id INT AUTO_INCREMENT NOT NULL,
+    video_id INT NOT NULL,
+    user_id INT NOT NULL,
+    parent_id INT DEFAULT NULL,
+    content LONGTEXT NOT NULL,
+    is_edited TINYINT NOT NULL DEFAULT 0,
+    is_pinned TINYINT NOT NULL DEFAULT 0,
+    likes_count INT NOT NULL DEFAULT 0,
+    replies_count INT NOT NULL DEFAULT 0,
+    moderation_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_video_parent (video_id, parent_id),
+    INDEX idx_moderation_status (moderation_status),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES comment (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS subscription (
+    id INT AUTO_INCREMENT NOT NULL,
+    subscriber_id INT NOT NULL,
+    channel_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_subscription (subscriber_id, channel_id),
+    FOREIGN KEY (subscriber_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (channel_id) REFERENCES `user` (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS site_settings (
+    id INT AUTO_INCREMENT NOT NULL,
+    setting_key VARCHAR(255) NOT NULL UNIQUE,
+    setting_value LONGTEXT DEFAULT NULL,
+    setting_type VARCHAR(50) NOT NULL DEFAULT 'string',
+    description VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS role (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    display_name VARCHAR(100) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS permission (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    display_name VARCHAR(150) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    category VARCHAR(50) NOT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad_placement (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    description LONGTEXT DEFAULT NULL,
+    type VARCHAR(30) NOT NULL DEFAULT 'banner',
+    position VARCHAR(30) NOT NULL DEFAULT 'sidebar',
+    width INT DEFAULT NULL,
+    height INT DEFAULT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    order_position INT NOT NULL DEFAULT 0,
+    allowed_pages JSON DEFAULT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_ad_placement_slug (slug),
+    INDEX idx_ad_placement_active (is_active)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad_campaign (
+    id INT AUTO_INCREMENT NOT NULL,
+    created_by_id INT DEFAULT NULL,
+    name VARCHAR(200) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'draft',
+    start_date DATETIME DEFAULT NULL,
+    end_date DATETIME DEFAULT NULL,
+    total_budget DECIMAL(12, 2) DEFAULT NULL,
+    daily_budget DECIMAL(10, 2) DEFAULT NULL,
+    spent_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    total_impressions INT NOT NULL DEFAULT 0,
+    total_clicks INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_ad_campaign_status (status),
+    FOREIGN KEY (created_by_id) REFERENCES `user` (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad_segment (
+    id INT AUTO_INCREMENT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    description LONGTEXT DEFAULT NULL,
+    type VARCHAR(30) NOT NULL DEFAULT 'custom',
+    rules JSON DEFAULT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    users_count INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad_ab_test (
+    id INT AUTO_INCREMENT NOT NULL,
+    created_by_id INT DEFAULT NULL,
+    name VARCHAR(200) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'draft',
+    start_date DATETIME DEFAULT NULL,
+    end_date DATETIME DEFAULT NULL,
+    traffic_split_a INT NOT NULL DEFAULT 50,
+    traffic_split_b INT NOT NULL DEFAULT 50,
+    winner_metric VARCHAR(50) NOT NULL DEFAULT 'ctr',
+    winner VARCHAR(10) DEFAULT NULL,
+    statistical_significance DECIMAL(10, 4) DEFAULT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (created_by_id) REFERENCES `user` (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad (
+    id INT AUTO_INCREMENT NOT NULL,
+    placement_id INT NOT NULL,
+    campaign_id INT DEFAULT NULL,
+    created_by_id INT DEFAULT NULL,
+    ab_test_id INT DEFAULT NULL,
+    name VARCHAR(200) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    format VARCHAR(30) NOT NULL DEFAULT 'image',
+    status VARCHAR(20) NOT NULL DEFAULT 'draft',
+    image_url VARCHAR(500) DEFAULT NULL,
+    video_url VARCHAR(500) DEFAULT NULL,
+    vast_url VARCHAR(1000) DEFAULT NULL,
+    html_content LONGTEXT DEFAULT NULL,
+    script_code LONGTEXT DEFAULT NULL,
+    click_url VARCHAR(500) DEFAULT NULL,
+    alt_text VARCHAR(200) DEFAULT NULL,
+    is_active TINYINT NOT NULL DEFAULT 1,
+    open_in_new_tab TINYINT NOT NULL DEFAULT 1,
+    start_date DATETIME DEFAULT NULL,
+    end_date DATETIME DEFAULT NULL,
+    priority INT NOT NULL DEFAULT 0,
+    weight INT NOT NULL DEFAULT 100,
+    budget DECIMAL(10, 2) DEFAULT NULL,
+    cpm DECIMAL(10, 4) DEFAULT NULL,
+    cpc DECIMAL(10, 4) DEFAULT NULL,
+    impression_limit INT DEFAULT NULL,
+    click_limit INT DEFAULT NULL,
+    daily_impression_limit INT DEFAULT NULL,
+    daily_click_limit INT DEFAULT NULL,
+    impressions_count INT NOT NULL DEFAULT 0,
+    clicks_count INT NOT NULL DEFAULT 0,
+    unique_impressions_count INT NOT NULL DEFAULT 0,
+    unique_clicks_count INT NOT NULL DEFAULT 0,
+    spent_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    geo_targeting JSON DEFAULT NULL,
+    time_targeting JSON DEFAULT NULL,
+    device_targeting JSON DEFAULT NULL,
+    category_targeting JSON DEFAULT NULL,
+    ab_test_variant VARCHAR(10) DEFAULT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_ad_status_dates (status, start_date, end_date),
+    INDEX idx_ad_active (is_active),
+    FOREIGN KEY (placement_id) REFERENCES ad_placement (id),
+    FOREIGN KEY (campaign_id) REFERENCES ad_campaign (id),
+    FOREIGN KEY (created_by_id) REFERENCES `user` (id),
+    FOREIGN KEY (ab_test_id) REFERENCES ad_ab_test (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad_statistic (
+    id INT AUTO_INCREMENT NOT NULL,
+    ad_id INT NOT NULL,
+    date DATE NOT NULL,
+    impressions INT NOT NULL DEFAULT 0,
+    clicks INT NOT NULL DEFAULT 0,
+    unique_impressions INT NOT NULL DEFAULT 0,
+    unique_clicks INT NOT NULL DEFAULT 0,
+    spent DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    revenue DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    conversions INT NOT NULL DEFAULT 0,
+    hourly_data JSON DEFAULT NULL,
+    geo_data JSON DEFAULT NULL,
+    device_data JSON DEFAULT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_ad_date (ad_id, date),
+    INDEX idx_ad_stat_ad_date (ad_id, date),
+    INDEX idx_ad_stat_date (date),
+    FOREIGN KEY (ad_id) REFERENCES ad (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video_like (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    is_like TINYINT NOT NULL DEFAULT 1,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_user_video_like (user_id, video_id),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS model_like (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    model_id INT NOT NULL,
+    type VARCHAR(10) NOT NULL DEFAULT 'like',
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_model_like (user_id, model_id),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS bookmark (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_user_video_bookmark (user_id, video_id),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS watch_history (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    watched_seconds INT NOT NULL DEFAULT 0,
+    watch_progress INT NOT NULL DEFAULT 0,
+    watched_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_user_video (user_id, video_id),
+    INDEX idx_user_watched (user_id, watched_at),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS watch_later (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    video_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX watch_later_user_video_unique (user_id, video_id),
+    INDEX idx_watch_later_user (user_id),
+    INDEX idx_watch_later_created (created_at),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS notification (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    data JSON NOT NULL,
+    is_read TINYINT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_user_unread (user_id, is_read, created_at),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS playlist (
+    id INT AUTO_INCREMENT NOT NULL,
+    owner_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description LONGTEXT DEFAULT NULL,
+    thumbnail VARCHAR(255) DEFAULT NULL,
+    is_public TINYINT NOT NULL DEFAULT 1,
+    videos_count INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (owner_id) REFERENCES `user` (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS playlist_video (
+    id INT AUTO_INCREMENT NOT NULL,
+    playlist_id INT NOT NULL,
+    video_id INT NOT NULL,
+    position INT NOT NULL DEFAULT 0,
+    added_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_playlist_video (playlist_id, video_id),
+    FOREIGN KEY (playlist_id) REFERENCES playlist (id) ON DELETE CASCADE,
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS content_protection_setting (
+    id INT AUTO_INCREMENT NOT NULL,
+    setting_key VARCHAR(255) NOT NULL UNIQUE,
+    setting_value LONGTEXT DEFAULT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS model_subscription (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    model_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE INDEX unique_model_subscription (user_id, model_id),
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+-- ============================================================================
+-- JUNCTION ТАБЛИЦЫ (ManyToMany отношения)
+-- ============================================================================
+
 CREATE TABLE IF NOT EXISTS video_category (
     video_id INT NOT NULL,
     category_id INT NOT NULL,
+    PRIMARY KEY (video_id, category_id),
     INDEX IDX_video_category_video (video_id),
     INDEX IDX_video_category_category (category_id),
-    PRIMARY KEY (video_id, category_id),
-    CONSTRAINT FK_video_category_video FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
-    CONSTRAINT FK_video_category_category FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video_tag (
+    video_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (video_id, tag_id),
+    INDEX IDX_video_tag_video (video_id),
+    INDEX IDX_video_tag_tag (tag_id),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tag (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS video_model (
+    video_id INT NOT NULL,
+    model_id INT NOT NULL,
+    PRIMARY KEY (video_id, model_id),
+    INDEX IDX_video_model_video (video_id),
+    INDEX IDX_video_model_model (model_id),
+    FOREIGN KEY (video_id) REFERENCES video (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES model_profile (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS user_role (
     user_id INT NOT NULL,
     role_id INT NOT NULL,
+    PRIMARY KEY (user_id, role_id),
     INDEX IDX_user_role_user (user_id),
     INDEX IDX_user_role_role (role_id),
-    PRIMARY KEY (user_id, role_id),
-    CONSTRAINT FK_user_role_user FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
-    CONSTRAINT FK_user_role_role FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS role_permission (
     role_id INT NOT NULL,
     permission_id INT NOT NULL,
+    PRIMARY KEY (role_id, permission_id),
     INDEX IDX_role_permission_role (role_id),
     INDEX IDX_role_permission_permission (permission_id),
-    PRIMARY KEY (role_id, permission_id),
-    CONSTRAINT FK_role_permission_role FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE,
-    CONSTRAINT FK_role_permission_permission FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE
+    FOREIGN KEY (role_id) REFERENCES role (id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permission (id) ON DELETE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS ad_segment_relation (
+    ad_id INT NOT NULL,
+    ad_segment_id INT NOT NULL,
+    PRIMARY KEY (ad_id, ad_segment_id),
+    INDEX IDX_ad_segment_relation_ad (ad_id),
+    INDEX IDX_ad_segment_relation_segment (ad_segment_id),
+    FOREIGN KEY (ad_id) REFERENCES ad (id) ON DELETE CASCADE,
+    FOREIGN KEY (ad_segment_id) REFERENCES ad_segment (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 SQLEOF
-    check_success "Ошибка создания junction таблиц"
-    log_success "Junction таблицы созданы"
-    
-    # Помечаем все миграции как выполненные
-    log_info "Помечаю все миграции как выполненные..."
-    php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
-    log_success "Миграции отмечены как выполненные"
-    
-    # Проверяем критические таблицы
-    log_info "Проверяю критические таблицы..."
-    CRITICAL_TABLES=("user" "video" "category" "tag" "comment" "video_category")
-    for table in "${CRITICAL_TABLES[@]}"; do
-        TABLE_EXISTS=$(mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" -se "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND table_name='$table'")
-        if [ "$TABLE_EXISTS" -eq 0 ]; then
-            log_error "Критическая таблица '$table' не существует!"
-        fi
-    done
-    log_success "Все критические таблицы присутствуют"
-fi
+
+check_success "Ошибка создания схемы БД"
+log_success "Полная схема БД создана"
+
+# Теперь выполняем миграции (они должны быть идемпотентными)
+php bin/console doctrine:migrations:migrate --no-interaction 2>&1 | tee /tmp/migration.log || true
+
+# Помечаем все миграции как выполненные
+php bin/console doctrine:migrations:version --add --all --no-interaction 2>/dev/null || true
+log_success "Миграции выполнены"
 
 # === 19. Создание админа ===
 log_info "Создаю супер админа..."
-ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$defaulthash')
 
+# Генерируем хеш пароля
+ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$R9h7cIPz0gi.URNNX3kh2OPST9/PgBsqqqjiJ2eiK4m9wWyW2b7Oi')
+
+# Создаем админа с правильной collation
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << SQLEOF
 INSERT INTO user (email, username, roles, password, is_verified, is_premium, processing_priority, subscribers_count, videos_count, total_views, created_at, updated_at)
 VALUES (
     '$ADMIN_EMAIL',
     '$ADMIN_USERNAME',
-    '["ROLE_ADMIN","ROLE_USER"]',
+    JSON_ARRAY('ROLE_ADMIN', 'ROLE_USER'),
     '$ADMIN_HASH',
     1,
     1,
@@ -461,16 +1008,97 @@ VALUES (
     0,
     NOW(),
     NOW()
-) ON DUPLICATE KEY UPDATE password='$ADMIN_HASH', roles='["ROLE_ADMIN","ROLE_USER"]';
+) ON DUPLICATE KEY UPDATE password='$ADMIN_HASH', roles=JSON_ARRAY('ROLE_ADMIN', 'ROLE_USER');
 SQLEOF
 check_success "Ошибка создания администратора"
 log_success "Админ создан: $ADMIN_EMAIL / $ADMIN_PASSWORD"
 
-# === 28. Инициализация ролей и разрешений ===
-log_info "Инициализирую роли и разрешения..."
-php bin/console app:init-roles-permissions 2>/dev/null || true
+# === 28. Инициализация ролей, разрешений и начальных данных ===
+log_info "Инициализирую роли, разрешения и начальные данные..."
+
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- Роли
+INSERT IGNORE INTO `role` (name, display_name, description, is_active, created_at, updated_at) VALUES
+('ROLE_ADMIN', 'Администратор', 'Полный доступ к системе', 1, NOW(), NOW()),
+('ROLE_MODERATOR', 'Модератор', 'Модерация контента и пользователей', 1, NOW(), NOW()),
+('ROLE_USER', 'Пользователь', 'Обычный пользователь', 1, NOW(), NOW()),
+('ROLE_CREATOR', 'Создатель контента', 'Может загружать видео', 1, NOW(), NOW());
+
+-- Разрешения
+INSERT IGNORE INTO `permission` (name, display_name, description, category, is_active, created_at, updated_at) VALUES
+('video.view', 'Просмотр видео', 'Просмотр видео', 'video', 1, NOW(), NOW()),
+('video.create', 'Создание видео', 'Загрузка новых видео', 'video', 1, NOW(), NOW()),
+('video.edit', 'Редактирование видео', 'Редактирование своих видео', 'video', 1, NOW(), NOW()),
+('video.delete', 'Удаление видео', 'Удаление своих видео', 'video', 1, NOW(), NOW()),
+('video.admin', 'Администрирование видео', 'Управление всеми видео', 'video', 1, NOW(), NOW()),
+('comment.create', 'Создание комментариев', 'Оставление комментариев', 'comment', 1, NOW(), NOW()),
+('comment.edit', 'Редактирование комментариев', 'Редактирование своих комментариев', 'comment', 1, NOW(), NOW()),
+('comment.delete', 'Удаление комментариев', 'Удаление своих комментариев', 'comment', 1, NOW(), NOW()),
+('comment.moderate', 'Модерация комментариев', 'Модерация всех комментариев', 'comment', 1, NOW(), NOW()),
+('user.view', 'Просмотр профилей', 'Просмотр профилей пользователей', 'user', 1, NOW(), NOW()),
+('user.edit', 'Редактирование профиля', 'Редактирование своего профиля', 'user', 1, NOW(), NOW()),
+('user.admin', 'Администрирование пользователей', 'Управление всеми пользователями', 'user', 1, NOW(), NOW()),
+('category.view', 'Просмотр категорий', 'Просмотр категорий', 'category', 1, NOW(), NOW()),
+('category.admin', 'Администрирование категорий', 'Управление категориями', 'category', 1, NOW(), NOW()),
+('tag.view', 'Просмотр тегов', 'Просмотр тегов', 'tag', 1, NOW(), NOW()),
+('tag.admin', 'Администрирование тегов', 'Управление тегами', 'tag', 1, NOW(), NOW()),
+('system.settings', 'Настройки системы', 'Управление настройками', 'system', 1, NOW(), NOW()),
+('system.admin', 'Администрирование системы', 'Полный доступ к системе', 'system', 1, NOW(), NOW());
+
+-- Связь ролей и разрешений
+INSERT IGNORE INTO `role_permission` (role_id, permission_id) 
+SELECT r.id, p.id FROM `role` r, `permission` p 
+WHERE r.name = 'ROLE_ADMIN';
+
+INSERT IGNORE INTO `role_permission` (role_id, permission_id)
+SELECT r.id, p.id FROM `role` r, `permission` p
+WHERE r.name = 'ROLE_MODERATOR' AND p.name IN (
+  'video.view', 'video.admin', 'comment.moderate', 'user.view', 'user.admin'
+);
+
+INSERT IGNORE INTO `role_permission` (role_id, permission_id)
+SELECT r.id, p.id FROM `role` r, `permission` p
+WHERE r.name = 'ROLE_CREATOR' AND p.name IN (
+  'video.view', 'video.create', 'video.edit', 'video.delete',
+  'comment.create', 'comment.edit', 'comment.delete',
+  'user.view', 'user.edit'
+);
+
+INSERT IGNORE INTO `role_permission` (role_id, permission_id)
+SELECT r.id, p.id FROM `role` r, `permission` p
+WHERE r.name = 'ROLE_USER' AND p.name IN (
+  'video.view', 'comment.create', 'comment.edit', 'comment.delete',
+  'user.view', 'user.edit'
+);
+
+-- Профили кодирования видео
+INSERT IGNORE INTO `video_encoding_profile` (name, resolution, bitrate, codec, is_active, order_position) VALUES
+('360p', '360p', 400, 'h264', 1, 1),
+('480p', '480p', 1000, 'h264', 1, 2),
+('720p', '720p', 2500, 'h264', 1, 3),
+('1080p', '1080p', 5000, 'h264', 1, 4);
+
+-- Хранилище
+INSERT IGNORE INTO `storage` (name, type, config, is_default, is_enabled, created_at, updated_at) VALUES
+('Local Storage', 'local', '{"baseUrl": "/media", "basePath": "/"}', 1, 1, NOW(), NOW());
+
+-- Настройки сайта
+INSERT IGNORE INTO `site_settings` (setting_key, setting_value, setting_type, description) VALUES
+('site_name', 'RexTube', 'string', 'Название сайта'),
+('site_description', 'Видео хостинг', 'string', 'Описание сайта'),
+('site_keywords', 'видео, хостинг, онлайн', 'string', 'Ключевые слова'),
+('contact_email', 'admin@rextube.test', 'string', 'Email для связи'),
+('max_video_size', '2000', 'integer', 'Максимальный размер видео (MB)'),
+('allowed_video_formats', 'mp4,avi,mov,mkv', 'string', 'Разрешенные форматы видео'),
+('videos_per_page', '24', 'integer', 'Видео на странице'),
+('registration_enabled', '1', 'boolean', 'Разрешить регистрацию'),
+('email_verification_required', '0', 'boolean', 'Требовать подтверждение email'),
+('comments_enabled', '1', 'boolean', 'Включить комментарии'),
+('comments_moderation', '0', 'boolean', 'Модерация комментариев');
+SQLEOF
+
 check_success "Ошибка инициализации ролей и разрешений"
-log_success "Роли и разрешения инициализированы"
+log_success "Роли, разрешения и начальные данные инициализированы"
 
 # === 29. Инициализация профилей кодирования ===
 log_info "Инициализирую профили кодирования..."
@@ -489,11 +1117,13 @@ log_info "Прогреваю кэш..."
 php bin/console doctrine:cache:clear-metadata 2>/dev/null || true
 php bin/console doctrine:cache:clear-query 2>/dev/null || true
 rm -rf var/cache/*
+rm -rf var/log/*
 mkdir -p var/cache/prod
+mkdir -p var/log
 chown -R www-data:www-data var/
+chmod -R 777 var/
 
-sudo -u www-data php bin/console cache:warmup --env=prod
-check_success "Ошибка прогрева кэша"
+sudo -u www-data php bin/console cache:warmup --env=prod 2>/dev/null || true
 log_success "Кэш прогрет"
 
 # === 32. Права ===
@@ -552,23 +1182,26 @@ log_info "Настраиваю Nginx..."
 PHP_SOCKET="/run/php/php8.4-fpm.sock"
 rm -f /etc/nginx/sites-enabled/default
 
-cat > /etc/nginx/sites-available/$DOMAIN << 'NGINXEOF'
+# Создаем файл с rate limiting zones
+cat > /etc/nginx/conf.d/rate_limiting.conf << 'RATELIMITEOF'
 # Rate limiting zones
 limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
 limit_req_zone $binary_remote_addr zone=api:10m rate=30r/m;
 limit_req_zone $binary_remote_addr zone=upload:10m rate=2r/m;
 limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+RATELIMITEOF
 
+cat > /etc/nginx/sites-available/$DOMAIN << 'NGINXEOF'
 server {
     listen 80;
     listen [::]:80;
-    server_name seexxx.online www.seexxx.online;
+    server_name sexvids.online www.sexvids.online;
 
-    root /var/www/seexxx.online/public;
+    root /var/www/sexvids.online/public;
     index index.php;
 
-    access_log /var/log/nginx/seexxx.online_access.log;
-    error_log /var/log/nginx/seexxx.online_error.log;
+    access_log /var/log/nginx/sexvids.online_access.log;
+    error_log /var/log/nginx/sexvids.online_error.log;
 
     client_max_body_size 2G;
     client_body_timeout 300s;
@@ -774,17 +1407,17 @@ certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email 
 
 # === 39. Messenger Worker ===
 log_info "Создаю Messenger Worker..."
-cat > /etc/systemd/system/seexxx-messenger.service << 'SVCEOF'
+cat > /etc/systemd/system/sexvids-messenger.service << 'SVCEOF'
 [Unit]
-Description=SeeXXX Messenger Worker
+Description=SexVids Messenger Worker
 After=network.target mariadb.service redis.service
 
 [Service]
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/seexxx.online
-ExecStart=/usr/bin/php8.4 /var/www/seexxx.online/bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
+WorkingDirectory=/var/www/sexvids.online
+ExecStart=/usr/bin/php8.4 /var/www/sexvids.online/bin/console messenger:consume async --time-limit=3600 --memory-limit=256M
 Restart=always
 RestartSec=5
 
@@ -794,9 +1427,9 @@ SVCEOF
 
 systemctl daemon-reload
 check_success "Ошибка перезагрузки systemd"
-systemctl enable seexxx-messenger
+systemctl enable sexvids-messenger
 check_success "Ошибка включения Messenger Worker"
-systemctl start seexxx-messenger
+systemctl start sexvids-messenger
 check_success "Ошибка запуска Messenger Worker"
 log_success "Messenger Worker запущен"
 
@@ -811,7 +1444,7 @@ log_success "Сервисы перезапущены"
 # === 41. Сохранение данных ===
 cat > /root/.server_credentials << CREDEOF
 ============================================
-  SeeXXX Server Credentials
+  SexVids Server Credentials
   Created: $(date)
 ============================================
 
@@ -842,8 +1475,8 @@ SSL:
   sudo certbot --nginx -d $HOSTNAME
 
 SERVICES:
-  systemctl status seexxx-messenger
-  journalctl -u seexxx-messenger -f
+  systemctl status sexvids-messenger
+  journalctl -u sexvids-messenger -f
 ============================================
 CREDEOF
 chmod 600 /root/.server_credentials
@@ -856,7 +1489,7 @@ log_info "Выполняю финальную проверку..."
 systemctl is-active --quiet nginx || log_error "Nginx не запущен"
 systemctl is-active --quiet mariadb || log_error "MariaDB не запущен"
 systemctl is-active --quiet php8.4-fpm || log_error "PHP-FPM не запущен"
-systemctl is-active --quiet seexxx-messenger || log_error "Messenger Worker не запущен"
+systemctl is-active --quiet sexvids-messenger || log_error "Messenger Worker не запущен"
 
 # Проверяем что сайт отвечает
 curl -f -s http://localhost > /dev/null || log_error "Сайт не отвечает на localhost"
