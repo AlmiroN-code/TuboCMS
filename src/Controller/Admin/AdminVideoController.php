@@ -36,7 +36,7 @@ class AdminVideoController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $limit = 15;
         $offset = ($page - 1) * $limit;
         $sort = $request->query->get('sort');
         $status = $request->query->get('status');
