@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ channel.name }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Баннер канала -->
+    <div class="relative h-64 md:h-80 rounded-lg overflow-hidden mb-8 bg-gradient-to-r from-blue-500 to-purple-600"
+         {% if channel.bannerUrl %}style="background-image: url('{{ channel.bannerUrl }}'); background-size: cover; background-position: center;"{% endif %}>
+        <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        
+        <!-- Информация о канале -->
+        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <div class="flex items-end space-x-6">
+                <!-- Аватар -->
+                <div class="flex-shrink-0">
+                    {% if channel.avatarUrl %}
+                        <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                             class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg">
+                    {% else %}
+                        <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
+                            <i class="fas fa-tv text-gray-600 text-3xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Информация -->
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-2xl md:text-4xl font-bold mb-2">
+                        {{ channel.name }}
+                        {% if channel.isVerified %}
+                            <i class="fas fa-check-circle text-blue-400 ml-2" title="Верифицирован"></i>
+                        {% endif %}
+                        {% if channel.isPremium %}
+                            <i class="fas fa-crown text-yellow-400 ml-2" title="Premium канал"></i>
+                        {% endif %}
+                    </h1>
+                    
+                    <div class="flex flex-wrap items-center space-x-4 text-sm md:text-base">
+                        <span class="px-3 py-1 rounded-full 
+                                   {{ channel.type == 'personal' ? 'bg-blue-500' : 
+                                      (channel.type == 'studio' ? 'bg-purple-500' : 'bg-green-500') }}">
+                            {% if channel.type == 'personal' %}Личный канал
+                            {% elseif channel.type == 'studio' %}Студия
+                            {% else %}Компания{% endif %}
+                        </span>
+                        <span>{{ channel.subscribersCount|number_format }} подписчиков</span>
+                        <span>{{ channel.videosCount|number_format }} видео</span>
+                        <span>{{ channel.totalViews|number_format }} просмотров</span>
+                    </div>
+                </div>
+
+                <!-- Кнопка подписки -->
+                {% if app.user %}
+                <div class="flex-shrink-0">
+                    {% if is_subscribed %}
+                        <button onclick="unsubscribeFromChannel('{{ channel.slug }}')" 
+                                class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-check mr-2"></i>Подписан
+                        </button>
+                    {% else %}
+                        <button onclick="subscribeToChannel('{{ channel.slug }}')" 
+                                class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Подписаться
+                        </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="flex space-x-6 mb-8 border-b border-gray-200">
+        <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
+           class="pb-4 border-b-2 border-blue-600 text-blue-600 font-semibold">
+            Видео
+        </a>
+        <a href="{{ path('channel_about', {slug: channel.slug}) }}" 
+           class="pb-4 border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors">
+            О канале
+        </a>
+    </div>
+
+    <!-- Описание канала -->
+    {% if channel.description %}
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <p class="text-gray-700">{{ channel.description|nl2br }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Видео канала -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Видео ({{ total_videos }})</h2>
+        
+        {% if videos %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for video in videos %}
+                {% include 'video/_card.html.twig' with {video: video} %}
+            {% endfor %}
+        </div>
+
+        <!-- Пагинация -->
+        {% if total_pages > 1 %}
+        <div class="mt-12 flex justify-center">
+            <nav class="flex space-x-2">
+                {% if current_page > 1 %}
+                    <a href="{{ path('channel_show', {slug: channel.slug, page: current_page - 1}) }}" 
+                       class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                        Предыдущая
+                    </a>
+                {% endif %}
+
+                {% for page in 1..total_pages %}
+                    {% if page == current_page %}
+                        <span class="px-3 py-2 bg-blue-600 text-white rounded-md">{{ page }}</span>
+                    {% elseif page <= 3 or page > total_pages - 3 or (page >= current_page - 2 and page <= current_page + 2) %}
+                        <a href="{{ path('channel_show', {slug: channel.slug, page: page}) }}" 
+                           class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                            {{ page }}
+                        </a>
+                    {% elseif page == 4 or page == total_pages - 3 %}
+                        <span class="px-3 py-2 text-gray-500">...</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ path('channel_show', {slug: channel.slug, page: current_page + 1}) }}" 
+                       class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                        Следующая
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-video text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Пока нет видео</h3>
+            <p class="text-gray-500">На этом канале еще не опубликовано ни одного видео</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function subscribeToChannel(slug) {
+    fetch(`/channel/${slug}/subscribe`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Произошла ошибка');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при подписке');
+    });
+}
+
+function unsubscribeFromChannel(slug) {
+    fetch(`/channel/${slug}/unsubscribe`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Произошла ошибка');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при отписке');
+    });
+}
+</script>
+{% endblock %}

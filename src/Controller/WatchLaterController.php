@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\VideoRepository;
 use App\Repository\WatchLaterRepository;
+use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +19,8 @@ class WatchLaterController extends AbstractController
 {
     public function __construct(
         private readonly WatchLaterRepository $watchLaterRepository,
-        private readonly VideoRepository $videoRepository
+        private readonly VideoRepository $videoRepository,
+        private readonly SettingsService $settingsService
     ) {
     }
 
@@ -27,7 +29,7 @@ class WatchLaterController extends AbstractController
     {
         $user = $this->getUser();
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
 
         $watchLaterItems = $this->watchLaterRepository->findUserWatchLater($user, $page, $limit);
         $total = $this->watchLaterRepository->countUserWatchLater($user);

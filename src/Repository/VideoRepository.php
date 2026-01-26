@@ -1070,4 +1070,82 @@ class VideoRepository extends ServiceEntityRepository
             ->setResultCacheLifetime(300)
             ->getResult();
     }
+
+    /**
+     * Найти видео по каналу
+     */
+    public function findByChannel($channel, int $limit = 20, int $offset = 0): array
+    {
+        return $this->createQueryBuilder('v')
+            ->leftJoin('v.createdBy', 'u')
+            ->leftJoin('v.categories', 'c')
+            ->leftJoin('v.performers', 'p')
+            ->addSelect('u', 'c', 'p')
+            ->where('v.status = :status')
+            ->andWhere('v.channel = :channel')
+            ->setParameter('status', Video::STATUS_PUBLISHED)
+            ->setParameter('channel', $channel)
+            ->orderBy('v.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Подсчет видео по каналу
+     */
+    public function countByChannel($channel): int
+    {
+        return $this->createQueryBuilder('v')
+            ->select('COUNT(v.id)')
+            ->where('v.status = :status')
+            ->andWhere('v.channel = :channel')
+            ->setParameter('status', Video::STATUS_PUBLISHED)
+            ->setParameter('channel', $channel)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Найти популярные видео канала
+     */
+    public function findPopularByChannel($channel, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('v')
+            ->leftJoin('v.createdBy', 'u')
+            ->leftJoin('v.categories', 'c')
+            ->addSelect('u', 'c')
+            ->where('v.status = :status')
+            ->andWhere('v.channel = :channel')
+            ->setParameter('status', Video::STATUS_PUBLISHED)
+            ->setParameter('channel', $channel)
+            ->orderBy('v.viewsCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->useQueryCache(true)
+            ->setResultCacheLifetime(300)
+            ->getResult();
+    }
+
+    /**
+     * Найти последние видео канала
+     */
+    public function findRecentByChannel($channel, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('v')
+            ->leftJoin('v.createdBy', 'u')
+            ->leftJoin('v.categories', 'c')
+            ->addSelect('u', 'c')
+            ->where('v.status = :status')
+            ->andWhere('v.channel = :channel')
+            ->setParameter('status', Video::STATUS_PUBLISHED)
+            ->setParameter('channel', $channel)
+            ->orderBy('v.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->useQueryCache(true)
+            ->setResultCacheLifetime(120)
+            ->getResult();
+    }
 }

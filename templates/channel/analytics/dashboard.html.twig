@@ -1,0 +1,282 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Аналитика канала {{ channel.name }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Заголовок -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Аналитика канала</h1>
+            <p class="text-gray-600 mt-2">{{ channel.name }}</p>
+        </div>
+        
+        <!-- Выбор периода -->
+        <div class="flex gap-2">
+            {% for period in allowedPeriods %}
+                <a href="{{ path('channel_analytics_dashboard', {slug: channel.slug, days: period}) }}" 
+                   class="px-4 py-2 rounded-lg transition-colors {{ period == selectedPeriod ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                    {{ period }}д
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Основные метрики -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Просмотры -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Просмотры</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ dashboard.summary.totalViews|number_format }}</p>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <i class="fas fa-eye text-blue-600 text-xl"></i>
+                </div>
+            </div>
+            {% if comparison.totalViews is defined %}
+                <div class="mt-4 flex items-center">
+                    {% if comparison.totalViews.trend == 'up' %}
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span class="text-green-600 text-sm font-medium">+{{ comparison.totalViews.change }}%</span>
+                    {% elseif comparison.totalViews.trend == 'down' %}
+                        <i class="fas fa-arrow-down text-red-500 mr-1"></i>
+                        <span class="text-red-600 text-sm font-medium">{{ comparison.totalViews.change }}%</span>
+                    {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>
+                        <span class="text-gray-600 text-sm font-medium">{{ comparison.totalViews.change }}%</span>
+                    {% endif %}
+                    <span class="text-gray-500 text-sm ml-2">за период</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Подписчики -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Новые подписчики</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ dashboard.summary.netSubscribers|number_format }}</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full">
+                    <i class="fas fa-user-plus text-green-600 text-xl"></i>
+                </div>
+            </div>
+            {% if comparison.netSubscribers is defined %}
+                <div class="mt-4 flex items-center">
+                    {% if comparison.netSubscribers.trend == 'up' %}
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span class="text-green-600 text-sm font-medium">+{{ comparison.netSubscribers.change }}%</span>
+                    {% elseif comparison.netSubscribers.trend == 'down' %}
+                        <i class="fas fa-arrow-down text-red-500 mr-1"></i>
+                        <span class="text-red-600 text-sm font-medium">{{ comparison.netSubscribers.change }}%</span>
+                    {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>
+                        <span class="text-gray-600 text-sm font-medium">{{ comparison.netSubscribers.change }}%</span>
+                    {% endif %}
+                    <span class="text-gray-500 text-sm ml-2">за период</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Доходы -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Доходы</p>
+                    <p class="text-2xl font-bold text-gray-900">${{ dashboard.summary.totalRevenue|number_format(2) }}</p>
+                </div>
+                <div class="p-3 bg-yellow-100 rounded-full">
+                    <i class="fas fa-dollar-sign text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+            {% if comparison.totalRevenue is defined %}
+                <div class="mt-4 flex items-center">
+                    {% if comparison.totalRevenue.trend == 'up' %}
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span class="text-green-600 text-sm font-medium">+{{ comparison.totalRevenue.change }}%</span>
+                    {% elseif comparison.totalRevenue.trend == 'down' %}
+                        <i class="fas fa-arrow-down text-red-500 mr-1"></i>
+                        <span class="text-red-600 text-sm font-medium">{{ comparison.totalRevenue.change }}%</span>
+                    {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>
+                        <span class="text-gray-600 text-sm font-medium">{{ comparison.totalRevenue.change }}%</span>
+                    {% endif %}
+                    <span class="text-gray-500 text-sm ml-2">за период</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Время просмотра -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Время просмотра</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ (dashboard.summary.totalWatchTime / 60)|number_format(1) }}ч</p>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-full">
+                    <i class="fas fa-clock text-purple-600 text-xl"></i>
+                </div>
+            </div>
+            {% if comparison.totalWatchTime is defined %}
+                <div class="mt-4 flex items-center">
+                    {% if comparison.totalWatchTime.trend == 'up' %}
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span class="text-green-600 text-sm font-medium">+{{ comparison.totalWatchTime.change }}%</span>
+                    {% elseif comparison.totalWatchTime.trend == 'down' %}
+                        <i class="fas fa-arrow-down text-red-500 mr-1"></i>
+                        <span class="text-red-600 text-sm font-medium">{{ comparison.totalWatchTime.change }}%</span>
+                    {% else %}
+                        <i class="fas fa-minus text-gray-500 mr-1"></i>
+                        <span class="text-gray-600 text-sm font-medium">{{ comparison.totalWatchTime.change }}%</span>
+                    {% endif %}
+                    <span class="text-gray-500 text-sm ml-2">за период</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Графики -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- График просмотров -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Просмотры по дням</h3>
+            <canvas id="viewsChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- График подписчиков -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Рост подписчиков</h3>
+            <canvas id="subscribersChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Топ видео и донаты -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Топ видео -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Топ видео за период</h3>
+            {% if dashboard.topVideos %}
+                <div class="space-y-4">
+                    {% for video in dashboard.topVideos %}
+                        <div class="flex items-center gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium">
+                                {{ loop.index }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900 truncate">{{ video.title }}</p>
+                                <p class="text-sm text-gray-500">{{ video.viewsCount|number_format }} просмотров</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">Нет данных за выбранный период</p>
+            {% endif %}
+        </div>
+
+        <!-- Топ донатеры -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Топ донатеры</h3>
+            {% if dashboard.donations.topDonors %}
+                <div class="space-y-4">
+                    {% for donor in dashboard.donations.topDonors %}
+                        <div class="flex items-center gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-yellow-200 rounded-full flex items-center justify-center text-sm font-medium">
+                                {{ loop.index }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900">{{ donor.username }}</p>
+                                <p class="text-sm text-gray-500">${{ donor.totalAmount|number_format(2) }} ({{ donor.donationsCount }} донатов)</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">Нет донатов за выбранный период</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="mt-8 flex justify-center gap-4">
+        <a href="{{ path('channel_analytics_demographics', {slug: channel.slug, days: selectedPeriod}) }}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-users mr-2"></i>Демография
+        </a>
+        <a href="{{ path('channel_analytics_revenue', {slug: channel.slug, days: selectedPeriod}) }}" 
+           class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-dollar-sign mr-2"></i>Доходы
+        </a>
+        <a href="{{ path('channel_analytics_export', {slug: channel.slug}) }}" 
+           class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors">
+            <i class="fas fa-download mr-2"></i>Экспорт
+        </a>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// График просмотров
+const viewsCtx = document.getElementById('viewsChart').getContext('2d');
+new Chart(viewsCtx, {
+    type: 'line',
+    data: {
+        labels: {{ dashboard.charts.views.labels|json_encode|raw }},
+        datasets: [{
+            label: 'Просмотры',
+            data: {{ dashboard.charts.views.views|json_encode|raw }},
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.1
+        }, {
+            label: 'Уникальные просмотры',
+            data: {{ dashboard.charts.views.uniqueViews|json_encode|raw }},
+            borderColor: 'rgb(16, 185, 129)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// График подписчиков
+const subscribersCtx = document.getElementById('subscribersChart').getContext('2d');
+new Chart(subscribersCtx, {
+    type: 'line',
+    data: {
+        labels: {{ dashboard.charts.subscribers.labels|json_encode|raw }},
+        datasets: [{
+            label: 'Новые подписчики',
+            data: {{ dashboard.charts.subscribers.newSubscribers|json_encode|raw }},
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.1
+        }, {
+            label: 'Отписки',
+            data: {{ dashboard.charts.subscribers.unsubscribers|json_encode|raw }},
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

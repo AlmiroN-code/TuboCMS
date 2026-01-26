@@ -1,5 +1,15 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}{% if setting('seo_home_title') %}{{ setting('seo_home_title') }}{% else %}{{ 'nav.home'|trans }}{% endif %}{% endblock %}
+
+{% block meta_description %}{% if setting('seo_home_description') %}{{ setting('seo_home_description') }}{% else %}{{ setting('site_description') }}{% endif %}{% endblock %}
+
+{% block meta_keywords %}{% if setting('seo_home_keywords') %}{{ setting('seo_home_keywords') }}{% else %}{{ setting('site_keywords') }}{% endif %}{% endblock %}
+
+{% block og_title %}{% if setting('seo_home_title') %}{{ setting('seo_home_title') }}{% else %}{{ site_name() }}{% endif %}{% endblock %}
+
+{% block og_description %}{% if setting('seo_home_description') %}{{ setting('seo_home_description') }}{% else %}{{ setting('site_description') }}{% endif %}{% endblock %}
+
 {% block body %}
 {# Рекламный блок в верхней части главной страницы #}
 <div class="ad-block mb-2">

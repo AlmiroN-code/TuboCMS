@@ -6,6 +6,7 @@ use App\Entity\Tag;
 use App\Repository\TagRepository;
 use App\Repository\VideoRepository;
 use App\Service\SeeAlsoService;
+use App\Service\SettingsService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/tags')]
 class TagController extends AbstractController
 {
+    public function __construct(
+        private SettingsService $settingsService
+    ) {
+    }
     #[Route('', name: 'app_tags')]
     public function index(Request $request, TagRepository $tagRepository): Response
     {
@@ -35,7 +40,7 @@ class TagController extends AbstractController
         SeeAlsoService $seeAlsoService
     ): Response {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videos = $videoRepository->findByTag($tag->getId(), $limit, $offset);

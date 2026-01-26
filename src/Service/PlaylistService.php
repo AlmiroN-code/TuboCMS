@@ -2,134 +2,330 @@
 
 namespace App\Service;
 
-use App\Entity\Playlist;
+use App\Entity\Channel;
+use App\Entity\ChannelPlaylist;
 use App\Entity\PlaylistVideo;
 use App\Entity\User;
 use App\Entity\Video;
-use App\Repository\PlaylistRepository;
+use App\Repository\ChannelPlaylistRepository;
 use App\Repository\PlaylistVideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class PlaylistService
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private PlaylistRepository $playlistRepository,
+        private EntityManagerInterface $entityManager,
+        private ChannelPlaylistRepository $playlistRepository,
         private PlaylistVideoRepository $playlistVideoRepository,
-    ) {
-    }
+        private SluggerInterface $slugger
+    ) {}
 
-    public function create(User $user, string $title, ?string $description = null, bool $isPublic = true): Playlist
-    {
-        $playlist = new Playlist();
-        $playlist->setOwner($user);
+    /**
+     * Создать новый плейлист
+     */
+    public function createPlaylist(
+        Channel $channel,
+        string $title,
+        ?string $description = null,
+        string $visibility = ChannelPlaylist::VISIBILITY_PUBLIC
+    ): ChannelPlaylist {
+        $playlist = new ChannelPlaylist();
+        $playlist->setChannel($channel);
         $playlist->setTitle($title);
         $playlist->setDescription($description);
-        $playlist->setIsPublic($isPublic);
+        $playlist->setVisibility($visibility);
+        $playlist->setSortOrder($this->playlistRepository->getNextSortOrder($channel));
+        $playlist->generateSlug($this->slugger);
 
-        $this->em->persist($playlist);
-        $this->em->flush();
+        // Проверка уникальности slug
+        $originalSlug = $playlist->getSlug();
+        $counter = 1;
+        while (!$this->playlistRepository->isSlugUnique($playlist->getSlug())) {
+            $playlist->setSlug($originalSlug . '-' . $counter);
+            $counter++;
+        }
+
+        $this->entityManager->persist($playlist);
+        $this->entityManager->flush();
 
         return $playlist;
     }
 
-    public function update(Playlist $playlist, string $title, ?string $description = null, ?bool $isPublic = null): Playlist
+    /**
+     * Добавить видео в плейлист
+     */
+    public function addVideoToPlaylist(ChannelPlaylist $playlist, Video $video, ?User $addedBy = null): PlaylistVideo
     {
-        $playlist->setTitle($title);
-        $playlist->setDescription($description);
-        
-        if ($isPublic !== null) {
-            $playlist->setIsPublic($isPublic);
-        }
-        
-        $playlist->updateTimestamp();
-        $this->em->flush();
-
-        return $playlist;
-    }
-
-    public function delete(Playlist $playlist): void
-    {
-        $this->em->remove($playlist);
-        $this->em->flush();
-    }
-
-    public function addVideo(Playlist $playlist, Video $video): void
-    {
-        $existing = $this->playlistVideoRepository->findByPlaylistAndVideo($playlist, $video);
-        if ($existing !== null) {
-            return; // Already in playlist
+        // Проверяем, что видео еще не в плейлисте
+        if ($this->playlistVideoRepository->isVideoInPlaylist($playlist, $video)) {
+            throw new \InvalidArgumentException('Видео уже добавлено в этот плейлист');
         }
 
-        $position = $this->playlistVideoRepository->getMaxPosition($playlist) + 1;
+        // Проверяем, что видео принадлежит тому же каналу
+        if ($video->getChannel() !== $playlist->getChannel()) {
+            throw new \InvalidArgumentException('Можно добавлять только видео своего канала');
+        }
 
         $playlistVideo = new PlaylistVideo();
         $playlistVideo->setPlaylist($playlist);
         $playlistVideo->setVideo($video);
-        $playlistVideo->setPosition($position);
+        $playlistVideo->setAddedBy($addedBy);
+        $playlistVideo->setSortOrder($this->playlistVideoRepository->getNextSortOrder($playlist));
 
-        $playlist->incrementVideosCount();
-        $playlist->updateTimestamp();
+        $this->entityManager->persist($playlistVideo);
 
-        $this->em->persist($playlistVideo);
-        $this->em->flush();
-    }
+        // Обновляем счетчик видео в плейлисте
+        $playlist->setVideosCount($playlist->getVideosCount() + 1);
 
-    public function removeVideo(Playlist $playlist, Video $video): void
-    {
-        $playlistVideo = $this->playlistVideoRepository->findByPlaylistAndVideo($playlist, $video);
-        if ($playlistVideo === null) {
-            return;
-        }
+        $this->entityManager->flush();
 
-        $this->em->remove($playlistVideo);
-        $playlist->decrementVideosCount();
-        $playlist->updateTimestamp();
-        $this->em->flush();
+        return $playlistVideo;
     }
 
     /**
-     * @param int[] $videoIds Ordered array of video IDs
+     * Удалить видео из плейлиста
      */
-    public function reorderVideos(Playlist $playlist, array $videoIds): void
+    public function removeVideoFromPlaylist(ChannelPlaylist $playlist, Video $video): void
     {
-        $playlistVideos = $this->playlistVideoRepository->findByPlaylist($playlist);
-        $videoMap = [];
+        $playlistVideo = $this->playlistVideoRepository->findByPlaylistAndVideo($playlist, $video);
         
-        foreach ($playlistVideos as $pv) {
-            $videoMap[$pv->getVideo()->getId()] = $pv;
+        if (!$playlistVideo) {
+            throw new \InvalidArgumentException('Видео не найдено в плейлисте');
         }
 
-        $position = 0;
-        foreach ($videoIds as $videoId) {
-            if (isset($videoMap[$videoId])) {
-                $videoMap[$videoId]->setPosition($position);
-                $position++;
+        $this->playlistVideoRepository->removeVideoAndReorder($playlistVideo);
+
+        // Обновляем счетчик видео в плейлисте
+        $playlist->setVideosCount(max(0, $playlist->getVideosCount() - 1));
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Переместить видео в плейлисте
+     */
+    public function moveVideoInPlaylist(ChannelPlaylist $playlist, Video $video, int $newPosition): void
+    {
+        $playlistVideo = $this->playlistVideoRepository->findByPlaylistAndVideo($playlist, $video);
+        
+        if (!$playlistVideo) {
+            throw new \InvalidArgumentException('Видео не найдено в плейлисте');
+        }
+
+        $this->playlistVideoRepository->moveVideo($playlistVideo, $newPosition);
+    }
+
+    /**
+     * Обновить плейлист
+     */
+    public function updatePlaylist(
+        ChannelPlaylist $playlist,
+        ?string $title = null,
+        ?string $description = null,
+        ?string $visibility = null
+    ): void {
+        if ($title !== null) {
+            $playlist->setTitle($title);
+            
+            // Обновляем slug если изменилось название
+            $newSlug = $this->slugger->slug($title)->lower();
+            if ($newSlug !== $playlist->getSlug()) {
+                $originalSlug = $newSlug;
+                $counter = 1;
+                while (!$this->playlistRepository->isSlugUnique($newSlug, $playlist->getId())) {
+                    $newSlug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
+                $playlist->setSlug($newSlug);
             }
         }
 
-        $playlist->updateTimestamp();
-        $this->em->flush();
+        if ($description !== null) {
+            $playlist->setDescription($description);
+        }
+
+        if ($visibility !== null) {
+            $playlist->setVisibility($visibility);
+        }
+
+        $this->entityManager->flush();
     }
 
     /**
-     * @return Playlist[]
+     * Удалить плейлист
      */
-    public function getUserPlaylists(User $user, int $limit = 50, int $offset = 0): array
+    public function deletePlaylist(ChannelPlaylist $playlist): void
     {
-        return $this->playlistRepository->findByOwner($user, $limit, $offset);
+        $this->entityManager->remove($playlist);
+        $this->entityManager->flush();
     }
 
     /**
-     * @return Playlist[]
+     * Получить плейлисты канала для пользователя
      */
-    public function getPublicPlaylists(User $user, int $limit = 50, int $offset = 0): array
+    public function getChannelPlaylists(Channel $channel, ?User $viewer = null, int $limit = 20, int $offset = 0): array
     {
-        return $this->playlistRepository->findPublicByOwner($user, $limit, $offset);
+        return $this->playlistRepository->findByChannel($channel, $viewer, $limit, $offset);
     }
 
-    public function countUserPlaylists(User $user): int
+    /**
+     * Получить видео плейлиста
+     */
+    public function getPlaylistVideos(ChannelPlaylist $playlist, int $limit = 50, int $offset = 0): array
     {
-        return $this->playlistRepository->countByOwner($user);
+        return $this->playlistVideoRepository->findByPlaylist($playlist, $limit, $offset);
+    }
+
+    /**
+     * Проверить может ли пользователь управлять плейлистом
+     */
+    public function canUserManagePlaylist(ChannelPlaylist $playlist, ?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        // Владелец канала может управлять всеми плейлистами
+        if ($playlist->getChannel()->getOwner() === $user) {
+            return true;
+        }
+
+        // Админы могут управлять любыми плейлистами
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Проверить может ли пользователь просматривать плейлист
+     */
+    public function canUserViewPlaylist(ChannelPlaylist $playlist, ?User $user): bool
+    {
+        // Владелец канала может видеть все плейлисты
+        if ($user && $user === $playlist->getChannel()->getOwner()) {
+            return true;
+        }
+
+        // Проверка видимости
+        switch ($playlist->getVisibility()) {
+            case ChannelPlaylist::VISIBILITY_PUBLIC:
+            case ChannelPlaylist::VISIBILITY_UNLISTED:
+                return true;
+            
+            case ChannelPlaylist::VISIBILITY_PREMIUM:
+                return $user && $user->isPremium();
+            
+            case ChannelPlaylist::VISIBILITY_PRIVATE:
+                return false;
+            
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Получить навигацию по плейлисту для видео
+     */
+    public function getPlaylistNavigation(ChannelPlaylist $playlist, Video $video): ?array
+    {
+        $playlistVideo = $this->playlistVideoRepository->findByPlaylistAndVideo($playlist, $video);
+        
+        if (!$playlistVideo) {
+            return null;
+        }
+
+        $previousVideo = $this->playlistVideoRepository->getPreviousVideo($playlistVideo);
+        $nextVideo = $this->playlistVideoRepository->getNextVideo($playlistVideo);
+        $position = $this->playlistVideoRepository->getVideoPosition($playlist, $video);
+        $totalVideos = $this->playlistVideoRepository->countByPlaylist($playlist);
+
+        return [
+            'playlist' => $playlist,
+            'currentPosition' => $position,
+            'totalVideos' => $totalVideos,
+            'previousVideo' => $previousVideo?->getVideo(),
+            'nextVideo' => $nextVideo?->getVideo(),
+        ];
+    }
+
+    /**
+     * Дублировать плейлист
+     */
+    public function duplicatePlaylist(ChannelPlaylist $originalPlaylist, string $newTitle): ChannelPlaylist
+    {
+        $newPlaylist = $this->createPlaylist(
+            $originalPlaylist->getChannel(),
+            $newTitle,
+            $originalPlaylist->getDescription(),
+            $originalPlaylist->getVisibility()
+        );
+
+        // Копируем все видео из оригинального плейлиста
+        $playlistVideos = $this->playlistVideoRepository->findByPlaylist($originalPlaylist);
+        
+        foreach ($playlistVideos as $playlistVideo) {
+            $this->addVideoToPlaylist($newPlaylist, $playlistVideo->getVideo());
+        }
+
+        return $newPlaylist;
+    }
+
+    /**
+     * Получить статистику плейлистов канала
+     */
+    public function getChannelPlaylistStats(Channel $channel): array
+    {
+        $totalPlaylists = $this->playlistRepository->countByChannel($channel);
+        
+        $publicPlaylists = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(p.id)')
+            ->from(ChannelPlaylist::class, 'p')
+            ->where('p.channel = :channel')
+            ->andWhere('p.visibility = :visibility')
+            ->andWhere('p.isActive = :active')
+            ->setParameter('channel', $channel)
+            ->setParameter('visibility', ChannelPlaylist::VISIBILITY_PUBLIC)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalViews = $this->entityManager->createQueryBuilder()
+            ->select('SUM(p.viewsCount)')
+            ->from(ChannelPlaylist::class, 'p')
+            ->where('p.channel = :channel')
+            ->andWhere('p.isActive = :active')
+            ->setParameter('channel', $channel)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'totalPlaylists' => $totalPlaylists,
+            'publicPlaylists' => $publicPlaylists,
+            'totalViews' => (int) ($totalViews ?? 0),
+        ];
+    }
+
+    /**
+     * Обновить счетчики плейлиста
+     */
+    public function updatePlaylistCounters(ChannelPlaylist $playlist): void
+    {
+        // Обновляем количество видео
+        $videosCount = $this->playlistVideoRepository->countByPlaylist($playlist);
+        $playlist->setVideosCount($videosCount);
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Увеличить счетчик просмотров плейлиста
+     */
+    public function incrementPlaylistViews(ChannelPlaylist $playlist): void
+    {
+        $playlist->setViewsCount($playlist->getViewsCount() + 1);
+        $this->entityManager->flush();
     }
 }

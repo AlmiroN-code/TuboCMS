@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Создать канал{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Создать канал</h1>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <form method="post" class="space-y-6">
+                <input type="hidden" name="_token" value="{{ csrf_token('channel_create') }}">
+                
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Название канала <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" name="name" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                           placeholder="Введите название канала">
+                    <p class="mt-1 text-xs text-gray-500">Это название будет отображаться на вашем канале</p>
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Описание канала
+                    </label>
+                    <textarea id="description" name="description" rows="4"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
+                              placeholder="Расскажите о вашем канале..."></textarea>
+                    <p class="mt-1 text-xs text-gray-500">Краткое описание того, что зрители найдут на вашем канале</p>
+                </div>
+
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Тип канала
+                    </label>
+                    <select id="type" name="type"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="personal">Личный канал</option>
+                        <option value="studio">Студия</option>
+                        <option value="company">Компания</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Выберите тип канала в зависимости от вашей деятельности</p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800">Информация о канале</h3>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>После создания вы сможете настроить внешний вид канала</li>
+                                    <li>Загрузить аватар и баннер</li>
+                                    <li>Добавить ссылки на социальные сети</li>
+                                    <li>Настроить цветовую схему</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <a href="{{ path('channels_index') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-times mr-2"></i>Отмена
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Создать канал
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

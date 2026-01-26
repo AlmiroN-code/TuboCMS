@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Video;
 use App\Service\BookmarkService;
+use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ class BookmarkController extends AbstractController
     public function __construct(
         private BookmarkService $bookmarkService,
         private TranslatorInterface $translator,
+        private SettingsService $settingsService
     ) {
     }
 
@@ -26,7 +28,7 @@ class BookmarkController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
 
         $user = $this->getUser();
         $bookmarks = $this->bookmarkService->getBookmarks($user, $page, $limit);

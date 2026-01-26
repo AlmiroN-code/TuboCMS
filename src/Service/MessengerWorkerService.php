@@ -14,7 +14,12 @@ class MessengerWorkerService
         private LoggerInterface $logger
     ) {
         $this->pidFile = $projectDir . '/var/messenger_worker.pid';
-        $this->logFile = $projectDir . '/var/log/messenger_worker.log';
+        // Используем стандартный лог Symfony для продакшена
+        if ($_ENV['APP_ENV'] === 'prod' || getenv('APP_ENV') === 'prod') {
+            $this->logFile = $projectDir . '/var/log/prod.log';
+        } else {
+            $this->logFile = $projectDir . '/var/log/messenger_worker.log';
+        }
     }
 
     public function isRunning(): bool
@@ -58,12 +63,31 @@ class MessengerWorkerService
             $phpPath = $this->findPhpPath();
             $consolePath = $this->projectDir . '/bin/console';
             
+            // Создаем директорию для логов если не существует
             $logDir = dirname($this->logFile);
             if (!is_dir($logDir)) {
-                mkdir($logDir, 0755, true);
+                if (!mkdir($logDir, 0755, true)) {
+                    throw new \Exception("Не удалось создать директорию для логов: {$logDir}");
+                }
             }
             
-            file_put_contents($this->logFile, "[" . date('Y-m-d H:i:s') . "] Starting worker...\n");
+            // Создаем лог-файл если не существует
+            if (!file_exists($this->logFile)) {
+                if (file_put_contents($this->logFile, '') === false) {
+                    throw new \Exception("Не удалось создать лог-файл: {$this->logFile}");
+                }
+                // Устанавливаем права доступа для Linux
+                if (!$this->isWindows()) {
+                    chmod($this->logFile, 0664);
+                }
+            }
+            
+            // Проверяем, что лог-файл доступен для записи
+            if (!is_writable($this->logFile)) {
+                throw new \Exception("Лог-файл недоступен для записи: {$this->logFile}");
+            }
+            
+            file_put_contents($this->logFile, "[" . date('Y-m-d H:i:s') . "] Starting worker...\n", FILE_APPEND);
 
             if ($this->isWindows()) {
                 $pid = $this->startWindows($phpPath, $consolePath);
@@ -86,6 +110,11 @@ class MessengerWorkerService
 
     private function startWindows(string $phpPath, string $consolePath): int
     {
+        // Для продакшена используем стандартный лог Symfony
+        $logTarget = ($_ENV['APP_ENV'] === 'prod' || getenv('APP_ENV') === 'prod') 
+            ? $this->projectDir . '/var/log/prod.log'
+            : $this->logFile;
+            
         // Способ 1: Через COM объект WScript.Shell (не блокирует)
         if (class_exists('COM')) {
             try {
@@ -94,7 +123,7 @@ class MessengerWorkerService
                     '"%s" "%s" messenger:consume async --time-limit=3600 --memory-limit=256M -vv >> "%s" 2>&1',
                     $phpPath,
                     $consolePath,
-                    $this->logFile
+                    $logTarget
                 );
                 $WshShell->Run($command, 0, false); // 0 = hidden, false = don't wait
                 
@@ -111,7 +140,7 @@ class MessengerWorkerService
             'start /B "" "%s" "%s" messenger:consume async --time-limit=3600 --memory-limit=256M -vv >> "%s" 2>&1',
             $phpPath,
             $consolePath,
-            $this->logFile
+            $logTarget
         );
         pclose(popen($command, 'r'));
         
@@ -121,9 +150,16 @@ class MessengerWorkerService
 
     private function startLinux(string $phpPath, string $consolePath): int
     {
+        // Для продакшена используем стандартный лог Symfony
+        $logTarget = ($_ENV['APP_ENV'] === 'prod' || getenv('APP_ENV') === 'prod') 
+            ? $this->projectDir . '/var/log/prod.log'
+            : $this->logFile;
+            
         $command = sprintf(
             'nohup %s %s messenger:consume async --time-limit=3600 --memory-limit=256M -vv >> %s 2>&1 & echo $!',
-            escapeshellarg($phpPath), escapeshellarg($consolePath), escapeshellarg($this->logFile)
+            escapeshellarg($phpPath), 
+            escapeshellarg($consolePath), 
+            escapeshellarg($logTarget)
         );
         return (int) trim(shell_exec($command) ?? '');
     }
@@ -169,33 +205,67 @@ class MessengerWorkerService
     public function getStatus(): array
     {
         $isRunning = $this->isRunning();
+        $logExists = file_exists($this->logFile);
+        $logSize = $logExists ? filesize($this->logFile) : 0;
+        $lastLog = '';
+        
+        if ($logExists && $logSize > 0) {
+            $lastLog = $this->getLastLogLines(10);
+        }
+        
         return [
             'running' => $isRunning,
             'pid' => $isRunning ? $this->getPid() : null,
             'pidFile' => $this->pidFile,
             'logFile' => $this->logFile,
-            'lastLog' => file_exists($this->logFile) ? $this->getLastLogLines(10) : '',
-            'logSize' => file_exists($this->logFile) ? filesize($this->logFile) : 0,
+            'logExists' => $logExists,
+            'logReadable' => $logExists && is_readable($this->logFile),
+            'lastLog' => $lastLog,
+            'logSize' => $logSize,
             'pendingMessages' => $this->getPendingMessagesCount(),
+            'phpPath' => $this->findPhpPath(),
+            'projectDir' => $this->projectDir,
         ];
     }
 
     public function getLastLogLines(int $lines = 50): string
     {
-        if (!file_exists($this->logFile)) return '';
-        
-        $file = new \SplFileObject($this->logFile, 'r');
-        $file->seek(PHP_INT_MAX);
-        $total = $file->key();
-        $start = max(0, $total - $lines);
-        
-        $result = [];
-        $file->seek($start);
-        while (!$file->eof()) {
-            $line = $file->fgets();
-            if ($line !== false) $result[] = $line;
+        if (!file_exists($this->logFile)) {
+            return '';
         }
-        return implode('', $result);
+        
+        $fileSize = filesize($this->logFile);
+        if ($fileSize === 0) {
+            return '';
+        }
+        
+        try {
+            $file = new \SplFileObject($this->logFile, 'r');
+            $file->seek(PHP_INT_MAX);
+            $total = $file->key();
+            
+            if ($total === 0) {
+                return '';
+            }
+            
+            $start = max(0, $total - $lines);
+            
+            $result = [];
+            $file->seek($start);
+            while (!$file->eof()) {
+                $line = $file->fgets();
+                if ($line !== false && trim($line) !== '') {
+                    $result[] = $line;
+                }
+            }
+            return implode('', $result);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to read log file', [
+                'file' => $this->logFile,
+                'error' => $e->getMessage()
+            ]);
+            return '';
+        }
     }
 
     public function clearLog(): bool
@@ -221,16 +291,83 @@ class MessengerWorkerService
 
     private function findPhpPath(): string
     {
-        if ($this->isWindows()) {
-            $paths = [
-                'D:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe',
-                getenv('PHP_BINARY') ?: PHP_BINARY,
-            ];
-            foreach ($paths as $path) {
-                if (file_exists($path)) return $path;
+        // Сначала пробуем получить путь из PHP_BINARY константы
+        if (defined('PHP_BINARY') && PHP_BINARY && file_exists(PHP_BINARY)) {
+            // Проверяем, что это не PHP-FPM
+            if (strpos(PHP_BINARY, 'php-fpm') === false) {
+                return PHP_BINARY;
             }
         }
-        return PHP_BINARY ?: 'php';
+
+        if ($this->isWindows()) {
+            $windowsPaths = [
+                'D:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe',
+                'D:\\laragon\\bin\\php\\php-8.4\\php.exe',
+                'D:\\laragon\\bin\\php\\php-8.3\\php.exe',
+                'C:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe',
+                'C:\\laragon\\bin\\php\\php-8.4\\php.exe',
+                'C:\\laragon\\bin\\php\\php-8.3\\php.exe',
+                'C:\\php\\php.exe',
+                'C:\\xampp\\php\\php.exe',
+            ];
+
+            foreach ($windowsPaths as $path) {
+                if (file_exists($path)) {
+                    return $path;
+                }
+            }
+
+            // Пробуем найти через where
+            $output = shell_exec('where php 2>nul');
+            if ($output) {
+                $phpPath = trim(explode("\n", $output)[0]);
+                if (file_exists($phpPath)) {
+                    return $phpPath;
+                }
+            }
+        } else {
+            // Для Linux/Unix систем - исключаем php-fpm пути
+            $unixPaths = [
+                '/usr/bin/php',
+                '/usr/local/bin/php',
+                '/opt/php/bin/php',
+                '/usr/bin/php8.4',
+                '/usr/bin/php8.3',
+                '/usr/bin/php8.2',
+                '/usr/bin/php8.1',
+                '/bin/php',
+            ];
+
+            foreach ($unixPaths as $path) {
+                if (file_exists($path) && is_executable($path)) {
+                    return $path;
+                }
+            }
+
+            // Пробуем найти через which, исключая php-fpm
+            $output = shell_exec('which php 2>/dev/null');
+            if ($output) {
+                $phpPath = trim($output);
+                if (file_exists($phpPath) && strpos($phpPath, 'php-fpm') === false) {
+                    return $phpPath;
+                }
+            }
+            
+            // Дополнительная проверка через whereis
+            $output = shell_exec('whereis php 2>/dev/null');
+            if ($output) {
+                $paths = explode(' ', $output);
+                foreach ($paths as $path) {
+                    $path = trim($path);
+                    if (strpos($path, '/') === 0 && file_exists($path) && is_executable($path) && strpos($path, 'php-fpm') === false) {
+                        return $path;
+                    }
+                }
+            }
+        }
+
+        // Возвращаем 'php' как fallback
+        return 'php';
     }
 
     private function isWindows(): bool

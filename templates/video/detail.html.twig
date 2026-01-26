@@ -118,7 +118,7 @@
                                     {% endfor %}
                                 </div>
                                 <div class="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-                                    <a href="{{ path('app_playlist_create') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <a href="{{ path('playlist_create') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
@@ -511,14 +511,105 @@ function copyToClipboard(elementId) {
     });
 }
 
-// Close dropdown when clicking outside (уже есть в interactions.js, но оставим для совместимости)
-document.addEventListener('click', function(e) {
-    const dropdown = document.getElementById('playlist-dropdown');
+// Playlist dropdown functions
+function togglePlaylistDropdown() {
     const menu = document.getElementById('playlist-menu');
-    if (dropdown && menu && !dropdown.contains(e.target)) {
-        menu.classList.add('hidden');
+    if (menu) {
+        menu.classList.toggle('hidden');
     }
-});
+}
+
+// Add video to playlist
+function addToPlaylist(playlistId, videoId) {
+    fetch(`/playlist/${playlistId}/add-video`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ video_id: videoId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showNotification('Видео добавлено в плейлист', 'success');
+            // Close dropdown
+            const menu = document.getElementById('playlist-menu');
+            if (menu) {
+                menu.classList.add('hidden');
+            }
+        } else {
+            showNotification(data.message || 'Ошибка при добавлении видео', 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Failed to add to playlist:', err);
+        showNotification('Ошибка при добавлении видео', 'error');
+    });
+}
+
+// Bookmark functions
+function toggleBookmark(videoId) {
+    const btn = document.getElementById('bookmark-btn');
+    if (!btn) return;
+    
+    fetch(`/bookmark/toggle/${videoId}`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const svg = btn.querySelector('svg');
+            if (data.bookmarked) {
+                btn.classList.remove('text-gray-600');
+                btn.classList.add('text-yellow-500');
+                svg.setAttribute('fill', 'currentColor');
+            } else {
+                btn.classList.remove('text-yellow-500');
+                btn.classList.add('text-gray-600');
+                svg.setAttribute('fill', 'none');
+            }
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.message || 'Ошибка', 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Failed to toggle bookmark:', err);
+        showNotification('Ошибка при добавлении в закладки', 'error');
+    });
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-md shadow-lg transition-all duration-300 transform translate-x-full ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
 
 // Show embed modal
 function showEmbedModal() {

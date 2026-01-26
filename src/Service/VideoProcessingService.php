@@ -617,12 +617,22 @@ class VideoProcessingService
             default => $codec,
         };
 
+        // Получаем формат из профиля
+        $format = strtolower($profile->getFormat() ?: 'mp4');
+        
+        // Определяем расширение файла и параметры контейнера
+        $containerParams = $this->getContainerParams($format);
+        
+        // Обновляем путь выходного файла с правильным расширением
+        $outputPath = $this->updateOutputPathExtension($outputPath, $format);
+
         $this->logger->info('Encoding video', [
             'input' => $inputPath,
             'output' => $outputPath,
             'resolution' => "{$width}x{$height}",
             'bitrate' => $bitrate,
-            'codec' => $codec
+            'codec' => $codec,
+            'format' => $format
         ]);
 
         $command = [
@@ -631,13 +641,28 @@ class VideoProcessingService
             '-vf', "scale={$width}:{$height}:force_original_aspect_ratio=decrease,pad={$width}:{$height}:(ow-iw)/2:(oh-ih)/2",
             '-c:v', $codec,
             '-b:v', "{$bitrate}k",
-            '-c:a', 'aac',
-            '-b:a', '128k',
-            '-preset', 'medium',
-            '-movflags', '+faststart',
-            '-y',
-            $outputPath
         ];
+
+        // Добавляем аудио кодек в зависимости от формата
+        if ($format === 'mkv' && $codec === 'libx265') {
+            // Для MKV с H.265 можем использовать более качественный аудио
+            $command = array_merge($command, ['-c:a', 'flac']);
+        } elseif ($format === 'avi') {
+            // Для AVI используем MP3 для лучшей совместимости
+            $command = array_merge($command, ['-c:a', 'mp3', '-b:a', '192k']);
+        } else {
+            // Для MP4, MOV используем AAC
+            $command = array_merge($command, ['-c:a', 'aac', '-b:a', '128k']);
+        }
+
+        // Добавляем параметры пресета
+        $command = array_merge($command, ['-preset', 'medium']);
+        
+        // Добавляем специфичные для контейнера параметры
+        $command = array_merge($command, $containerParams);
+        
+        // Добавляем выходной файл
+        $command = array_merge($command, ['-y', $outputPath]);
 
         $process = new Process($command);
         $process->setTimeout(3600); // 1 hour timeout
@@ -663,6 +688,37 @@ class VideoProcessingService
         ]);
 
         return $success;
+    }
+
+    /**
+     * Получает параметры контейнера в зависимости от формата
+     */
+    private function getContainerParams(string $format): array
+    {
+        return match($format) {
+            'mp4' => ['-movflags', '+faststart'],
+            'mov' => ['-movflags', '+faststart'],
+            'mkv' => ['-f', 'matroska'],
+            'avi' => ['-f', 'avi'],
+            default => ['-movflags', '+faststart'],
+        };
+    }
+
+    /**
+     * Обновляет расширение файла в соответствии с форматом
+     */
+    private function updateOutputPathExtension(string $outputPath, string $format): string
+    {
+        $pathInfo = pathinfo($outputPath);
+        $extension = match($format) {
+            'mp4' => 'mp4',
+            'mov' => 'mov',
+            'mkv' => 'mkv',
+            'avi' => 'avi',
+            default => 'mp4',
+        };
+        
+        return $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.' . $extension;
     }
 
     /**

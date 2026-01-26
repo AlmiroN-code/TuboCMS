@@ -117,6 +117,10 @@ class Video
     #[ORM\JoinTable(name: 'video_model')]
     private Collection $performers;
 
+    #[ORM\ManyToOne(targetEntity: Channel::class, inversedBy: 'videos')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Channel $channel = null;
+
     #[ORM\ManyToOne(targetEntity: Season::class, inversedBy: 'episodes')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Season $season = null;
@@ -599,5 +603,16 @@ class Video
     public function getSeries(): ?Series
     {
         return $this->season?->getSeries();
+    }
+
+    public function getChannel(): ?Channel
+    {
+        return $this->channel;
+    }
+
+    public function setChannel(?Channel $channel): static
+    {
+        $this->channel = $channel;
+        return $this;
     }
 }

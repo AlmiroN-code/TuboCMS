@@ -44,7 +44,9 @@ class VideoUploadController extends AbstractController
             return $this->redirectToRoute('video_my_videos');
         }
         $video = new Video();
-        $form = $this->createForm(VideoUploadType::class, $video);
+        $form = $this->createForm(VideoUploadType::class, $video, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

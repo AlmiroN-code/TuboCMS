@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\CategoryRepository;
 use App\Repository\VideoRepository;
 use App\Service\SeeAlsoService;
+use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/categories')]
 class CategoryController extends AbstractController
 {
+    public function __construct(
+        private SettingsService $settingsService
+    ) {
+    }
     #[Route('/', name: 'app_categories')]
     public function index(CategoryRepository $categoryRepository): Response
     {
@@ -39,10 +44,11 @@ class CategoryController extends AbstractController
         }
 
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videos = $videoRepository->findByCategory($category->getId(), $limit, $offset);
+        $totalVideos = $videoRepository->countByCategory($category->getId());
 
         // Блок "Смотрите также"
         $seeAlso = [
@@ -56,6 +62,7 @@ class CategoryController extends AbstractController
             'videos' => $videos,
             'videos_count' => $category->getVideosCount(),
             'page' => $page,
+            'total_pages' => ceil($totalVideos / $limit),
             'see_also' => $seeAlso,
         ]);
     }

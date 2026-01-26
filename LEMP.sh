@@ -452,6 +452,7 @@ CREATE TABLE IF NOT EXISTS video_encoding_profile (
     resolution VARCHAR(20) NOT NULL,
     bitrate INT NOT NULL,
     codec VARCHAR(10) NOT NULL DEFAULT 'h264',
+    format VARCHAR(10) NOT NULL DEFAULT 'mp4',
     is_active TINYINT NOT NULL DEFAULT 1,
     order_position INT NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
@@ -1122,12 +1123,16 @@ WHERE r.name = 'ROLE_USER' AND p.name IN (
   'user.view', 'user.edit'
 );
 
--- Профили кодирования видео
-INSERT IGNORE INTO `video_encoding_profile` (name, resolution, bitrate, codec, is_active, order_position) VALUES
-('360p', '360p', 400, 'h264', 1, 1),
-('480p', '480p', 1000, 'h264', 1, 2),
-('720p', '720p', 2500, 'h264', 1, 3),
-('1080p', '1080p', 5000, 'h264', 1, 4);
+-- Профили кодирования видео (обновлённые с правильными кодеками и форматами)
+INSERT IGNORE INTO `video_encoding_profile` (name, resolution, bitrate, codec, format, is_active, order_position) VALUES
+('Mobile 360p', '640x360', 1000, 'libx264', 'mp4', 1, 1),
+('SD 480p', '854x480', 2500, 'libx264', 'mp4', 1, 2),
+('HD 720p', '1280x720', 5000, 'libx264', 'mp4', 1, 3),
+('Full HD 1080p', '1920x1080', 8000, 'libx264', 'mp4', 1, 4),
+('4K Ultra HD', '3840x2160', 25000, 'libx264', 'mp4', 0, 5),
+('Apple ProRes HD', '1920x1080', 15000, 'prores', 'mov', 0, 6),
+('AVI Compatibility', '1280x720', 6000, 'libx264', 'avi', 0, 7),
+('MKV High Quality', '1920x1080', 12000, 'libx265', 'mkv', 0, 8);
 
 -- Хранилище
 INSERT IGNORE INTO `storage` (name, type, config, is_default, is_enabled, created_at, updated_at) VALUES
@@ -1602,6 +1607,45 @@ if [ -w "$SITE_ROOT/var/cache" ] && [ -w "$SITE_ROOT/var/log" ]; then
 else
     log_warn "Проблемы с правами доступа к var/"
 fi
+
+# === ДИАГНОСТИКА И ИСПРАВЛЕНИЕ ПРОФИЛЕЙ КОДИРОВАНИЯ ===
+log_info "Проверяю профили кодирования..."
+php bin/console app:diagnose-encoding-profiles 2>/dev/null || {
+    log_warn "Команда диагностики не найдена, пропускаю..."
+}
+
+# Исправляем профили кодирования если есть проблемы
+log_info "Исправляю профили кодирования..."
+php bin/console app:fix-encoding-profiles-production 2>/dev/null || {
+    log_warn "Команда исправления профилей не найдена, исправляю вручную..."
+    mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << 'SQLEOF'
+-- Добавляем колонку format если её нет
+ALTER TABLE video_encoding_profile ADD COLUMN IF NOT EXISTS format VARCHAR(10) NOT NULL DEFAULT 'mp4';
+
+-- Обновляем пустые значения format
+UPDATE video_encoding_profile SET format = 'mp4' WHERE format IS NULL OR format = '';
+
+-- Обновляем кодеки на правильные значения FFmpeg
+UPDATE video_encoding_profile SET codec = 'libx264' WHERE codec IN ('h264', 'x264', 'avc');
+UPDATE video_encoding_profile SET codec = 'libx265' WHERE codec IN ('h265', 'x265', 'hevc');
+UPDATE video_encoding_profile SET codec = 'libvpx-vp9' WHERE codec = 'vp9';
+UPDATE video_encoding_profile SET codec = 'libaom-av1' WHERE codec = 'av1';
+
+-- Создаём базовые профили если их нет
+INSERT IGNORE INTO video_encoding_profile (name, resolution, bitrate, codec, format, is_active, order_position) VALUES
+('Full HD 1080p', '1920x1080', 8000, 'libx264', 'mp4', 1, 1),
+('HD 720p', '1280x720', 5000, 'libx264', 'mp4', 1, 2),
+('SD 480p', '854x480', 2500, 'libx264', 'mp4', 1, 3),
+('Mobile 360p', '640x360', 1000, 'libx264', 'mp4', 1, 4);
+SQLEOF
+}
+log_success "Профили кодирования исправлены"
+
+# Проверяем что профили загружаются корректно
+log_info "Проверяю загрузку профилей..."
+php bin/console app:list-encoding-profiles 2>/dev/null || {
+    log_warn "Не удалось загрузить профили кодирования"
+}
 
 echo ""
 echo -e "🌐 ${BLUE}Сайт:${NC}        http://$DOMAIN"

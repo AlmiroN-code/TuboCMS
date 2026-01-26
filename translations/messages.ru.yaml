@@ -20,7 +20,10 @@ nav:
     categories: "Категории"
     tags: "Теги"
     models: "Модели"
+    channels: "Каналы"
+    playlists: "Плейлисты"
     community: "Сообщество"
+    posts: "Посты"
     popular: "Популярное"
     trending: "В тренде"
 
@@ -31,6 +34,7 @@ auth:
     register: "Регистрация"
     my_profile: "Мой профиль"
     my_videos: "Мои видео"
+    my_channels: "Мои каналы"
     admin_panel: "Админ панель"
     # Login page
     login_page:
@@ -133,6 +137,9 @@ video:
         title: "Загрузка видео"
         video_title: "Название видео"
         description: "Описание"
+        channel: "Канал"
+        channel_placeholder: "Выберите канал (необязательно)"
+        channel_help: "Выберите канал для публикации видео. Если не выбран, видео будет опубликовано на вашем личном профиле."
         category: "Категория"
         tags: "Теги"
         video_file: "Видеофайл"
@@ -459,6 +466,73 @@ tag:
         popular: "Популярные"
 
 
+# Posts
+post:
+    title: "Посты"
+    all_posts: "Все посты"
+    my_posts: "Мои посты"
+    no_posts: "Посты не найдены"
+    no_posts_description: "Посты пока не опубликованы"
+    create: "Создать пост"
+    edit: "Редактировать пост"
+    delete: "Удалить пост"
+    published: "Опубликован"
+    draft: "Черновик"
+    status: "Статус"
+    author: "Автор"
+    date: "Дата"
+    categories: "Категории"
+    featured_image: "Изображение поста"
+    meta_title: "Meta Title"
+    meta_description: "Meta Description"
+    meta_keywords: "Meta Keywords"
+    excerpt: "Краткое описание"
+    content: "Содержимое"
+    sort_order: "Порядок сортировки"
+    active: "Активен"
+    parent_post: "Родительский пост"
+    child_posts: "Подразделы"
+    no_parent: "Нет (корневой пост)"
+    seo_settings: "SEO настройки"
+    basic_info: "Основная информация"
+    slug: "Slug"
+    auto_slug: "Автоматически из заголовка"
+    success_created: "Пост успешно создан"
+    success_updated: "Пост успешно обновлен"
+    success_deleted: "Пост успешно удален"
+    confirm_delete: "Вы уверены, что хотите удалить этот пост?"
+    view: "Просмотр"
+    back_to_posts: "Назад к постам"
+
+post_category:
+    title: "Категории постов"
+    all_categories: "Все категории постов"
+    create: "Создать категорию"
+    edit: "Редактировать категорию"
+    delete: "Удалить категорию"
+    name: "Название"
+    slug: "Slug"
+    description: "Описание"
+    image: "Изображение"
+    meta_title: "Meta Title"
+    meta_description: "Meta Description"
+    meta_keywords: "Meta Keywords"
+    sort_order: "Порядок сортировки"
+    active: "Активна"
+    posts_count: "Постов"
+    status: "Статус"
+    active_status: "Активна"
+    inactive_status: "Неактивна"
+    success_created: "Категория успешно создана"
+    success_updated: "Категория успешно обновлена"
+    success_deleted: "Категория успешно удалена"
+    confirm_delete: "Вы уверены, что хотите удалить эту категорию?"
+    view: "Просмотр"
+    back_to_categories: "Назад к категориям"
+    no_categories: "Категории не найдены"
+    no_posts_in_category: "В этой категории нет постов"
+
+
 # Toast Notifications
 toast:
     # Watch Later
@@ -508,6 +582,58 @@ breadcrumb:
 
 # Admin - Content Protection
 admin:
+    # Channels management
+    channels:
+        title: "Управление каналами"
+        create: "Создать канал"
+        edit: "Редактировать канал"
+        delete: "Удалить канал"
+        verify: "Верифицировать"
+        unverify: "Убрать верификацию"
+        activate: "Активировать"
+        deactivate: "Деактивировать"
+        owner: "Владелец"
+        statistics: "Статистика"
+        videos_count: "Количество видео"
+        subscribers_count: "Подписчики"
+        total_views: "Всего просмотров"
+        created_at: "Дата создания"
+        status: "Статус"
+        active: "Активный"
+        inactive: "Неактивный"
+        verified: "Верифицированный"
+        actions: "Действия"
+        back_to_list: "Назад к списку"
+        view_channel: "Просмотр канала"
+        edit_user: "Редактировать пользователя"
+        confirm_delete: "Вы уверены, что хотите удалить этот канал? Это действие нельзя отменить."
+        
+        # Create/Edit forms
+        form:
+            name: "Название канала"
+            name_required: "Название канала обязательно"
+            name_help: "Название будет отображаться на странице канала"
+            owner_id: "Владелец канала"
+            owner_required: "Выберите владельца канала"
+            owner_help: "Пользователь, который будет владельцем канала"
+            description: "Описание канала"
+            description_help: "Краткое описание канала для зрителей"
+            is_verified: "Верифицированный канал"
+            is_verified_help: "Канал будет отмечен как проверенный"
+            is_active: "Активный канал"
+            is_active_help: "Канал будет доступен для просмотра"
+            save: "Сохранить изменения"
+            create_button: "Создать канал"
+            cancel: "Отмена"
+            
+        # Info messages
+        info:
+            slug_generated: "Slug канала будет автоматически сгенерирован из названия"
+            owner_management: "Владелец канала сможет управлять контентом и настройками"
+            verified_badge: "Верифицированные каналы получают специальный значок"
+            inactive_hidden: "Неактивные каналы не отображаются в публичных списках"
+            url_preview: "URL канала"
+            
     content_protection:
         title: "Настройки защиты контента"
         hotlink:
@@ -584,3 +710,243 @@ seo:
         generating: "Генерация..."
         generated: "SEO сгенерировано"
         error: "Ошибка генерации"
+
+# Channels
+channel:
+    title: "Каналы"
+    all_channels: "Все каналы"
+    my_channels: "Мои каналы"
+    create: "Создать канал"
+    create_new: "Создать новый канал"
+    edit: "Редактировать канал"
+    delete: "Удалить канал"
+    name: "Название канала"
+    description: "Описание"
+    type: "Тип канала"
+    owner: "Владелец"
+    subscribers: "Подписчиков"
+    videos: "Видео"
+    views: "Просмотров"
+    created: "Создан"
+    status: "Статус"
+    verified: "Верифицирован"
+    premium: "Premium"
+    active: "Активен"
+    inactive: "Неактивен"
+    subscribe: "Подписаться"
+    unsubscribe: "Отписаться"
+    subscribed: "Подписан"
+    about: "О канале"
+    no_channels: "Каналы не найдены"
+    no_videos: "На этом канале пока нет видео"
+    no_description: "Описание не добавлено"
+    studios: "Студии"
+    verified_channels: "Верифицированные каналы"
+    personal_channels: "Личные каналы"
+    companies: "Компании"
+    
+    # Channel types
+    type_personal: "Личный канал"
+    type_studio: "Студия"
+    type_company: "Компания"
+    
+    # Filters
+    filter:
+        all_types: "Все типы"
+        verified_only: "Только верифицированные"
+        premium_only: "Только Premium"
+        sort_popular: "Популярные"
+        sort_newest: "Новые"
+        sort_oldest: "Старые"
+        sort_name: "По названию"
+        sort_videos: "По количеству видео"
+        apply: "Применить"
+        reset: "Сбросить"
+    
+    # Statistics
+    stats:
+        total_subscribers: "%count% подписчиков"
+        total_videos: "%count% видео"
+        total_views: "%count% просмотров"
+        member_since: "Участник с %date%"
+    
+    # Messages
+    success_created: "Канал успешно создан"
+    success_updated: "Канал успешно обновлен"
+    success_deleted: "Канал успешно удален"
+    success_subscribed: "Вы подписались на канал"
+    success_unsubscribed: "Вы отписались от канала"
+    confirm_delete: "Вы уверены, что хотите удалить этот канал?"
+    
+    # Form fields
+    form:
+        name_required: "Название канала обязательно"
+        name_placeholder: "Введите название канала"
+        description_placeholder: "Расскажите о вашем канале..."
+        website: "Веб-сайт"
+        email: "Email"
+        twitter: "Twitter"
+        instagram: "Instagram"
+        onlyfans: "OnlyFans"
+        primary_color: "Основной цвет"
+        secondary_color: "Дополнительный цвет"
+        subscription_price: "Цена подписки (USD)"
+        branding: "Брендинг"
+        social_links: "Социальные сети"
+        settings: "Настройки"
+        
+    # Admin
+    admin:
+        channels: "Каналы"
+        total_channels: "Всего каналов: %count%"
+        verified_status: "Верифицирован"
+        active_status: "Активен"
+        premium_status: "Premium"
+        toggle_verification: "Изменить верификацию"
+        toggle_active: "Изменить активность"
+        owner_cannot_change: "Владельца можно изменить только через базу данных"
+
+# Analytics
+analytics:
+    title: "Аналитика"
+    dashboard: "Дашборд"
+    demographics: "Демография"
+    revenue: "Доходы"
+    export: "Экспорт"
+    realtime: "В реальном времени"
+    
+    # Periods
+    period:
+        7d: "7 дней"
+        14d: "14 дней"
+        30d: "30 дней"
+        60d: "60 дней"
+        90d: "90 дней"
+        365d: "1 год"
+        
+    # Metrics
+    metrics:
+        views: "Просмотры"
+        unique_views: "Уникальные просмотры"
+        subscribers: "Подписчики"
+        new_subscribers: "Новые подписчики"
+        unsubscribers: "Отписки"
+        net_subscribers: "Чистый прирост"
+        likes: "Лайки"
+        comments: "Комментарии"
+        shares: "Поделились"
+        revenue: "Доходы"
+        watch_time: "Время просмотра"
+        avg_watch_time: "Среднее время"
+        engagement_rate: "Вовлеченность"
+        
+    # Charts
+    charts:
+        views_by_day: "Просмотры по дням"
+        subscriber_growth: "Рост подписчиков"
+        revenue_by_month: "Доходы по месяцам"
+        demographics: "Демография аудитории"
+        traffic_sources: "Источники трафика"
+        
+    # Demographics
+    demographics_data:
+        age_groups: "Возрастные группы"
+        gender: "Пол"
+        countries: "Страны"
+        male: "Мужчины"
+        female: "Женщины"
+        other: "Другое"
+        
+    # Traffic sources
+    traffic:
+        direct: "Прямые переходы"
+        search: "Поисковые системы"
+        social: "Социальные сети"
+        referral: "Переходы с сайтов"
+        internal: "Внутренний трафик"
+        other: "Другие источники"
+        
+    # Top content
+    top:
+        videos: "Топ видео за период"
+        donors: "Топ донатеры"
+        no_data: "Нет данных за выбранный период"
+        
+    # Trends
+    trend:
+        up: "Рост"
+        down: "Снижение"
+        stable: "Стабильно"
+        change: "Изменение"
+        for_period: "за период"
+        
+    # Export options
+    export_options:
+        csv: "Экспорт в CSV"
+        date_range: "Диапазон дат"
+        start_date: "Дата начала"
+        end_date: "Дата окончания"
+        download: "Скачать"
+        
+    # Messages
+    access_denied: "У вас нет доступа к аналитике этого канала"
+    no_analytics: "Недостаточно данных для отображения аналитики"
+    
+# Donations
+donations:
+    title: "Донаты"
+    donate: "Поддержать"
+    amount: "Сумма"
+    message: "Сообщение"
+    anonymous: "Анонимно"
+    recent: "Последние донаты"
+    top_donors: "Топ донатеры"
+    total_amount: "Общая сумма"
+    total_donations: "Всего донатов"
+    avg_amount: "Средняя сумма"
+    
+    # Status
+    status:
+        pending: "Ожидает"
+        completed: "Завершен"
+        failed: "Неудачно"
+        refunded: "Возвращен"
+        
+    # Messages
+    thank_you: "Спасибо за поддержку!"
+    anonymous_donor: "Анонимный донатер"
+    no_donations: "Пока нет донатов"
+    
+    # Form
+    form:
+        amount_required: "Укажите сумму"
+        amount_min: "Минимальная сумма: $1"
+        amount_max: "Максимальная сумма: $1000"
+        message_placeholder: "Оставьте сообщение (необязательно)"
+        currency: "Валюта"
+        payment_method: "Способ оплаты"
+        
+# Enhanced Playlists
+playlist_enhanced:
+    navigation: "Навигация по плейлисту"
+    current_position: "Позиция %current% из %total%"
+    previous_video: "Предыдущее видео"
+    next_video: "Следующее видео"
+    autoplay: "Автовоспроизведение"
+    shuffle: "Перемешать"
+    repeat: "Повторить"
+    
+    # Management
+    management:
+        reorder: "Изменить порядок"
+        bulk_actions: "Массовые действия"
+        select_all: "Выбрать все"
+        remove_selected: "Удалить выбранные"
+        move_to_playlist: "Переместить в плейлист"
+        
+    # Statistics
+    stats:
+        total_duration: "Общая длительность"
+        total_views: "Всего просмотров"
+        avg_rating: "Средний рейтинг"
+        last_updated: "Последнее обновление"

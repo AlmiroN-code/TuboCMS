@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
     <title>{% block title %}{% endblock %}{% if setting('append_site_name_to_title') %} on {{ site_name() }}{% endif %}</title>
     {% set seo_home_only = setting('seo_home_only', false) %}
@@ -33,7 +33,10 @@
     <link rel="alternate" hreflang="x-default" href="{{ app.request.schemeAndHttpHost }}{{ current_path }}{{ current_query }}">
     
     {% if site_favicon() %}<link rel="icon" type="image/x-icon" href="{{ site_favicon() }}">
-        <link rel="shortcut icon" type="image/x-icon" href="{{ site_favicon() }}">{% endif %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ site_favicon() }}">
+    {% else %}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>📱</text></svg>">
+    {% endif %}
     <style>[x-cloak]{display:none!important;}html { visibility:hidden;}html.theme-loaded {visibility:visible;}</style>
     <script>
         // Apply theme before CSS loads to prevent flash
@@ -120,7 +123,7 @@
     {% include 'partials/_header.html.twig' ignore missing %}
     <main class="min-h-screen">{% block body %}{% endblock %}</main>
     {% include 'partials/_footer.html.twig' ignore missing %}
-    {% block javascripts %}{% endblock %}
+    {% block javascripts %}
     <script>
         // Global function to toggle comment reply form
         function toggleReplyForm(commentId) {
@@ -153,5 +156,6 @@
             }
         });
     </script>
+    {% endblock %}
 </body>
 </html>

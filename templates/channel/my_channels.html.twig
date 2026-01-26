@@ -1,0 +1,171 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'channel.my_channels'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ 'channel.my_channels'|trans }}</h1>
+
+    <!-- Мои каналы -->
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900">{{ 'channel.my_channels'|trans }}</h2>
+            <a href="{{ path('channel_create') }}" 
+               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>{{ 'channel.create_new'|trans }}
+            </a>
+        </div>
+
+        {% if owned_channels %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for channel in owned_channels %}
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <!-- Баннер -->
+                <div class="h-32 relative overflow-hidden">
+                    {% if channel.bannerUrl %}
+                        <img src="{{ channel.bannerUrl }}" alt="{{ channel.name }}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    {% else %}
+                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                    {% endif %}
+                </div>
+
+                <!-- Контент -->
+                <div class="relative px-4 pb-4">
+                    <div class="flex justify-center -mt-8 mb-4">
+                        {% if channel.avatarUrl %}
+                            <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                                 class="w-16 h-16 rounded-full border-4 border-white shadow-lg object-cover">
+                        {% else %}
+                            <div class="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
+                                <i class="fas fa-tv text-gray-600 text-xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center">
+                        <h3 class="font-semibold text-lg text-gray-900 mb-1">
+                            {{ channel.name }}
+                            {% if channel.isVerified %}
+                                <i class="fas fa-check-circle text-blue-500 ml-1" title="{{ 'channel.verified'|trans }}"></i>
+                            {% endif %}
+                        </h3>
+                        
+                        <div class="flex justify-center items-center space-x-1 mb-3">
+                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                {% if channel.type == 'personal' %}{{ 'channel.type_personal'|trans }}
+                                {% elseif channel.type == 'studio' %}{{ 'channel.type_studio'|trans }}
+                                {% else %}{{ 'channel.type_company'|trans }}{% endif %}
+                            </span>
+                            {% if not channel.isActive %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                                    {{ 'channel.inactive'|trans }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Статистика -->
+                        <div class="flex justify-center space-x-4 text-sm text-gray-500 mb-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-users mr-1"></i>
+                                {{ channel.subscribersCount }}
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-video mr-1"></i>
+                                {{ channel.videosCount }}
+                            </div>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="flex space-x-2">
+                            <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
+                               class="flex-1 inline-block px-3 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors text-sm">
+                                <i class="fas fa-eye mr-1"></i>{{ 'common.view'|trans }}
+                            </a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('admin_channels_edit', {id: channel.id}) }}" 
+                               class="flex-1 inline-block px-3 py-2 bg-gray-600 text-white text-center rounded-md hover:bg-gray-700 transition-colors text-sm">
+                                <i class="fas fa-edit mr-1"></i>{{ 'common.edit'|trans }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+            <i class="fas fa-tv text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">{{ 'channel.no_channels'|trans }}</h3>
+            <p class="text-gray-500 mb-6">{{ 'channel.create_first'|trans }}</p>
+            <a href="{{ path('channel_create') }}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>{{ 'channel.create_new'|trans }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Подписки -->
+    <div>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">{{ 'channel.subscribe'|trans }}</h2>
+
+        {% if subscriptions %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for subscription in subscriptions %}
+            {% set channel = subscription.channel %}
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <!-- Баннер -->
+                <div class="h-24 relative overflow-hidden">
+                    {% if channel.bannerUrl %}
+                        <img src="{{ channel.bannerUrl }}" alt="{{ channel.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                    {% endif %}
+                </div>
+
+                <!-- Контент -->
+                <div class="relative px-4 pb-4">
+                    <div class="flex justify-center -mt-6 mb-3">
+                        {% if channel.avatarUrl %}
+                            <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                                 class="w-12 h-12 rounded-full border-4 border-white shadow-lg object-cover">
+                        {% else %}
+                            <div class="w-12 h-12 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
+                                <i class="fas fa-tv text-gray-600"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center">
+                        <h3 class="font-semibold text-sm text-gray-900 mb-2">
+                            {{ channel.name }}
+                            {% if channel.isVerified %}
+                                <i class="fas fa-check-circle text-blue-500 ml-1"></i>
+                            {% endif %}
+                        </h3>
+
+                        <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
+                           class="w-full inline-block px-3 py-1.5 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors text-sm">
+                            {{ 'common.view'|trans }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+            <i class="fas fa-heart text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">{{ 'channel.no_channels'|trans }}</h3>
+            <p class="text-gray-500 mb-6">{{ 'channel.discover'|trans }}</p>
+            <a href="{{ path('channels_index') }}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                <i class="fas fa-search mr-2"></i>{{ 'channel.title'|trans }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

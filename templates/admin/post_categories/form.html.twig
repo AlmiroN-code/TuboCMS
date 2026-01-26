@@ -1,0 +1,108 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Редактирование категории' : 'Создание категории' }}{% endblock %}
+{% block page_title %}{{ is_edit ? 'Редактирование категории' : 'Создание категории' }}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="space-y-6">
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">{{ is_edit ? 'Редактирование категории' : 'Создание категории' }}</h3>
+        </div>
+
+        <div class="p-6 space-y-6">
+            {# Основная информация #}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Название *</label>
+                    <input type="text" name="name" value="{{ category.name }}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                    <input type="text" name="slug" value="{{ category.slug }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Автоматически из названия">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Порядок сортировки</label>
+                    <input type="number" name="sort_order" value="{{ category.sortOrder }}" min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div class="flex items-center">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="is_active" value="1" {{ category.isActive ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">Активна</span>
+                    </label>
+                </div>
+            </div>
+
+            {# Описание #}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Описание</label>
+                <textarea name="description" rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Описание категории">{{ category.description }}</textarea>
+            </div>
+
+            {# Изображение #}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Изображение категории</label>
+                {% if category.image %}
+                    <div class="mb-3">
+                        <img src="/media/posts/{{ category.image }}" alt="Текущее изображение" class="w-32 h-32 object-cover rounded">
+                        <p class="text-sm text-gray-500 mt-1">Текущее изображение</p>
+                    </div>
+                {% endif %}
+                <input type="file" name="image" accept="image/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <p class="text-sm text-gray-500 mt-1">Поддерживаются форматы: JPG, PNG, GIF</p>
+            </div>
+        </div>
+    </div>
+
+    {# SEO настройки #}
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">SEO настройки</h3>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                <input type="text" name="meta_title" value="{{ category.metaTitle }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="Если не указан, будет использовано название категории">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                <textarea name="meta_description" rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Описание для поисковых систем">{{ category.metaDescription }}</textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Meta Keywords</label>
+                <input type="text" name="meta_keywords" value="{{ category.metaKeywords }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="Ключевые слова через запятую">
+            </div>
+        </div>
+    </div>
+
+    {# Кнопки действий #}
+    <div class="flex justify-between">
+        <a href="{{ path('admin_post_categories') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-md">
+            Отмена
+        </a>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md">
+            {{ is_edit ? 'Обновить категорию' : 'Создать категорию' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -26,6 +26,9 @@ class VideoEncodingProfile
     #[ORM\Column(length: 10)]
     private ?string $codec = 'h264';
 
+    #[ORM\Column(length: 10)]
+    private ?string $format = 'mp4';
+
     #[ORM\Column]
     private ?bool $isActive = true;
 
@@ -78,6 +81,17 @@ class VideoEncodingProfile
     public function setCodec(string $codec): static
     {
         $this->codec = $codec;
+        return $this;
+    }
+
+    public function getFormat(): ?string
+    {
+        return $this->format;
+    }
+
+    public function setFormat(string $format): static
+    {
+        $this->format = $format;
         return $this;
     }
 

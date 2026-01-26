@@ -1,0 +1,478 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Редактировать канал: {{ channel.name }}{% endblock %}
+
+{% block page_title %}
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Редактировать канал</h1>
+            <p class="mt-1 text-sm text-gray-600">{{ channel.name }}</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ path('channel_show', {slug: channel.slug}) }}" target="_blank"
+               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                <i class="fas fa-eye mr-2"></i>Просмотр
+            </a>
+            <a href="{{ path('admin_channels_index') }}" 
+               class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Назад к списку
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Основная информация -->
+        <div class="lg:col-span-2">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Основная информация</h3>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" class="px-6 py-4 space-y-6">
+                    <input type="hidden" name="_token" value="{{ csrf_token('edit_channel_' ~ channel.id) }}">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">
+                            Название канала <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" value="{{ channel.name }}" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <p class="mt-1 text-xs text-gray-500">URL: /channel/{{ channel.slug }}</p>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">
+                            Описание канала
+                        </label>
+                        <textarea id="description" name="description" rows="4"
+                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical">{{ channel.description }}</textarea>
+                    </div>
+
+                    <!-- Медиафайлы -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="avatar_file" class="block text-sm font-medium text-gray-700">
+                                Аватар канала
+                            </label>
+                            <div class="mt-1 flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    {% if channel.avatarUrl %}
+                                        <img id="avatar_preview" src="{{ channel.avatarUrl }}" alt="Аватар" 
+                                             class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
+                                    {% else %}
+                                        <div id="avatar_preview" class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center border-2 border-gray-300">
+                                            <i class="fas fa-tv text-gray-600 text-xl"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" id="avatar_file" name="avatar_file" accept="image/*"
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <p class="mt-1 text-xs text-gray-500">PNG, JPG до 2MB. Рекомендуемый размер: 200x200px</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="banner_file" class="block text-sm font-medium text-gray-700">
+                                Баннер канала
+                            </label>
+                            <div class="mt-1">
+                                {% if channel.bannerUrl %}
+                                    <div class="mb-2">
+                                        <img id="banner_preview" src="{{ channel.bannerUrl }}" alt="Баннер" 
+                                             class="w-full h-24 object-cover rounded-md border-2 border-gray-300">
+                                    </div>
+                                {% endif %}
+                                <input type="file" id="banner_file" name="banner_file" accept="image/*"
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <p class="mt-1 text-xs text-gray-500">PNG, JPG до 5MB. Рекомендуемый размер: 1920x480px</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Брендинг -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="primary_color" class="block text-sm font-medium text-gray-700">
+                                Основной цвет
+                            </label>
+                            <div class="mt-1 flex items-center space-x-2">
+                                <input type="color" id="primary_color" name="primary_color" value="{{ channel.primaryColor ?? '#3B82F6' }}"
+                                       class="w-12 h-10 border border-gray-300 rounded-md cursor-pointer">
+                                <input type="text" id="primary_color_text" name="primary_color_text" value="{{ channel.primaryColor ?? '#3B82F6' }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                       pattern="^#[0-9A-Fa-f]{6}$" placeholder="#3B82F6">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="secondary_color" class="block text-sm font-medium text-gray-700">
+                                Дополнительный цвет
+                            </label>
+                            <div class="mt-1 flex items-center space-x-2">
+                                <input type="color" id="secondary_color" name="secondary_color" value="{{ channel.secondaryColor ?? '#8B5CF6' }}"
+                                       class="w-12 h-10 border border-gray-300 rounded-md cursor-pointer">
+                                <input type="text" id="secondary_color_text" name="secondary_color_text" value="{{ channel.secondaryColor ?? '#8B5CF6' }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                       pattern="^#[0-9A-Fa-f]{6}$" placeholder="#8B5CF6">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Социальные ссылки -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="website" class="block text-sm font-medium text-gray-700">
+                                Веб-сайт
+                            </label>
+                            <input type="url" id="website" name="website" value="{{ channel.website }}"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                   placeholder="https://example.com">
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">
+                                Email для связи
+                            </label>
+                            <input type="email" id="email" name="email" value="{{ channel.email }}"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                   placeholder="contact@example.com">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="twitter" class="block text-sm font-medium text-gray-700">
+                                Twitter
+                            </label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">@</span>
+                                <input type="text" id="twitter" name="twitter" value="{{ channel.twitter }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                       placeholder="username">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="instagram" class="block text-sm font-medium text-gray-700">
+                                Instagram
+                            </label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">@</span>
+                                <input type="text" id="instagram" name="instagram" value="{{ channel.instagram }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                       placeholder="username">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="onlyfans" class="block text-sm font-medium text-gray-700">
+                                OnlyFans
+                            </label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">@</span>
+                                <input type="text" id="onlyfans" name="onlyfans" value="{{ channel.onlyfans }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                       placeholder="username">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700">
+                            Тип канала
+                        </label>
+                        <select id="type" name="type"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <option value="personal" {{ channel.type == 'personal' ? 'selected' : '' }}>Личный канал</option>
+                            <option value="studio" {{ channel.type == 'studio' ? 'selected' : '' }}>Студия</option>
+                            <option value="company" {{ channel.type == 'company' ? 'selected' : '' }}>Компания</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input type="checkbox" id="is_verified" name="is_verified" value="1" 
+                                       {{ channel.isVerified ? 'checked' : '' }}
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="is_verified" class="font-medium text-gray-700">Верифицированный канал</label>
+                                <p class="text-gray-500">Канал отмечен как проверенный</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input type="checkbox" id="is_active" name="is_active" value="1" 
+                                       {{ channel.isActive ? 'checked' : '' }}
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="is_active" class="font-medium text-gray-700">Активный канал</label>
+                                <p class="text-gray-500">Канал доступен для просмотра</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input type="checkbox" id="is_premium" name="is_premium" value="1" 
+                                       {{ channel.isPremium ? 'checked' : '' }}
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="is_premium" class="font-medium text-gray-700">Premium канал</label>
+                                <p class="text-gray-500">Канал с платной подпиской</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex justify-end space-x-3">
+                            <a href="{{ path('admin_channels_index') }}" 
+                               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-times mr-2"></i>Отмена
+                            </a>
+                            <button type="submit" 
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-save mr-2"></i>Сохранить изменения
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Боковая панель с информацией -->
+        <div class="space-y-6">
+            <!-- Статистика канала -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Статистика</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Видео:</span>
+                        <span class="text-sm font-medium text-gray-900">{{ channel.videosCount }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Подписчики:</span>
+                        <span class="text-sm font-medium text-gray-900">{{ channel.subscribersCount }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Просмотры:</span>
+                        <span class="text-sm font-medium text-gray-900">{{ channel.totalViews|number_format }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Создан:</span>
+                        <span class="text-sm font-medium text-gray-900">{{ channel.createdAt|date('d.m.Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Информация о владельце -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Владелец</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                            {% if channel.owner.avatar %}
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ asset('media/avatars/' ~ channel.owner.avatar) }}" alt="{{ channel.owner.username }}">
+                            {% else %}
+                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-600"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">{{ channel.owner.username }}</div>
+                            <div class="text-sm text-gray-500">{{ channel.owner.email }}</div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ path('channel_show', {slug: channel.owner.username}) }}" 
+                           class="text-blue-600 hover:text-blue-900 text-sm">
+                            Профиль пользователя →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Действия</h3>
+                </div>
+                <div class="px-6 py-4 space-y-3">
+                    <form method="post" action="{{ path('admin_channels_toggle_verification', {id: channel.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle_verification_' ~ channel.id) }}">
+                        <button type="submit" class="w-full text-left px-3 py-2 text-sm text-yellow-700 hover:bg-yellow-50 rounded-md transition-colors">
+                            <i class="fas fa-{{ channel.isVerified ? 'times-circle' : 'check-circle' }} mr-2"></i>
+                            {{ channel.isVerified ? 'Убрать верификацию' : 'Верифицировать канал' }}
+                        </button>
+                    </form>
+                    
+                    <form method="post" action="{{ path('admin_channels_toggle_active', {id: channel.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle_active_' ~ channel.id) }}">
+                        <button type="submit" class="w-full text-left px-3 py-2 text-sm text-{{ channel.isActive ? 'red' : 'green' }}-700 hover:bg-{{ channel.isActive ? 'red' : 'green' }}-50 rounded-md transition-colors">
+                            <i class="fas fa-{{ channel.isActive ? 'ban' : 'check' }} mr-2"></i>
+                            {{ channel.isActive ? 'Деактивировать канал' : 'Активировать канал' }}
+                        </button>
+                    </form>
+                    
+                    <form method="post" action="{{ path('admin_channels_delete', {id: channel.id}) }}" 
+                          onsubmit="return confirm('Вы уверены, что хотите удалить этот канал? Это действие нельзя отменить.')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_channel_' ~ channel.id) }}">
+                        <button type="submit" class="w-full text-left px-3 py-2 text-sm text-red-700 hover:bg-red-50 rounded-md transition-colors">
+                            <i class="fas fa-trash mr-2"></i>Удалить канал
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Предпросмотр аватара
+    const avatarInput = document.getElementById('avatar_file');
+    const avatarPreview = document.getElementById('avatar_preview');
+    
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (avatarPreview.tagName === 'IMG') {
+                        avatarPreview.src = e.target.result;
+                    } else {
+                        // Заменяем div на img
+                        const img = document.createElement('img');
+                        img.id = 'avatar_preview';
+                        img.src = e.target.result;
+                        img.alt = 'Аватар';
+                        img.className = 'w-16 h-16 rounded-full object-cover border-2 border-gray-300';
+                        avatarPreview.parentNode.replaceChild(img, avatarPreview);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Предпросмотр баннера
+    const bannerInput = document.getElementById('banner_file');
+    const bannerPreview = document.getElementById('banner_preview');
+    
+    if (bannerInput) {
+        bannerInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (bannerPreview) {
+                        bannerPreview.src = e.target.result;
+                    } else {
+                        // Создаем новый элемент предпросмотра
+                        const img = document.createElement('img');
+                        img.id = 'banner_preview';
+                        img.src = e.target.result;
+                        img.alt = 'Баннер';
+                        img.className = 'w-full h-24 object-cover rounded-md border-2 border-gray-300 mb-2';
+                        bannerInput.parentNode.insertBefore(img, bannerInput);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Синхронизация цветовых полей
+    function syncColorInputs(colorInput, textInput) {
+        colorInput.addEventListener('input', function() {
+            textInput.value = this.value.toUpperCase();
+        });
+        
+        textInput.addEventListener('input', function() {
+            const value = this.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                colorInput.value = value;
+            }
+        });
+    }
+
+    const primaryColor = document.getElementById('primary_color');
+    const primaryColorText = document.getElementById('primary_color_text');
+    const secondaryColor = document.getElementById('secondary_color');
+    const secondaryColorText = document.getElementById('secondary_color_text');
+
+    if (primaryColor && primaryColorText) {
+        syncColorInputs(primaryColor, primaryColorText);
+    }
+    
+    if (secondaryColor && secondaryColorText) {
+        syncColorInputs(secondaryColor, secondaryColorText);
+    }
+
+    // Валидация формы
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const name = document.getElementById('name').value.trim();
+            
+            if (!name) {
+                e.preventDefault();
+                alert('Пожалуйста, введите название канала');
+                document.getElementById('name').focus();
+                return;
+            }
+
+            // Валидация цветов
+            const primaryColorValue = primaryColorText.value;
+            const secondaryColorValue = secondaryColorText.value;
+            
+            if (primaryColorValue && !/^#[0-9A-Fa-f]{6}$/.test(primaryColorValue)) {
+                e.preventDefault();
+                alert('Неверный формат основного цвета. Используйте формат #RRGGBB');
+                primaryColorText.focus();
+                return;
+            }
+            
+            if (secondaryColorValue && !/^#[0-9A-Fa-f]{6}$/.test(secondaryColorValue)) {
+                e.preventDefault();
+                alert('Неверный формат дополнительного цвета. Используйте формат #RRGGBB');
+                secondaryColorText.focus();
+                return;
+            }
+
+            // Валидация файлов
+            const avatarFile = avatarInput?.files[0];
+            const bannerFile = bannerInput?.files[0];
+            
+            if (avatarFile && avatarFile.size > 2 * 1024 * 1024) {
+                e.preventDefault();
+                alert('Размер файла аватара не должен превышать 2MB');
+                return;
+            }
+            
+            if (bannerFile && bannerFile.size > 5 * 1024 * 1024) {
+                e.preventDefault();
+                alert('Размер файла баннера не должен превышать 5MB');
+                return;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -32,10 +32,10 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.resolution }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.bitrate }} kbps</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.codec }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">MP4</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ profile.format ? profile.format|upper : 'MP4' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 py-1 text-xs rounded {{ profile.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                        {{ profile.active ? 'Да' : 'Нет' }}
+                    <span class="px-2 py-1 text-xs rounded {{ profile.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ profile.isActive ? 'Да' : 'Нет' }}
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">

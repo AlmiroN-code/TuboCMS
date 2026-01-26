@@ -92,15 +92,57 @@
     </div>
 
     <!-- Последние логи -->
-    {% if status.lastLog is defined and status.lastLog %}
+    {% if status.logExists %}
+        {% if status.lastLog %}
+        <div class="bg-white rounded-md shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Последние записи лога</h3>
+                <a href="{{ path('admin_worker_logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Показать все →
+                </a>
+            </div>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-64 overflow-y-auto">{{ status.lastLog }}</pre>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-md shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Последние записи лога</h3>
+                <a href="{{ path('admin_worker_logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                    Показать все →
+                </a>
+            </div>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div class="flex">
+                    <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <h4 class="text-sm font-medium text-yellow-800">Лог-файл пуст</h4>
+                        <p class="text-sm text-yellow-700 mt-1">Лог-файл существует, но не содержит записей. Попробуйте запустить воркер.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
     <div class="bg-white rounded-md shadow p-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Последние записи лога</h3>
-            <a href="{{ path('admin_worker_logs') }}" class="text-sm text-blue-600 hover:text-blue-800">
-                Показать все →
-            </a>
         </div>
-        <pre class="bg-gray-900 text-green-400 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-64 overflow-y-auto">{{ status.lastLog }}</pre>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                    <h4 class="text-sm font-medium text-red-800">Лог-файл не найден</h4>
+                    <p class="text-sm text-red-700 mt-1">
+                        Лог-файл не существует: <code class="bg-red-100 px-1 rounded">{{ status.logFile }}</code>
+                        <br>Воркер еще не был запущен или возникла проблема с правами доступа.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 
@@ -124,6 +166,34 @@
                 <span class="text-gray-500">Лимиты:</span>
                 <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">1 час / 256MB</code>
             </div>
+            {% if status.phpPath is defined %}
+            <div>
+                <span class="text-gray-500">PHP путь:</span>
+                <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">{{ status.phpPath }}</code>
+            </div>
+            {% endif %}
+            {% if status.projectDir is defined %}
+            <div>
+                <span class="text-gray-500">Проект:</span>
+                <code class="ml-2 bg-gray-100 px-2 py-1 rounded text-xs">{{ status.projectDir }}</code>
+            </div>
+            {% endif %}
+            {% if status.logExists is defined %}
+            <div>
+                <span class="text-gray-500">Лог существует:</span>
+                <span class="ml-2 {{ status.logExists ? 'text-green-600' : 'text-red-600' }}">
+                    {{ status.logExists ? 'Да' : 'Нет' }}
+                </span>
+            </div>
+            {% endif %}
+            {% if status.logReadable is defined %}
+            <div>
+                <span class="text-gray-500">Лог читаемый:</span>
+                <span class="ml-2 {{ status.logReadable ? 'text-green-600' : 'text-red-600' }}">
+                    {{ status.logReadable ? 'Да' : 'Нет' }}
+                </span>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

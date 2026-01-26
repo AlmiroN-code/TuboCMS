@@ -7,6 +7,7 @@ use App\Repository\ModelProfileRepository;
 use App\Repository\ModelSubscriptionRepository;
 use App\Service\ModelStatsService;
 use App\Service\SeeAlsoService;
+use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +22,8 @@ class ModelController extends AbstractController
         private ModelStatsService $modelStatsService,
         private ModelSubscriptionRepository $subscriptionRepository,
         private ModelLikeRepository $likeRepository,
-        private SeeAlsoService $seeAlsoService
+        private SeeAlsoService $seeAlsoService,
+        private SettingsService $settingsService
     ) {
     }
 
@@ -33,7 +35,7 @@ class ModelController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $search = $request->query->get('search');
         $sort = $request->query->get('sort', 'popular');
         $gender = $request->query->get('gender');
@@ -83,7 +85,7 @@ class ModelController extends AbstractController
 
         // Пагинация видео
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videosResult = $this->modelRepository->findActiveWithVideos($model->getId(), $limit, $offset);

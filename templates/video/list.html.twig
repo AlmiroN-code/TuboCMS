@@ -17,7 +17,6 @@
 
 {# Pagination SEO #}
 {% block pagination_seo %}
-{% set total_pages = (videos|length == 24) ? page + 1 : page %}
 {% set prev_url = pagination_prev_url(page, total_pages) %}
 {% set next_url = pagination_next_url(page, total_pages) %}
 {% if prev_url %}<link rel="prev" href="{{ prev_url }}">{% endif %}
@@ -83,7 +82,7 @@
                     {% endfor %}
                     
                     {# Load More Button #}
-                    {% if videos|length == 24 %}
+                    {% if page < total_pages %}
                     <div id="load-more-container" class="col-span-full flex justify-center mt-4">
                         <button 
                             hx-get="{{ path('app_videos_load_more', {sort: sort|default('newest'), page: page + 1}) }}"
@@ -114,7 +113,7 @@
                         {{ 'pagination.page'|trans({'%page%': page}) }}
                     </span>
                     
-                    {% if videos|length == 24 %}
+                    {% if page < total_pages %}
                         <a href="?page={{ page + 1 }}" 
                            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             {{ 'pagination.next'|trans }} →

@@ -1,42 +1,15 @@
-# RexTube - Product Overview
+# RexTube - Product Context
 
-## What is RexTube?
-
-RexTube is a video hosting platform built with Symfony 8.0, similar to adult video hosting sites. It's a content management system that allows users to upload, browse, search, and comment on videos.
+## Project Type
+Adult video hosting platform (similar to xHamster, Txxx, FapHouse)
 
 ## Core Features
-
-- User authentication and registration
-- Video upload (up to 2GB)
-- Video playback with player
-- Video categorization and tagging
-- Full-text search
-- Nested comments with HTMX
-- User dashboard (my videos)
-- Admin panel for content management
-- Email notifications
-- Rate limiting for abuse prevention
-- Asynchronous video processing via Messenger
+- Video upload/streaming, user auth, channels/studios system
+- Playlists, analytics, donations, admin panel
+- Async video processing, comments, search
 
 ## Key Entities
+User, Video, Channel, Category, Tag, Comment, VideoFile, ChannelPlaylist, ChannelAnalytics, ChannelDonation
 
-- **User**: Registered users with authentication
-- **Video**: Uploaded video content with metadata
-- **Category**: Video categorization
-- **Tag**: Video tagging system
-- **Comment**: User comments with nesting support
-- **VideoFile**: Processed video files with encoding profiles
-- **VideoEncodingProfile**: Different quality/format options for videos
-- **SiteSetting**: Global site configuration
-
-## Current Status
-
-The project is fully functional with core features implemented. Video processing pipeline is in place using Symfony Messenger for asynchronous handling.
-
-## Target Users
-
-- Content creators (uploaders)
-- Content consumers (viewers)
-- Site administrators
-
-Всегда пиши и отвечай на русском языке
+## Language Requirement
+**Всегда пиши и отвечай на русском языке**

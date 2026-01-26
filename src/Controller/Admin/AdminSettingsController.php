@@ -393,6 +393,8 @@ class AdminSettingsController extends AbstractController
         $profile->setResolution("{$width}x{$height}");
         $profile->setBitrate((int) $request->request->get('bitrate'));
         $profile->setCodec($request->request->get('codec', 'h264'));
+        $profile->setFormat($request->request->get('format', 'mp4'));
+        $profile->setOrderPosition((int) $request->request->get('order_position', 0));
         $profile->setActive($request->request->get('is_active') === '1');
         
         $this->em->persist($profile);

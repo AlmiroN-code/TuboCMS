@@ -167,8 +167,16 @@ class ProcessVideoEncodingMessageHandler
                         mkdir($qualityDir, 0777, true);
                     }
 
-                    // Генерируем имя файла
-                    $outputFilename = $video->getId() . '_' . strtolower($profile->getName()) . '.mp4';
+                    // Генерируем имя файла с правильным расширением
+                    $format = strtolower($profile->getFormat() ?: 'mp4');
+                    $extension = match($format) {
+                        'mp4' => 'mp4',
+                        'mov' => 'mov',
+                        'mkv' => 'mkv',
+                        'avi' => 'avi',
+                        default => 'mp4',
+                    };
+                    $outputFilename = $video->getId() . '_' . strtolower($profile->getName()) . '.' . $extension;
                     $outputPath = $qualityDir . '/' . $outputFilename;
 
                     // Кодируем видео

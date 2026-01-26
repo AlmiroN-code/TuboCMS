@@ -1,0 +1,137 @@
+{% extends 'channel/index.html.twig' %}
+
+{% block title %}Студии{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Студии</h1>
+        <p class="text-gray-600">Профессиональные студии и производители контента</p>
+    </div>
+
+    <!-- Быстрые ссылки -->
+    <div class="flex space-x-4 mb-8">
+        <a href="{{ path('channels_index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+            <i class="fas fa-tv mr-2"></i>Все каналы
+        </a>
+        <a href="{{ path('channels_studios') }}" class="px-4 py-2 bg-purple-600 text-white rounded-md">
+            <i class="fas fa-building mr-2"></i>Студии
+        </a>
+        <a href="{{ path('channels_verified') }}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+            <i class="fas fa-check-circle mr-2"></i>Верифицированные
+        </a>
+    </div>
+
+    <!-- Сетка каналов -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for channel in channels %}
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <!-- Баннер -->
+            <div class="h-32 bg-gradient-to-r from-purple-500 to-pink-600 relative" 
+                 {% if channel.bannerUrl %}style="background-image: url('{{ channel.bannerUrl }}'); background-size: cover; background-position: center;"{% endif %}>
+                <div class="absolute top-2 left-2">
+                    <span class="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-building mr-1"></i>Студия
+                    </span>
+                </div>
+                {% if channel.isPremium %}
+                <div class="absolute top-2 right-2">
+                    <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-crown mr-1"></i>Premium
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Аватар -->
+            <div class="relative px-4 pb-4">
+                <div class="flex justify-center -mt-8 mb-4">
+                    {% if channel.avatarUrl %}
+                        <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                             class="w-16 h-16 rounded-full border-4 border-white shadow-lg">
+                    {% else %}
+                        <div class="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
+                            <i class="fas fa-building text-gray-600 text-xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Информация о канале -->
+                <div class="text-center">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-1">
+                        <a href="{{ path('channel_show', {slug: channel.slug}) }}" class="hover:text-purple-600 transition-colors">
+                            {{ channel.name }}
+                            {% if channel.isVerified %}
+                                <i class="fas fa-check-circle text-blue-500 ml-1" title="Верифицирован"></i>
+                            {% endif %}
+                        </a>
+                    </h3>
+
+                    {% if channel.description %}
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ channel.description|slice(0, 100) }}{% if channel.description|length > 100 %}...{% endif %}</p>
+                    {% endif %}
+
+                    <!-- Статистика -->
+                    <div class="flex justify-center space-x-4 text-sm text-gray-500 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-users mr-1"></i>
+                            {{ channel.subscribersCount|number_format }}
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-video mr-1"></i>
+                            {{ channel.videosCount|number_format }}
+                        </div>
+                    </div>
+
+                    <!-- Кнопка -->
+                    <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
+                       class="w-full inline-block px-4 py-2 bg-purple-600 text-white text-center rounded-md hover:bg-purple-700 transition-colors">
+                        Посмотреть студию
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full text-center py-12">
+            <i class="fas fa-building text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Студии не найдены</h3>
+            <p class="text-gray-500">Пока нет зарегистрированных студий</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    {% if total_pages > 1 %}
+    <div class="mt-12 flex justify-center">
+        <nav class="flex space-x-2">
+            {% if current_page > 1 %}
+                <a href="{{ path('channels_studios', {page: current_page - 1}) }}" 
+                   class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    Предыдущая
+                </a>
+            {% endif %}
+
+            {% for page in 1..total_pages %}
+                {% if page == current_page %}
+                    <span class="px-3 py-2 bg-purple-600 text-white rounded-md">{{ page }}</span>
+                {% elseif page <= 3 or page > total_pages - 3 or (page >= current_page - 2 and page <= current_page + 2) %}
+                    <a href="{{ path('channels_studios', {page: page}) }}" 
+                       class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                        {{ page }}
+                    </a>
+                {% elseif page == 4 or page == total_pages - 3 %}
+                    <span class="px-3 py-2 text-gray-500">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page < total_pages %}
+                <a href="{{ path('channels_studios', {page: current_page + 1}) }}" 
+                   class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    Следующая
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

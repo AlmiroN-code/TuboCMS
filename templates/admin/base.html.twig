@@ -18,7 +18,7 @@
     <div class="flex h-screen">
         <!-- Sidebar -->
         <aside class="w-64 text-white flex-shrink-0 bg-gray-800">
-            <div class="p-4 border-b border-gray-700">
+            <div class="p-6 border-b border-gray-700">
                 <div class="flex items-center gap-2">
                     {% if site_logo() %}
                         <img src="{{ site_logo() }}" alt="{{ site_name() }}" class="h-10 object-contain">
@@ -32,21 +32,23 @@
             </div>
             
             <nav class="py-2 flex-1 overflow-y-auto bg-gray-800">
-                <a href="{{ path('admin_dashboard') }}" class="flex items-center gap-2 px-3 py-2 mx-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white rounded {{ app.request.attributes.get('_route') == 'admin_dashboard' ? 'bg-gray-700 text-white border-r-2 border-blue-500' : '' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
+                <a href="{{ path('admin_dashboard') }}" class="flex items-center gap-2 mx-2 px-3 py-1.5 text-xs font-semibold uppercase text-gray-500 hover:bg-gray-500 hover:text-white rounded {{ app.request.attributes.get('_route') == 'admin_dashboard' ? 'bg-gray-700 text-white border-r-2 border-blue-500' : '' }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--solar" width="21" height="21" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M2.5 6.5a4 4 0 1 1 8 0a4 4 0 0 1-8 0Zm11 11a4 4 0 1 1 8 0a4 4 0 0 1-8 0Zm8-11c0-1.886 0-2.828-.586-3.414S19.386 2.5 17.5 2.5s-2.828 0-3.414.586S13.5 4.614 13.5 6.5s0 2.828.586 3.414s1.528.586 3.414.586s2.828 0 3.414-.586s.586-1.528.586-3.414Zm-11 11c0-1.886 0-2.828-.586-3.414S8.386 13.5 6.5 13.5s-2.828 0-3.414.586S2.5 15.614 2.5 17.5s0 2.828.586 3.414s1.528.586 3.414.586s2.828 0 3.414-.586s.586-1.528.586-3.414Z"></path></svg>
                     Dashboard
                 </a>
 
-                {# Content Section #}
+                {# Video Section #}
                 <div class="mt-3" data-sidebar-section="content">
-                    <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="content">
+                    <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between mx-2 px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="content">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                            Content
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+	<g fill="none" stroke="currentColor" stroke-width="1.5">
+		<path d="M19.562 7a2.132 2.132 0 0 0-2.1-2.5H6.538a2.132 2.132 0 0 0-2.1 2.5M17.5 4.5c.028-.26.043-.389.043-.496a2 2 0 0 0-1.787-1.993C15.65 2 15.52 2 15.26 2H8.74c-.26 0-.391 0-.497.011a2 2 0 0 0-1.787 1.993c0 .107.014.237.043.496" />
+		<path stroke-linecap="round" d="M21.194 16.793c-.35 2.48-.525 3.721-1.422 4.464s-2.22.743-4.867.743h-5.81c-2.646 0-3.97 0-4.867-.743s-1.072-1.983-1.422-4.464l-.422-3c-.447-3.164-.67-4.745.278-5.77C3.61 7 5.298 7 8.672 7h6.656c3.374 0 5.062 0 6.01 1.024c.749.809.767 1.966.521 3.976" />
+		<path d="M14.581 13.616c.559.346.559 1.242 0 1.588l-3.371 2.09c-.543.337-1.21-.1-1.21-.794v-4.18c0-.693.667-1.13 1.21-.794z" />
+	</g>
+</svg>
+                            Video
                         </span>
                         <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -80,14 +82,60 @@
                     </div>
                 </div>
 
+                {# Posts Section #}
+                <div class="mt-4" data-sidebar-section="posts">
+                    <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="posts">
+                        <span class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--solar" width="21" height="21" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="m18.18 8.04l.463-.464a1.966 1.966 0 1 1 2.781 2.78l-.463.464M18.18 8.04s.058.984.927 1.853s1.854.927 1.854.927M18.18 8.04l-4.26 4.26c-.29.288-.434.433-.558.592q-.22.282-.374.606c-.087.182-.151.375-.28.762l-.413 1.24l-.134.401m8.8-5.081l-4.26 4.26c-.29.29-.434.434-.593.558q-.282.22-.606.374c-.182.087-.375.151-.762.28l-1.24.413l-.401.134m0 0l-.401.134a.53.53 0 0 1-.67-.67l.133-.402m.938.938l-.938-.938"></path><path stroke-linecap="round" d="M8 13h2.5M8 9h6.5M8 17h1.5M19.828 3.172C18.657 2 16.771 2 13 2h-2C7.229 2 5.343 2 4.172 3.172S3 6.229 3 10v4c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22h2c3.771 0 5.657 0 6.828-1.172c.944-.943 1.127-2.348 1.163-4.828"></path></g></svg>
+                            Publications
+                        </span>
+                        <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="posts" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="sidebar-section-content" data-section-content="posts">
+                        <a href="{{ path('admin_posts') }}" class="flex items-center gap-2 px-3 py-2 mx-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded {{ app.request.attributes.get('_route') starts with 'admin_posts' ? 'bg-gray-700 text-white border-r-2 border-blue-500' : '' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Posts
+                        </a>
+                        <a href="{{ path('admin_post_categories') }}" class="flex items-center gap-2 px-3 py-2 mx-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded {{ app.request.attributes.get('_route') starts with 'admin_post_categories' ? 'bg-gray-700 text-white border-r-2 border-blue-500' : '' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                            </svg>
+                            Post Categories
+                        </a>
+                    </div>
+                </div>
+
+                {# Channels Section #}
+                <div class="mt-4" data-sidebar-section="channels">
+                    <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="channels">
+                        <span class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19.562 7a2.132 2.132 0 0 0-2.1-2.5H6.538a2.132 2.132 0 0 0-2.1 2.5M17.5 4.5c.028-.26.043-.389.043-.496a2 2 0 0 0-1.787-1.993C15.65 2 15.52 2 15.26 2H8.74c-.26 0-.391 0-.497.011a2 2 0 0 0-1.787 1.993c0 .107.014.237.043.496"/><path stroke-linecap="round" d="M15 18H9m12.194-1.207c-.35 2.48-.525 3.721-1.422 4.464s-2.22.743-4.867.743h-5.81c-2.646 0-3.97 0-4.867-.743s-1.072-1.983-1.422-4.464l-.422-3c-.447-3.164-.67-4.745.278-5.77C3.61 7 5.298 7 8.672 7h6.656c3.374 0 5.062 0 6.01 1.024c.749.809.767 1.966.521 3.976"/></g></svg>
+                            Channels
+                        </span>
+                        <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="channels" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="sidebar-section-content" data-section-content="channels">
+                        <a href="{{ path('admin_channels_index') }}" class="flex items-center gap-2 px-3 py-2 mx-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded {{ app.request.attributes.get('_route') starts with 'admin_channels' ? 'bg-gray-700 text-white border-r-2 border-blue-500' : '' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            Channels
+                        </a>
+                    </div>
+                </div>
+
                 {# Users Section #}
                 <div class="mt-4" data-sidebar-section="users">
                     <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="users">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                            Users
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M8.913 15.934c1.258.315 2.685.315 4.122-.07s2.673-1.099 3.605-2.001"/><ellipse cx="14.509" cy="9.774" fill="currentColor" rx="1" ry="1.5" transform="rotate(-15 14.51 9.774)"/><ellipse cx="8.714" cy="11.328" fill="currentColor" rx="1" ry="1.5" transform="rotate(-15 8.714 11.328)"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M20.796 9.643c1.111 4.147 1.667 6.22.724 7.853s-3.016 2.19-7.163 3.3c-4.147 1.111-6.22 1.667-7.853.724s-2.19-3.016-3.3-7.163c-1.112-4.147-1.667-6.22-.724-7.853s3.016-2.19 7.163-3.3c4.147-1.112 6.22-1.667 7.853-.724c1.009.582 1.606 1.595 2.177 3.26"/><path stroke="currentColor" stroke-width="1.5" d="m13 16l.478.974a1.5 1.5 0 1 0 2.693-1.322l-.46-.935"/></g></svg>
+                            Users & Groups
                         </span>
                         <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="users" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -125,10 +173,7 @@
                 <div class="mt-4" data-sidebar-section="advertising">
                     <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="advertising">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 8q-1.65 0-2.825 1.175T8 12q0 1.125.563 2.075t1.562 1.475q.4.2.563.587t-.013.788q-.175.35-.525.525t-.7 0q-1.575-.75-2.512-2.225T6 12q0-2.5 1.75-4.25T12 6q1.775 0 3.263.938T17.475 9.5q.15.35-.012.7t-.513.5q-.4.175-.8 0t-.6-.575q-.525-1-1.475-1.562T12 8m0-4Q8.65 4 6.325 6.325T4 12q0 3.15 2.075 5.4t5.2 2.55q.425.05.737.375t.288.75t-.313.7t-.712.25q-1.95-.125-3.638-.975t-2.95-2.213t-1.975-3.125T2 12q0-2.075.788-3.9t2.137-3.175T8.1 2.788T12 2q3.925 0 6.838 2.675t3.187 6.6q.05.4-.237.688t-.713.312t-.762-.275t-.388-.725q-.375-3-2.612-5.137T12 4m7.55 17.5l-3.3-3.275l-.75 2.275q-.125.35-.475.338t-.475-.363L12.275 12.9q-.1-.275.125-.5t.5-.125l7.575 2.275q.35.125.363.475t-.338.475l-2.275.75l3.3 3.3q.425.425.425.975t-.425.975t-.987.425t-.988-.425"/></svg>
                             Advertising
                         </span>
                         <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="advertising" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,10 +231,7 @@
                 <div class="mt-4" data-sidebar-section="settings">
                     <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="settings">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M3.661 10.64c.473.296.777.802.777 1.36s-.304 1.064-.777 1.36c-.321.203-.529.364-.676.556a2 2 0 0 0-.396 1.479c.052.394.285.798.75 1.605c.467.807.7 1.21 1.015 1.453a2 2 0 0 0 1.479.396c.24-.032.483-.13.819-.308a1.62 1.62 0 0 1 1.567.008c.483.28.77.795.79 1.353c.014.38.05.64.143.863a2 2 0 0 0 1.083 1.083C10.602 22 11.068 22 12 22s1.398 0 1.765-.152a2 2 0 0 0 1.083-1.083c.092-.223.129-.483.143-.863c.02-.558.307-1.074.79-1.353a1.62 1.62 0 0 1 1.567-.008c.336.178.58.276.82.308a2 2 0 0 0 1.478-.396c.315-.242.548-.646 1.014-1.453c.208-.36.369-.639.489-.873m-.81-2.766a1.62 1.62 0 0 1-.777-1.36c0-.559.304-1.065.777-1.362c.321-.202.528-.363.676-.555a2 2 0 0 0 .396-1.479c-.052-.394-.285-.798-.75-1.605c-.467-.807-.7-1.21-1.015-1.453a2 2 0 0 0-1.479-.396c-.24.032-.483.13-.82.308a1.62 1.62 0 0 1-1.566-.008a1.62 1.62 0 0 1-.79-1.353c-.014-.38-.05-.64-.143-.863a2 2 0 0 0-1.083-1.083C13.398 2 12.932 2 12 2s-1.398 0-1.765.152a2 2 0 0 0-1.083 1.083c-.092.223-.129.483-.143.863a1.62 1.62 0 0 1-.79 1.353a1.62 1.62 0 0 1-1.567.008c-.336-.178-.58-.276-.82-.308a2 2 0 0 0-1.478.396C4.04 5.79 3.806 6.193 3.34 7c-.208.36-.369.639-.489.873"/></g></svg>
                             Settings
                         </span>
                         <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="settings" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,9 +283,7 @@
                 <div class="mt-4" data-sidebar-section="system">
                     <button type="button" class="sidebar-section-toggle w-full flex items-center justify-between px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors" data-section-toggle="system">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="10" r="2"/><circle cx="2" cy="2" r="2" transform="matrix(1 0 0 -1 14 16)"/><path stroke-linecap="round" d="M8 14v5m8-9V5M8 5v1m8 13v-1m6-6c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464c.974.974 1.3 2.343 1.41 4.536"/></g></svg>
                             System
                         </span>
                         <svg class="w-3 h-3 transition-transform duration-200" data-section-icon="system" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,14 +330,6 @@
                     </div>
                 </div>
 
-                <div class="mt-4 border-t border-gray-800 pt-3">
-                    <a href="{{ path('app_home') }}" target='_blank' class="flex items-center gap-2 px-3 py-2 mx-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                        Back to site
-                    </a>
-                </div>
             </nav>
         </aside>
 
@@ -305,7 +337,7 @@
         <div class="flex-1 flex flex-col overflow-hidden">
             <!-- Top Bar -->
             <header class="bg-white border-b border-gray-200">
-                <div class="flex items-center justify-between p-4">
+                <div class="flex items-center justify-between p-6">
                     <h2 class="text-xl font-semibold text-gray-900">{% block page_title %}Admin Panel{% endblock %}</h2>
                     <div class="flex items-center gap-4">
                         {# Server Info #}
@@ -382,6 +414,16 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                                 </svg>
                                 <span class="text-gray-600">PHP {{ server.php_version }}</span>
+                            </div>
+                            
+                            {# Environment Mode #}
+                            <div class="flex items-center gap-1.5" title="Режим работы приложения&#10;Environment: {{ app.environment }}&#10;Debug: {{ app.debug ? 'Включен' : 'Выключен' }}">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="font-medium {{ app.environment == 'prod' ? 'text-green-600' : 'text-orange-600' }}">
+                                    {{ app.environment|upper }}
+                                </span>
                             </div>
                         </div>
                         {# Theme Switcher #}
@@ -534,7 +576,7 @@
             // Инициализация
             function init() {
                 const state = loadState();
-                const sections = ['content', 'users', 'advertising', 'settings', 'system'];
+                const sections = ['content', 'posts', 'channels', 'users', 'advertising', 'settings', 'system'];
                 
                 // Применяем сохранённое состояние
                 sections.forEach(section => {

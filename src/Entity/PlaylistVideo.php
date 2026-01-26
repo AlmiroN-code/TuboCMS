@@ -3,11 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\PlaylistVideoRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlaylistVideoRepository::class)]
-#[ORM\Table(name: 'playlist_video')]
+#[ORM\Table(name: 'playlist_videos')]
 #[ORM\UniqueConstraint(name: 'unique_playlist_video', columns: ['playlist_id', 'video_id'])]
+#[ORM\Index(columns: ['playlist_id', 'sort_order'], name: 'idx_playlist_sort')]
 class PlaylistVideo
 {
     #[ORM\Id]
@@ -15,23 +17,27 @@ class PlaylistVideo
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Playlist::class, inversedBy: 'videos')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Playlist $playlist = null;
+    #[ORM\ManyToOne(targetEntity: ChannelPlaylist::class, inversedBy: 'playlistVideos')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?ChannelPlaylist $playlist = null;
 
     #[ORM\ManyToOne(targetEntity: Video::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Video $video = null;
 
-    #[ORM\Column]
-    private int $position = 0;
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $sortOrder = 0;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $addedAt = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $addedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $addedBy = null;
 
     public function __construct()
     {
-        $this->addedAt = new \DateTimeImmutable();
+        $this->addedAt = new \DateTime();
     }
 
     public function getId(): ?int
@@ -39,12 +45,12 @@ class PlaylistVideo
         return $this->id;
     }
 
-    public function getPlaylist(): ?Playlist
+    public function getPlaylist(): ?ChannelPlaylist
     {
         return $this->playlist;
     }
 
-    public function setPlaylist(?Playlist $playlist): static
+    public function setPlaylist(?ChannelPlaylist $playlist): static
     {
         $this->playlist = $playlist;
         return $this;
@@ -61,25 +67,36 @@ class PlaylistVideo
         return $this;
     }
 
-    public function getPosition(): int
+    public function getSortOrder(): int
     {
-        return $this->position;
+        return $this->sortOrder;
     }
 
-    public function setPosition(int $position): static
+    public function setSortOrder(int $sortOrder): static
     {
-        $this->position = $position;
+        $this->sortOrder = $sortOrder;
         return $this;
     }
 
-    public function getAddedAt(): ?\DateTimeImmutable
+    public function getAddedAt(): ?\DateTimeInterface
     {
         return $this->addedAt;
     }
 
-    public function setAddedAt(\DateTimeImmutable $addedAt): static
+    public function setAddedAt(\DateTimeInterface $addedAt): static
     {
         $this->addedAt = $addedAt;
+        return $this;
+    }
+
+    public function getAddedBy(): ?User
+    {
+        return $this->addedBy;
+    }
+
+    public function setAddedBy(?User $addedBy): static
+    {
+        $this->addedBy = $addedBy;
         return $this;
     }
 }

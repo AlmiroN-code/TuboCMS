@@ -12,7 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/system')]
 class AdminSystemController extends AbstractController
@@ -160,13 +159,13 @@ class AdminSystemController extends AbstractController
     public function runMonitor(): JsonResponse
     {
         try {
-            $phpPath = 'D:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe';
+            $phpPath = $this->getPhpExecutablePath();
             $consolePath = $this->projectDir . '/bin/console';
             
-            if (!file_exists($phpPath)) {
+            if (!$phpPath) {
                 return $this->json([
                     'success' => false,
-                    'error' => 'PHP не найден по пути: ' . $phpPath
+                    'error' => 'PHP исполняемый файл не найден в системе'
                 ], 500);
             }
             
@@ -177,7 +176,7 @@ class AdminSystemController extends AbstractController
                 ], 500);
             }
             
-            $command = sprintf('cd /d "%s" && "%s" bin/console app:monitor-performance --table-stats 2>&1', $this->projectDir, $phpPath);
+            $command = $this->buildCommand($phpPath, 'bin/console app:monitor-performance --table-stats');
             $output = shell_exec($command);
             
             if ($output === null) {
@@ -187,8 +186,8 @@ class AdminSystemController extends AbstractController
                 ], 500);
             }
             
-            // Конвертируем из Windows-1251 в UTF-8
-            if (function_exists('mb_convert_encoding')) {
+            // Конвертируем кодировку только на Windows
+            if (PHP_OS_FAMILY === 'Windows' && function_exists('mb_convert_encoding')) {
                 $output = mb_convert_encoding($output, 'UTF-8', 'Windows-1251');
             }
             
@@ -208,13 +207,13 @@ class AdminSystemController extends AbstractController
     public function runPerformanceTest(): JsonResponse
     {
         try {
-            $phpPath = 'D:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe';
+            $phpPath = $this->getPhpExecutablePath();
             $consolePath = $this->projectDir . '/bin/console';
             
-            if (!file_exists($phpPath)) {
+            if (!$phpPath) {
                 return $this->json([
                     'success' => false,
-                    'error' => 'PHP не найден по пути: ' . $phpPath
+                    'error' => 'PHP исполняемый файл не найден в системе'
                 ], 500);
             }
             
@@ -225,7 +224,7 @@ class AdminSystemController extends AbstractController
                 ], 500);
             }
             
-            $command = sprintf('cd /d "%s" && "%s" bin/console app:test-performance --iterations=3 2>&1', $this->projectDir, $phpPath);
+            $command = $this->buildCommand($phpPath, 'bin/console app:test-performance --iterations=3');
             $output = shell_exec($command);
             
             if ($output === null) {
@@ -235,8 +234,8 @@ class AdminSystemController extends AbstractController
                 ], 500);
             }
             
-            // Конвертируем из Windows-1251 в UTF-8
-            if (function_exists('mb_convert_encoding')) {
+            // Конвертируем кодировку только на Windows
+            if (PHP_OS_FAMILY === 'Windows' && function_exists('mb_convert_encoding')) {
                 $output = mb_convert_encoding($output, 'UTF-8', 'Windows-1251');
             }
             
@@ -256,13 +255,13 @@ class AdminSystemController extends AbstractController
     public function clearOptimizedCache(): JsonResponse
     {
         try {
-            $phpPath = 'D:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe';
+            $phpPath = $this->getPhpExecutablePath();
             $consolePath = $this->projectDir . '/bin/console';
             
-            if (!file_exists($phpPath)) {
+            if (!$phpPath) {
                 return $this->json([
                     'success' => false,
-                    'error' => 'PHP не найден по пути: ' . $phpPath
+                    'error' => 'PHP исполняемый файл не найден в системе'
                 ], 500);
             }
             
@@ -273,7 +272,7 @@ class AdminSystemController extends AbstractController
                 ], 500);
             }
             
-            $command = sprintf('cd /d "%s" && "%s" bin/console app:cache:clear-optimized --all 2>&1', $this->projectDir, $phpPath);
+            $command = $this->buildCommand($phpPath, 'bin/console app:cache:clear-optimized --all');
             $output = shell_exec($command);
             
             if ($output === null) {
@@ -283,8 +282,8 @@ class AdminSystemController extends AbstractController
                 ], 500);
             }
             
-            // Конвертируем из Windows-1251 в UTF-8
-            if (function_exists('mb_convert_encoding')) {
+            // Конвертируем кодировку только на Windows
+            if (PHP_OS_FAMILY === 'Windows' && function_exists('mb_convert_encoding')) {
                 $output = mb_convert_encoding($output, 'UTF-8', 'Windows-1251');
             }
             
@@ -299,6 +298,86 @@ class AdminSystemController extends AbstractController
                 'success' => false,
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Определяет путь к исполняемому файлу PHP для текущей ОС
+     */
+    private function getPhpExecutablePath(): ?string
+    {
+        // Сначала пробуем получить путь из PHP_BINARY константы
+        if (defined('PHP_BINARY') && PHP_BINARY && file_exists(PHP_BINARY)) {
+            return PHP_BINARY;
+        }
+
+        // Для Windows - проверяем стандартные пути Laragon
+        if (PHP_OS_FAMILY === 'Windows') {
+            $windowsPaths = [
+                'D:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe',
+                'D:\\laragon\\bin\\php\\php-8.4\\php.exe',
+                'D:\\laragon\\bin\\php\\php-8.3\\php.exe',
+                'C:\\laragon\\bin\\php\\php-8.4.15-nts-Win32-vs17-x64\\php.exe',
+                'C:\\laragon\\bin\\php\\php-8.4\\php.exe',
+                'C:\\laragon\\bin\\php\\php-8.3\\php.exe',
+                'C:\\php\\php.exe',
+                'C:\\xampp\\php\\php.exe',
+            ];
+
+            foreach ($windowsPaths as $path) {
+                if (file_exists($path)) {
+                    return $path;
+                }
+            }
+
+            // Пробуем найти через which/where
+            $output = shell_exec('where php 2>nul');
+            if ($output) {
+                $phpPath = trim(explode("\n", $output)[0]);
+                if (file_exists($phpPath)) {
+                    return $phpPath;
+                }
+            }
+        } else {
+            // Для Linux/Unix систем
+            $unixPaths = [
+                '/usr/bin/php',
+                '/usr/local/bin/php',
+                '/opt/php/bin/php',
+                '/usr/bin/php8.4',
+                '/usr/bin/php8.3',
+                '/usr/bin/php8.2',
+                '/usr/bin/php8.1',
+            ];
+
+            foreach ($unixPaths as $path) {
+                if (file_exists($path)) {
+                    return $path;
+                }
+            }
+
+            // Пробуем найти через which
+            $output = shell_exec('which php 2>/dev/null');
+            if ($output) {
+                $phpPath = trim($output);
+                if (file_exists($phpPath)) {
+                    return $phpPath;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Строит команду для выполнения с учетом ОС
+     */
+    private function buildCommand(string $phpPath, string $consoleCommand): string
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            return sprintf('cd /d "%s" && "%s" %s 2>&1', $this->projectDir, $phpPath, $consoleCommand);
+        } else {
+            return sprintf('cd "%s" && "%s" %s 2>&1', $this->projectDir, $phpPath, $consoleCommand);
         }
     }
 }

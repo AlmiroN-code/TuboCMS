@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\VideoRepository;
+use App\Service\SettingsService;
 use App\Service\WatchHistoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,6 +19,7 @@ class HistoryController extends AbstractController
     public function __construct(
         private WatchHistoryService $watchHistoryService,
         private VideoRepository $videoRepository,
+        private SettingsService $settingsService
     ) {
     }
 
@@ -25,7 +27,7 @@ class HistoryController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
 
         $user = $this->getUser();
         $history = $this->watchHistoryService->getHistory($user, $page, $limit);

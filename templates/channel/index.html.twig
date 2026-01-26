@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Каналы{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ 'channel.title'|trans }}</h1>
+        <p class="text-gray-600">{{ 'channel.discover'|trans }}</p>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                           placeholder="{{ 'channel.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
+                </div>
+                <div>
+                    <select name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">{{ 'channel.filter.all_types'|trans }}</option>
+                        <option value="personal" {{ (filters.type ?? '') == 'personal' ? 'selected' : '' }}>{{ 'channel.type_personal'|trans }}</option>
+                        <option value="studio" {{ (filters.type ?? '') == 'studio' ? 'selected' : '' }}>{{ 'channel.type_studio'|trans }}</option>
+                        <option value="company" {{ (filters.type ?? '') == 'company' ? 'selected' : '' }}>{{ 'channel.type_company'|trans }}</option>
+                    </select>
+                </div>
+                <div>
+                    <select name="sort" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="popular" {{ (filters.sort ?? 'popular') == 'popular' ? 'selected' : '' }}>{{ 'channel.sort.popular'|trans }}</option>
+                        <option value="newest" {{ (filters.sort ?? '') == 'newest' ? 'selected' : '' }}>{{ 'channel.sort.newest'|trans }}</option>
+                        <option value="name" {{ (filters.sort ?? '') == 'name' ? 'selected' : '' }}>{{ 'channel.sort.name'|trans }}</option>
+                        <option value="videos" {{ (filters.sort ?? '') == 'videos' ? 'selected' : '' }}>{{ 'channel.sort.videos'|trans }}</option>
+                    </select>
+                </div>
+                <div class="flex space-x-2">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        {{ 'channel.filter.apply'|trans }}
+                    </button>
+                    <a href="{{ path('channels_index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                        {{ 'channel.filter.reset'|trans }}
+                    </a>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <label class="flex items-center">
+                    <input type="checkbox" name="verified" value="1" {{ (filters.verified ?? false) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-2">
+                    {{ 'channel.filter.verified_only'|trans }}
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" name="premium" value="1" {{ (filters.premium ?? false) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mr-2">
+                    {{ 'channel.filter.premium_only'|trans }}
+                </label>
+            </div>
+        </form>
+    </div>
+
+    <!-- Быстрые ссылки -->
+    <div class="flex space-x-4 mb-8">
+        <a href="{{ path('channels_studios') }}" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
+            <i class="fas fa-building mr-2"></i>{{ 'channel.studios'|trans }}
+        </a>
+        <a href="{{ path('channels_verified') }}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+            <i class="fas fa-check-circle mr-2"></i>{{ 'channel.verified_channels'|trans }}
+        </a>
+        {% if app.user %}
+        <a href="{{ path('channel_create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i>{{ 'channel.create'|trans }}
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Сетка каналов -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for channel in channels %}
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <!-- Баннер -->
+            <div class="h-32 relative overflow-hidden">
+                {% if channel.bannerUrl %}
+                    <img src="{{ channel.bannerUrl }}" alt="{{ channel.name }}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                {% else %}
+                    <div class="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                {% endif %}
+                {% if channel.isPremium %}
+                <div class="absolute top-2 right-2">
+                    <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-crown mr-1"></i>Premium
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Аватар -->
+            <div class="relative px-4 pb-4">
+                <div class="flex justify-center -mt-8 mb-4">
+                    {% if channel.avatarUrl %}
+                        <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                             class="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg">
+                    {% else %}
+                        <div class="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
+                            <i class="fas fa-tv text-gray-600 text-xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Информация о канале -->
+                <div class="text-center">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-1">
+                        <a href="{{ path('channel_show', {slug: channel.slug}) }}" class="hover:text-blue-600 transition-colors">
+                            {{ channel.name }}
+                            {% if channel.isVerified %}
+                                <i class="fas fa-check-circle text-blue-500 ml-1" title="Верифицирован"></i>
+                            {% endif %}
+                        </a>
+                    </h3>
+                    
+                    <div class="flex justify-center items-center space-x-1 mb-2">
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                            {% if channel.type == 'personal' %}{{ 'channel.type_personal'|trans }}
+                            {% elseif channel.type == 'studio' %}{{ 'channel.type_studio'|trans }}
+                            {% else %}{{ 'channel.type_company'|trans }}{% endif %}
+                        </span>
+                    </div>
+
+                    {% if channel.description %}
+                    <p class="text-gray-600 text-sm mb-3">{{ channel.description|slice(0, 100) }}{% if channel.description|length > 100 %}...{% endif %}</p>
+                    {% endif %}
+
+                    <!-- Статистика -->
+                    <div class="flex justify-center space-x-4 text-sm text-gray-500 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-users mr-1"></i>
+                            {{ channel.subscribersCount }}
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-video mr-1"></i>
+                            {{ channel.videosCount }}
+                        </div>
+                    </div>
+
+                    <!-- Кнопка -->
+                    <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
+                       class="w-full inline-block px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors">
+                        {{ 'common.view'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full text-center py-12">
+            <i class="fas fa-tv text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">{{ 'channel.no_channels'|trans }}</h3>
+            <p class="text-gray-500">{{ 'filter.reset'|trans }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    {% if total_pages > 1 %}
+    <div class="mt-12 flex justify-center">
+        <nav class="flex space-x-2">
+            {% if current_page > 1 %}
+                <a href="{{ path('channels_index', app.request.query.all|merge({page: current_page - 1})) }}" 
+                   class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    {{ 'pagination.previous'|trans }}
+                </a>
+            {% endif %}
+
+            {% for page in 1..total_pages %}
+                {% if page == current_page %}
+                    <span class="px-3 py-2 bg-blue-600 text-white rounded-md">{{ page }}</span>
+                {% elseif page <= 3 or page > total_pages - 3 or (page >= current_page - 2 and page <= current_page + 2) %}
+                    <a href="{{ path('channels_index', app.request.query.all|merge({page: page})) }}" 
+                       class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                        {{ page }}
+                    </a>
+                {% elseif page == 4 or page == total_pages - 3 %}
+                    <span class="px-3 py-2 text-gray-500">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page < total_pages %}
+                <a href="{{ path('channels_index', app.request.query.all|merge({page: current_page + 1})) }}" 
+                   class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    {{ 'pagination.next'|trans }}
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

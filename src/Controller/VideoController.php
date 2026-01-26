@@ -7,6 +7,7 @@ use App\Repository\VideoRepository;
 use App\Service\ImpressionTracker;
 use App\Service\RecommendationService;
 use App\Service\SeeAlsoService;
+use App\Service\SettingsService;
 use App\Service\StorageManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,6 +23,10 @@ use Psr\Log\LoggerInterface;
 #[Route('/videos')]
 class VideoController extends AbstractController
 {
+    public function __construct(
+        private SettingsService $settingsService
+    ) {
+    }
     #[Route('/track-impressions', name: 'video_track_impressions', methods: ['POST'])]
     public function trackImpressions(
         Request $request,
@@ -51,7 +56,7 @@ class VideoController extends AbstractController
     ): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         // Build filters from request
@@ -85,7 +90,7 @@ class VideoController extends AbstractController
     ): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videos = $videoRepository->findPopularPaginated($limit, $offset);
@@ -107,7 +112,7 @@ class VideoController extends AbstractController
     ): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videos = $videoRepository->findTrending($limit, $offset);
@@ -129,7 +134,7 @@ class VideoController extends AbstractController
     ): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videos = $videoRepository->findPublished($limit, $offset);
@@ -152,7 +157,7 @@ class VideoController extends AbstractController
     ): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         $videos = match($sort) {
@@ -212,7 +217,7 @@ class VideoController extends AbstractController
 
         $query = trim($request->query->get('q', ''));
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 24;
+        $limit = $this->settingsService->getVideosPerPage();
         $offset = ($page - 1) * $limit;
 
         // Собираем фильтры
@@ -378,8 +383,11 @@ class VideoController extends AbstractController
         ]) !== null;
 
         // Playlists
-        $playlistRepo = $em->getRepository(\App\Entity\Playlist::class);
-        $result['playlists'] = $playlistRepo->findBy(['owner' => $user], ['createdAt' => 'DESC']);
+        $playlistRepo = $em->getRepository(\App\Entity\ChannelPlaylist::class);
+        $result['playlists'] = $playlistRepo->findBy(
+            ['channel' => $user, 'isActive' => true], 
+            ['createdAt' => 'DESC']
+        );
 
         return $result;
     }

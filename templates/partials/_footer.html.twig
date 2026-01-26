@@ -48,14 +48,15 @@
                     <li><a href="{{ path('app_videos') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.videos'|trans }}</a></li>
                     <li><a href="{{ path('app_categories') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.categories'|trans }}</a></li>
                     <li><a href="{{ path('app_tags') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.tags'|trans }}</a></li>
+                    <li><a href="{{ path('app_posts') }}" class="text-gray-600 hover:text-gray-900">{{ 'nav.posts'|trans }}</a></li>
                 </ul>
             </div>
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'footer.information'|trans }}</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="text-gray-600 hover:text-gray-900">{{ 'footer.about_us'|trans }}</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-gray-900">{{ 'footer.terms'|trans }}</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-gray-900">{{ 'footer.contact'|trans }}</a></li>
+                    <li><a href="{{ path('app_post_show', {slug: 'about'}) }}" class="text-gray-600 hover:text-gray-900">{{ 'footer.about_us'|trans }}</a></li>
+                    <li><a href="{{ path('app_post_show', {slug: 'terms'}) }}" class="text-gray-600 hover:text-gray-900">{{ 'footer.terms'|trans }}</a></li>
+                    <li><a href="{{ path('app_post_show', {slug: 'contact'}) }}" class="text-gray-600 hover:text-gray-900">{{ 'footer.contact'|trans }}</a></li>
                 </ul>
             </div>
         </div>

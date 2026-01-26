@@ -39,6 +39,21 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+                    {{ form_label(uploadForm.channel, 'video.upload_page.channel'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                    {{ form_widget(uploadForm.channel, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:ring-orange-500 focus:border-orange-500'}}) }}
+                    {{ form_errors(uploadForm.channel) }}
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'video.upload_page.channel_help'|trans }}</p>
+                </div>
+
+                <div>
+                    {{ form_label(uploadForm.category, 'video.upload_page.category'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                    {{ form_widget(uploadForm.category) }}
+                    {{ form_errors(uploadForm.category) }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
                     {{ form_label(uploadForm.category, 'video.upload_page.category'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
                     {{ form_widget(uploadForm.category) }}
                     {{ form_errors(uploadForm.category) }}
