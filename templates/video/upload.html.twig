@@ -33,7 +33,12 @@
 
             <div>
                 {{ form_label(uploadForm.description, 'video.upload_page.description'|trans, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'}}) }}
-                {{ form_widget(uploadForm.description, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:ring-orange-500 focus:border-orange-500', 'rows': 5}}) }}
+                <div data-controller="quill" 
+                     data-quill-placeholder-value="Опишите ваше видео подробно..."
+                     data-quill-height-value="200px">
+                    <div data-quill-target="editor" class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md"></div>
+                    {{ form_widget(uploadForm.description, {'attr': {'data-quill-target': 'input', 'class': 'hidden'}}) }}
+                </div>
                 {{ form_errors(uploadForm.description) }}
             </div>
 

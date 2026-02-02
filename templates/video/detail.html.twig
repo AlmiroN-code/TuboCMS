@@ -191,7 +191,7 @@
 
             {% if video.description %}
                 <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 rounded-md p-4 mb-6">
-                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ video.description }}</p>
+                    <div class="text-gray-700 dark:text-gray-300 prose prose-sm max-w-none dark:prose-invert">{{ video.description|raw }}</div>
                 </div>
             {% endif %}
 

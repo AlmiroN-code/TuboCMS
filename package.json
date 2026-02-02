@@ -39,6 +39,7 @@
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
         "core-js": "^3.39.0",
         "htmx.org": "^2.0.8",
+        "quill": "^2.0.3",
         "regenerator-runtime": "^0.14.1",
         "sortablejs": "^1.15.6"
     }

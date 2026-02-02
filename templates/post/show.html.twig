@@ -49,8 +49,8 @@
                     </div>
                     
                     {% if post.excerpt %}
-                        <div class="text-lg text-gray-600 dark:text-gray-300 italic border-l-4 border-orange-500 pl-4 mb-6">
-                            {{ post.excerpt }}
+                        <div class="text-lg text-gray-600 dark:text-gray-300 italic border-l-4 border-orange-500 pl-4 mb-6 prose prose-sm max-w-none dark:prose-invert">
+                            {{ post.excerpt|raw }}
                         </div>
                     {% endif %}
                 </header>

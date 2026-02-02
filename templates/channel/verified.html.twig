@@ -1,5 +1,11 @@
 {% extends 'channel/index.html.twig' %}
 
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'nav.channels'|trans, 'url': path('channels_index')},
+    {'label': 'channel.verified_channels'|trans, 'url': ''}
+] %}
+
 {% block title %}Верифицированные каналы{% endblock %}
 
 {% block body %}

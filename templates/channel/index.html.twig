@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
+{% set breadcrumbs = [
+    {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+    {'label': 'nav.channels'|trans, 'url': ''}
+] %}
+
 {% block title %}Каналы{% endblock %}
 
 {% block body %}

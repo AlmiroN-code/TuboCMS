@@ -15,7 +15,7 @@
             <div>
                 <h1 class="text-3xl font-bold text-white">{{ series.title }}</h1>
                 {% if series.description %}
-                    <p class="text-gray-400 mt-2">{{ series.description }}</p>
+                    <div class="text-gray-400 mt-2 prose prose-sm max-w-none dark:prose-invert">{{ series.description|raw }}</div>
                 {% endif %}
                 <p class="text-sm text-gray-500 mt-2">{{ series.videosCount }} {{ 'series.episodes'|trans }}</p>
             </div>

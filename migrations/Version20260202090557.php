@@ -10,11 +10,11 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Создание FULLTEXT индексов для поиска (Production Safe)
  */
-final class Version20260201000003 extends AbstractMigration
+final class Version20260202090557 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Создание FULLTEXT индексов для быстрого поиска';
+        return 'Создание FULLTEXT индексов для быстрого поиска (Production Safe)';
     }
 
     public function up(Schema $schema): void

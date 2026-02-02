@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Создание материализованных представлений для аналитики (исправленная версия)
+ * Создание материализованных представлений для аналитики (Production Safe)
  */
 final class Version20250201000002 extends AbstractMigration
 {
@@ -79,11 +79,62 @@ final class Version20250201000002 extends AbstractMigration
             LIMIT 1000
         ");
 
-        // Создание индексов для оптимизации (проверяем существование)
-        $this->addSql("ALTER TABLE video ADD INDEX idx_video_status_created (status, created_at)");
-        $this->addSql("ALTER TABLE video ADD INDEX idx_video_status_views (status, views_count)");
-        $this->addSql("ALTER TABLE comment ADD INDEX idx_comment_moderation_video (moderation_status, video_id)");
-        $this->addSql("ALTER TABLE channels ADD INDEX idx_channel_active_subscribers (is_active, subscribers_count)");
+        // Безопасное создание индексов с проверками существования
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'video' 
+                 AND index_name = 'idx_video_status_created') = 0,
+                'ALTER TABLE video ADD INDEX idx_video_status_created (status, created_at)',
+                'SELECT \"Index idx_video_status_created already exists\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
+        
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'video' 
+                 AND index_name = 'idx_video_status_views') = 0,
+                'ALTER TABLE video ADD INDEX idx_video_status_views (status, views_count)',
+                'SELECT \"Index idx_video_status_views already exists\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
+        
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'comment' 
+                 AND index_name = 'idx_comment_moderation_video') = 0,
+                'ALTER TABLE comment ADD INDEX idx_comment_moderation_video (moderation_status, video_id)',
+                'SELECT \"Index idx_comment_moderation_video already exists\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
+        
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'channels' 
+                 AND index_name = 'idx_channel_active_subscribers') = 0,
+                'ALTER TABLE channels ADD INDEX idx_channel_active_subscribers (is_active, subscribers_count)',
+                'SELECT \"Index idx_channel_active_subscribers already exists\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
     }
 
     public function down(Schema $schema): void
@@ -93,10 +144,61 @@ final class Version20250201000002 extends AbstractMigration
         $this->addSql("DROP VIEW IF EXISTS channel_stats_view");
         $this->addSql("DROP VIEW IF EXISTS popular_videos_view");
 
-        // Удаление индексов
-        $this->addSql("ALTER TABLE video DROP INDEX IF EXISTS idx_video_status_created");
-        $this->addSql("ALTER TABLE video DROP INDEX IF EXISTS idx_video_status_views");
-        $this->addSql("ALTER TABLE comment DROP INDEX IF EXISTS idx_comment_moderation_video");
-        $this->addSql("ALTER TABLE channels DROP INDEX IF EXISTS idx_channel_active_subscribers");
+        // Безопасное удаление индексов с проверками
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'video' 
+                 AND index_name = 'idx_video_status_created') > 0,
+                'ALTER TABLE video DROP INDEX idx_video_status_created',
+                'SELECT \"Index idx_video_status_created does not exist\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
+        
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'video' 
+                 AND index_name = 'idx_video_status_views') > 0,
+                'ALTER TABLE video DROP INDEX idx_video_status_views',
+                'SELECT \"Index idx_video_status_views does not exist\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
+        
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'comment' 
+                 AND index_name = 'idx_comment_moderation_video') > 0,
+                'ALTER TABLE comment DROP INDEX idx_comment_moderation_video',
+                'SELECT \"Index idx_comment_moderation_video does not exist\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
+        
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'channels' 
+                 AND index_name = 'idx_channel_active_subscribers') > 0,
+                'ALTER TABLE channels DROP INDEX idx_channel_active_subscribers',
+                'SELECT \"Index idx_channel_active_subscribers does not exist\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
     }
 }

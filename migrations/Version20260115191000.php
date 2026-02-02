@@ -20,15 +20,35 @@ final class Version20260115191000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // Удаляем старый индекс ft_title если существует
-        try {
-            $this->addSql('ALTER TABLE video DROP INDEX ft_title');
-        } catch (\Exception $e) {
-            // Индекс может не существовать, игнорируем ошибку
-        }
+        // Безопасное удаление старого индекса ft_title если существует
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'video' 
+                 AND index_name = 'ft_title') > 0,
+                'ALTER TABLE video DROP INDEX ft_title',
+                'SELECT \"Index ft_title does not exist on video table\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
         
-        // Создаем новый индекс на обе колонки
-        $this->addSql('ALTER TABLE video ADD FULLTEXT INDEX ft_title_description (title, description)');
+        // Безопасное создание нового индекса
+        $this->addSql("
+            SET @sql = (SELECT IF(
+                (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+                 WHERE table_schema = DATABASE() 
+                 AND table_name = 'video' 
+                 AND index_name = 'ft_title_description') = 0,
+                'ALTER TABLE video ADD FULLTEXT INDEX ft_title_description (title, description)',
+                'SELECT \"Index ft_title_description already exists on video table\"'
+            ));
+            PREPARE stmt FROM @sql;
+            EXECUTE stmt;
+            DEALLOCATE PREPARE stmt;
+        ");
     }
 
     public function down(Schema $schema): void

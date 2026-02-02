@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\ProfileEditType;
 use App\Repository\UserRepository;
 use App\Repository\VideoRepository;
 use App\Repository\BookmarkRepository;
@@ -15,6 +16,8 @@ use App\Repository\NotificationRepository;
 use App\Repository\WatchHistoryRepository;
 use App\Service\UserStatsService;
 use App\Service\SettingsService;
+use App\Service\ImageService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +39,9 @@ class UserProfileController extends AbstractController
         private ChannelPlaylistRepository $playlistRepository,
         private NotificationRepository $notificationRepository,
         private UserStatsService $userStatsService,
-        private SettingsService $settingsService
+        private SettingsService $settingsService,
+        private EntityManagerInterface $entityManager,
+        private ImageService $imageService
     ) {}
 
     #[Route('', name: 'user_profile_overview')]
@@ -284,6 +289,73 @@ class UserProfileController extends AbstractController
         return $this->render('members/profile/about.html.twig', [
             'user' => $user,
             'active_tab' => 'about'
+        ]);
+    }
+
+    #[Route('/edit', name: 'user_profile_edit')]
+    public function edit(string $username, Request $request): Response
+    {
+        $user = $this->findUserByUsername($username);
+        $this->checkOwnerAccess($user);
+        
+        $form = $this->createForm(ProfileEditType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            $this->addFlash('info', 'Форма отправлена');
+            
+            if ($form->isValid()) {
+                $this->addFlash('info', 'Форма валидна');
+            // Обработка аватара
+            $avatarFile = $form->get('avatarFile')->getData();
+            if ($avatarFile) {
+                try {
+                    // Удаляем старый аватар
+                    if ($user->getAvatar()) {
+                        $this->imageService->deleteImage($user->getAvatar(), $this->getParameter('avatars_directory'));
+                    }
+                    
+                    $newFilename = $this->imageService->processAvatar($avatarFile);
+                    $user->setAvatar($newFilename);
+                    $this->addFlash('success', 'Аватар успешно загружен: ' . $newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Ошибка при загрузке аватара: ' . $e->getMessage());
+                }
+            }
+
+            // Обработка обложки
+            $coverImageFile = $form->get('coverImageFile')->getData();
+            if ($coverImageFile) {
+                try {
+                    // Удаляем старую обложку
+                    if ($user->getCoverImage()) {
+                        $this->imageService->deleteImage($user->getCoverImage(), $this->getParameter('covers_directory'));
+                    }
+                    
+                    $newFilename = $this->imageService->processCover($coverImageFile);
+                    $user->setCoverImage($newFilename);
+                    $this->addFlash('success', 'Обложка успешно загружена: ' . $newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Ошибка при загрузке обложки: ' . $e->getMessage());
+                }
+            }
+
+            $user->setUpdatedAt(new \DateTimeImmutable());
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Профиль успешно обновлен');
+            return $this->redirectToRoute('user_profile_overview', ['username' => $user->getUsername()]);
+            } else {
+                $this->addFlash('error', 'Форма содержит ошибки');
+                foreach ($form->getErrors(true) as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+            }
+        }
+
+        return $this->render('members/edit.html.twig', [
+            'form' => $form,
+            'user' => $user,
         ]);
     }
 

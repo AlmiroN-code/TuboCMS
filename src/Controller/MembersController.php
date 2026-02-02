@@ -37,22 +37,5 @@ class MembersController extends AbstractController
         ]);
     }
 
-    #[Route('/members/{username}/edit', name: 'app_member_edit')]
-    public function edit(string $username): Response
-    {
-        $user = $this->userRepository->findOneBy(['username' => $username]);
-        
-        if (!$user) {
-            throw $this->createNotFoundException('Пользователь не найден');
-        }
-        
-        // Проверяем, что пользователь редактирует свой профиль
-        if ($this->getUser() !== $user) {
-            throw $this->createAccessDeniedException('Вы можете редактировать только свой профиль');
-        }
-        
-        return $this->forward('App\Controller\ProfileController::edit', [
-            'user' => $user,
-        ]);
-    }
+    // Маршрут удален - функционал перенесен в UserProfileController::edit
 }
