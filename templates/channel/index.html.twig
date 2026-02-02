@@ -8,19 +8,18 @@
 {% block title %}Каналы{% endblock %}
 
 {% block body %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ 'channel.title'|trans }}</h1>
+<div class="container mx-auto p-8">
+    <div class="mb-6">
+        <h1 class="text-3xl text-gray-900 mb-2">{{ 'channel.title'|trans }}</h1>
         <p class="text-gray-600">{{ 'channel.discover'|trans }}</p>
     </div>
 
     <!-- Фильтры -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+    <div class="mb-8">
         <form method="GET" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                           placeholder="{{ 'channel.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
+                    <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="{{ 'channel.search_placeholder'|trans }}" value="{{ filters.search ?? '' }}">
                 </div>
                 <div>
                     <select name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
