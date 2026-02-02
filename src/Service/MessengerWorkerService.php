@@ -63,31 +63,59 @@ class MessengerWorkerService
             $phpPath = $this->findPhpPath();
             $consolePath = $this->projectDir . '/bin/console';
             
+            // Проверяем существование console
+            if (!file_exists($consolePath)) {
+                throw new \Exception("Файл console не найден: {$consolePath}");
+            }
+            
+            // Проверяем права на выполнение console (для Linux)
+            if (!$this->isWindows() && !is_executable($consolePath)) {
+                @chmod($consolePath, 0755);
+            }
+            
             // Создаем директорию для логов если не существует
             $logDir = dirname($this->logFile);
             if (!is_dir($logDir)) {
-                if (!mkdir($logDir, 0755, true)) {
+                if (!@mkdir($logDir, 0755, true)) {
                     throw new \Exception("Не удалось создать директорию для логов: {$logDir}");
                 }
             }
             
             // Создаем лог-файл если не существует
             if (!file_exists($this->logFile)) {
-                if (file_put_contents($this->logFile, '') === false) {
+                if (@file_put_contents($this->logFile, '') === false) {
                     throw new \Exception("Не удалось создать лог-файл: {$this->logFile}");
                 }
                 // Устанавливаем права доступа для Linux
                 if (!$this->isWindows()) {
-                    chmod($this->logFile, 0664);
+                    @chmod($this->logFile, 0664);
                 }
             }
             
             // Проверяем, что лог-файл доступен для записи
             if (!is_writable($this->logFile)) {
-                throw new \Exception("Лог-файл недоступен для записи: {$this->logFile}");
+                // Пытаемся исправить права
+                if (!$this->isWindows()) {
+                    @chmod($this->logFile, 0664);
+                }
+                
+                // Проверяем снова
+                if (!is_writable($this->logFile)) {
+                    // Не критично, продолжаем без логирования в файл
+                    $this->logger->warning("Лог-файл недоступен для записи: {$this->logFile}");
+                }
             }
             
-            file_put_contents($this->logFile, "[" . date('Y-m-d H:i:s') . "] Starting worker...\n", FILE_APPEND);
+            // Проверяем доступность PHP
+            $phpVersion = @shell_exec("{$phpPath} -v 2>&1");
+            if (!$phpVersion || strpos($phpVersion, 'PHP') === false) {
+                throw new \Exception("PHP не найден или недоступен по пути: {$phpPath}");
+            }
+            
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] Starting worker...");
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] PHP Path: {$phpPath}");
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] Console Path: {$consolePath}");
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] OS: " . PHP_OS_FAMILY);
 
             if ($this->isWindows()) {
                 $pid = $this->startWindows($phpPath, $consolePath);
@@ -97,14 +125,29 @@ class MessengerWorkerService
 
             if ($pid > 0) {
                 file_put_contents($this->pidFile, $pid);
+                $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker successfully started with PID: {$pid}");
                 $this->logger->info('Messenger worker started', ['pid' => $pid]);
                 return ['success' => true, 'message' => 'Воркер запущен', 'pid' => $pid];
             }
 
-            return ['success' => false, 'message' => 'Не удалось запустить воркер'];
+            throw new \Exception('Не удалось запустить воркер. Проверьте логи для деталей.');
         } catch (\Exception $e) {
+            $errorMsg = 'Ошибка: ' . $e->getMessage();
             $this->logger->error('Failed to start worker', ['error' => $e->getMessage()]);
-            return ['success' => false, 'message' => 'Ошибка: ' . $e->getMessage()];
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] ERROR: {$e->getMessage()}");
+            return ['success' => false, 'message' => $errorMsg];
+        }
+    }
+    
+    /**
+     * Безопасная запись в лог-файл с обработкой блокировок
+     */
+    private function writeLog(string $message): void
+    {
+        try {
+            @file_put_contents($this->logFile, $message . "\n", FILE_APPEND | LOCK_EX);
+        } catch (\Exception $e) {
+            // Игнорируем ошибки записи в лог
         }
     }
 
@@ -114,38 +157,92 @@ class MessengerWorkerService
         $logTarget = ($_ENV['APP_ENV'] === 'prod' || getenv('APP_ENV') === 'prod') 
             ? $this->projectDir . '/var/log/prod.log'
             : $this->logFile;
-            
-        // Способ 1: Через COM объект WScript.Shell (не блокирует)
+        
+        // Проверяем существование готового bat-файла
+        $existingBatFile = $this->projectDir . '/messenger-worker.bat';
+        
+        // Способ 1: Используем существующий messenger-worker.bat если он есть
+        if (file_exists($existingBatFile)) {
+            try {
+                if (class_exists('COM')) {
+                    $WshShell = new \COM("WScript.Shell");
+                    $command = sprintf(
+                        'cmd /c "set MIBS= && "%s" >> "%s" 2>&1"',
+                        $existingBatFile,
+                        $logTarget
+                    );
+                    $WshShell->Run($command, 0, false);
+                    
+                    sleep(2);
+                    $pid = $this->findWorkerPid();
+                    if ($pid) {
+                        $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker started via existing bat file with PID: {$pid}");
+                        return $pid;
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->logger->warning('Existing bat file method failed', ['error' => $e->getMessage()]);
+                $this->writeLog("[" . date('Y-m-d H:i:s') . "] Existing bat file method failed: {$e->getMessage()}");
+            }
+        }
+        
+        // Способ 2: Через COM объект WScript.Shell с прямым вызовом PHP
         if (class_exists('COM')) {
             try {
                 $WshShell = new \COM("WScript.Shell");
                 $command = sprintf(
-                    '"%s" "%s" messenger:consume async --time-limit=3600 --memory-limit=256M -vv >> "%s" 2>&1',
+                    'cmd /c "set MIBS= && "%s" "%s" messenger:consume async -vv >> "%s" 2>&1"',
                     $phpPath,
                     $consolePath,
                     $logTarget
                 );
-                $WshShell->Run($command, 0, false); // 0 = hidden, false = don't wait
+                $WshShell->Run($command, 0, false);
                 
                 sleep(2);
                 $pid = $this->findWorkerPid();
-                if ($pid) return $pid;
+                if ($pid) {
+                    $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker started via COM with PID: {$pid}");
+                    return $pid;
+                }
             } catch (\Exception $e) {
                 $this->logger->warning('COM method failed', ['error' => $e->getMessage()]);
+                $this->writeLog("[" . date('Y-m-d H:i:s') . "] COM method failed: {$e->getMessage()}");
             }
         }
         
-        // Способ 2: Через popen (асинхронный)
-        $command = sprintf(
-            'start /B "" "%s" "%s" messenger:consume async --time-limit=3600 --memory-limit=256M -vv >> "%s" 2>&1',
-            $phpPath,
-            $consolePath,
-            $logTarget
-        );
-        pclose(popen($command, 'r'));
+        // Способ 3: Создаем временный bat-файл с правильными параметрами
+        try {
+            $batFile = $this->projectDir . '/var/start_worker_temp.bat';
+            $batContent = sprintf(
+                "@echo off\nset MIBS=\n\"%s\" \"%s\" messenger:consume async -vv >> \"%s\" 2>&1",
+                $phpPath,
+                $consolePath,
+                $logTarget
+            );
+            file_put_contents($batFile, $batContent);
+            
+            if (class_exists('COM')) {
+                $WshShell = new \COM("WScript.Shell");
+                $WshShell->Run("cmd /c \"{$batFile}\"", 0, false);
+            } else {
+                pclose(popen("start /B cmd /c \"{$batFile}\"", 'r'));
+            }
+            
+            sleep(2);
+            $pid = $this->findWorkerPid();
+            if ($pid) {
+                $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker started via temp batch file with PID: {$pid}");
+                @unlink($batFile);
+                return $pid;
+            }
+            @unlink($batFile);
+        } catch (\Exception $e) {
+            $this->logger->warning('Temp batch file method failed', ['error' => $e->getMessage()]);
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] Temp batch file method failed: {$e->getMessage()}");
+        }
         
-        sleep(2);
-        return $this->findWorkerPid() ?? 0;
+        $this->writeLog("[" . date('Y-m-d H:i:s') . "] All methods failed to start worker");
+        return 0;
     }
 
     private function startLinux(string $phpPath, string $consolePath): int
@@ -154,14 +251,77 @@ class MessengerWorkerService
         $logTarget = ($_ENV['APP_ENV'] === 'prod' || getenv('APP_ENV') === 'prod') 
             ? $this->projectDir . '/var/log/prod.log'
             : $this->logFile;
+        
+        // Способ 1: Через nohup (стандартный способ для Linux)
+        try {
+            $command = sprintf(
+                'nohup %s %s messenger:consume async -vv >> %s 2>&1 & echo $!',
+                escapeshellarg($phpPath), 
+                escapeshellarg($consolePath),
+                escapeshellarg($logTarget)
+            );
+            $pid = (int) trim(shell_exec($command) ?? '');
             
-        $command = sprintf(
-            'nohup %s %s messenger:consume async --time-limit=3600 --memory-limit=256M -vv >> %s 2>&1 & echo $!',
-            escapeshellarg($phpPath), 
-            escapeshellarg($consolePath), 
-            escapeshellarg($logTarget)
-        );
-        return (int) trim(shell_exec($command) ?? '');
+            if ($pid > 0) {
+                sleep(1);
+                if ($this->isProcessRunning($pid)) {
+                    $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker started via nohup with PID: {$pid}");
+                    return $pid;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning('nohup method failed', ['error' => $e->getMessage()]);
+            $this->writeLog("[" . date('Y-m-d H:i:s') . "] nohup method failed: {$e->getMessage()}");
+        }
+        
+        // Способ 2: Через systemd-run (если доступен)
+        try {
+            if (shell_exec('which systemd-run 2>/dev/null')) {
+                $command = sprintf(
+                    'systemd-run --user --scope %s %s messenger:consume async -vv >> %s 2>&1',
+                    escapeshellarg($phpPath),
+                    escapeshellarg($consolePath),
+                    escapeshellarg($logTarget)
+                );
+                exec($command);
+                
+                sleep(2);
+                $pid = $this->findWorkerPid();
+                if ($pid) {
+                    $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker started via systemd-run with PID: {$pid}");
+                    return $pid;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning('systemd-run method failed', ['error' => $e->getMessage()]);
+        }
+        
+        // Способ 3: Через screen (если доступен)
+        try {
+            if (shell_exec('which screen 2>/dev/null')) {
+                $sessionName = 'messenger_worker_' . time();
+                $command = sprintf(
+                    'screen -dmS %s %s %s messenger:consume async -vv >> %s 2>&1',
+                    escapeshellarg($sessionName),
+                    escapeshellarg($phpPath),
+                    escapeshellarg($consolePath),
+                    escapeshellarg($logTarget)
+                );
+                exec($command);
+                
+                sleep(2);
+                $pid = $this->findWorkerPid();
+                if ($pid) {
+                    $this->writeLog("[" . date('Y-m-d H:i:s') . "] Worker started via screen with PID: {$pid}");
+                    return $pid;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning('screen method failed', ['error' => $e->getMessage()]);
+        }
+        
+        $this->writeLog("[" . date('Y-m-d H:i:s') . "] All methods failed to start worker");
+        return 0;
     }
 
     public function stop(): array
@@ -293,9 +453,18 @@ class MessengerWorkerService
     {
         // Сначала пробуем получить путь из PHP_BINARY константы
         if (defined('PHP_BINARY') && PHP_BINARY && file_exists(PHP_BINARY)) {
-            // Проверяем, что это не PHP-FPM
-            if (strpos(PHP_BINARY, 'php-fpm') === false) {
+            // Проверяем, что это не PHP-FPM и не PHP-CGI
+            if (strpos(PHP_BINARY, 'php-fpm') === false && strpos(PHP_BINARY, 'php-cgi') === false) {
                 return PHP_BINARY;
+            }
+            
+            // Если это CGI, пытаемся найти обычный php.exe в той же директории
+            if (strpos(PHP_BINARY, 'php-cgi') !== false) {
+                $phpDir = dirname(PHP_BINARY);
+                $phpExe = $phpDir . DIRECTORY_SEPARATOR . 'php.exe';
+                if (file_exists($phpExe)) {
+                    return $phpExe;
+                }
             }
         }
 
@@ -317,16 +486,19 @@ class MessengerWorkerService
                 }
             }
 
-            // Пробуем найти через where
+            // Пробуем найти через where, исключая CGI
             $output = shell_exec('where php 2>nul');
             if ($output) {
-                $phpPath = trim(explode("\n", $output)[0]);
-                if (file_exists($phpPath)) {
-                    return $phpPath;
+                $paths = explode("\n", trim($output));
+                foreach ($paths as $phpPath) {
+                    $phpPath = trim($phpPath);
+                    if (file_exists($phpPath) && strpos($phpPath, 'php-cgi') === false) {
+                        return $phpPath;
+                    }
                 }
             }
         } else {
-            // Для Linux/Unix систем - исключаем php-fpm пути
+            // Для Linux/Unix систем - исключаем php-fpm и php-cgi пути
             $unixPaths = [
                 '/usr/bin/php',
                 '/usr/local/bin/php',
@@ -344,11 +516,11 @@ class MessengerWorkerService
                 }
             }
 
-            // Пробуем найти через which, исключая php-fpm
+            // Пробуем найти через which, исключая php-fpm и php-cgi
             $output = shell_exec('which php 2>/dev/null');
             if ($output) {
                 $phpPath = trim($output);
-                if (file_exists($phpPath) && strpos($phpPath, 'php-fpm') === false) {
+                if (file_exists($phpPath) && strpos($phpPath, 'php-fpm') === false && strpos($phpPath, 'php-cgi') === false) {
                     return $phpPath;
                 }
             }
@@ -359,7 +531,7 @@ class MessengerWorkerService
                 $paths = explode(' ', $output);
                 foreach ($paths as $path) {
                     $path = trim($path);
-                    if (strpos($path, '/') === 0 && file_exists($path) && is_executable($path) && strpos($path, 'php-fpm') === false) {
+                    if (strpos($path, '/') === 0 && file_exists($path) && is_executable($path) && strpos($path, 'php-fpm') === false && strpos($path, 'php-cgi') === false) {
                         return $path;
                     }
                 }

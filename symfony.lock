@@ -316,18 +316,6 @@
             "./config/packages/ux_icons.yaml"
         ]
     },
-    "symfony/ux-lazy-image": {
-        "version": "2.32",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.18",
-            "ref": "f6554b7efe60280645ac979c80700f66b8432131"
-        },
-        "files": [
-            "./config/packages/lazy_image.yaml"
-        ]
-    },
     "symfony/ux-live-component": {
         "version": "2.32",
         "recipe": {
@@ -339,9 +327,6 @@
         "files": [
             "./config/routes/ux_live_component.yaml"
         ]
-    },
-    "symfony/ux-toggle-password": {
-        "version": "v2.32.0"
     },
     "symfony/ux-turbo": {
         "version": "2.31",

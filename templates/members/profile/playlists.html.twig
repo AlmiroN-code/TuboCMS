@@ -1,0 +1,74 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}Плейлисты{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+            Плейлисты пользователя {{ user.username }}
+            <span class="text-sm font-normal text-gray-500">({{ playlists|length }})</span>
+        </h2>
+    </div>
+
+    <!-- Playlists Grid -->
+    {% if playlists|length > 0 %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for playlist in playlists %}
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                    <!-- Playlist Thumbnail -->
+                    <div class="aspect-video bg-gray-100 relative">
+                        {% if playlist.thumbnail %}
+                            {{ lazy_img(asset('media/playlists/' ~ playlist.thumbnail), playlist.title, 'w-full h-full object-cover') }}
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Video Count Badge -->
+                        <div class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                            {{ playlist.videosCount }} видео
+                        </div>
+                    </div>
+
+                    <!-- Playlist Info -->
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">{{ playlist.title }}</h3>
+                        {% if playlist.description %}
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ playlist.description }}</p>
+                        {% endif %}
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                            <span>{{ playlist.channel.name }}</span>
+                            <span>{{ playlist.createdAt|date('d.m.Y') }}</span>
+                        </div>
+
+                        <a href="{{ path('playlist_show', {'slug': playlist.slug}) }}" 
+                           class="block text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                            Смотреть плейлист
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет плейлистов</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if app.user and app.user.id == user.id %}
+                    Вы еще не создали ни одного плейлиста.
+                {% else %}
+                    У этого пользователя пока нет плейлистов.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

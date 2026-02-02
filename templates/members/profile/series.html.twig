@@ -1,0 +1,74 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}Серии{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+            Серии пользователя {{ user.username }}
+            <span class="text-sm font-normal text-gray-500">({{ series|length }})</span>
+        </h2>
+    </div>
+
+    <!-- Series Grid -->
+    {% if series|length > 0 %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for serie in series %}
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                    <!-- Series Thumbnail -->
+                    <div class="aspect-video bg-gray-100 relative">
+                        {% if serie.thumbnail %}
+                            {{ lazy_img(asset('media/series/' ~ serie.thumbnail), serie.title, 'w-full h-full object-cover') }}
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Video Count Badge -->
+                        <div class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                            {{ serie.videosCount }} видео
+                        </div>
+                    </div>
+
+                    <!-- Series Info -->
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">{{ serie.title }}</h3>
+                        {% if serie.description %}
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ serie.description }}</p>
+                        {% endif %}
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                            <span>{{ serie.createdAt|date('d.m.Y') }}</span>
+                            <span>{{ serie.totalViews }} просмотров</span>
+                        </div>
+
+                        <a href="{{ path('app_series_show', {'slug': serie.slug}) }}" 
+                           class="block text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                            Смотреть серию
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет серий</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if app.user and app.user.id == user.id %}
+                    Вы еще не создали ни одной серии.
+                {% else %}
+                    У этого пользователя пока нет серий.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}Обзор{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Bio Section -->
+    {% if user.bio %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">О пользователе</h3>
+            <p class="text-gray-600 leading-relaxed">{{ user.bio }}</p>
+        </div>
+    {% endif %}
+
+    <!-- Recent Videos -->
+    {% if recent_videos|length > 0 %}
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Последние видео</h3>
+                <a href="{{ path('user_profile_videos', {'username': user.username}) }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    Смотреть все
+                </a>
+            </div>
+            <div class="video-grid">
+                {% for video in recent_videos %}
+                    {% include 'video/_card.html.twig' with {'video': video} %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Activity Timeline -->
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Активность</h3>
+        <div class="space-y-4">
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Зарегистрирован {{ user.createdAt|date('d.m.Y') }}</span>
+            </div>
+            {% if user.updatedAt != user.createdAt %}
+                <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span>Последняя активность {{ user.updatedAt|date('d.m.Y') }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Информация</h3>
+            <div class="space-y-3">
+                {% if user.country %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Страна:</span>
+                        <span class="font-medium">{{ user.country }}</span>
+                    </div>
+                {% endif %}
+                {% if user.city %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Город:</span>
+                        <span class="font-medium">{{ user.city }}</span>
+                    </div>
+                {% endif %}
+                {% if user.gender %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Пол:</span>
+                        <span class="font-medium">
+                            {% if user.gender == 'male' %}Мужской
+                            {% elseif user.gender == 'female' %}Женский
+                            {% else %}{{ user.gender }}{% endif %}
+                        </span>
+                    </div>
+                {% endif %}
+                {% if user.age %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Возраст:</span>
+                        <span class="font-medium">{{ user.age }} лет</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Достижения</h3>
+            <div class="space-y-2">
+                {% if user.isVerified %}
+                    <div class="flex items-center gap-2 text-sm text-blue-600">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        <span>Верифицированный пользователь</span>
+                    </div>
+                {% endif %}
+                {% if user.isPremium %}
+                    <div class="flex items-center gap-2 text-sm text-yellow-600">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <span>Премиум пользователь</span>
+                    </div>
+                {% endif %}
+                {% if user.videosCount > 10 %}
+                    <div class="flex items-center gap-2 text-sm text-green-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <span>Активный создатель контента</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

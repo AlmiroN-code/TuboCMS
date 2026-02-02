@@ -343,10 +343,22 @@ class VideoProcessingService
             $posterFormat = strtolower($this->settingsService->get('poster_format', 'JPEG'));
             $posterQuality = $this->settingsService->get('poster_quality', 85);
 
+            $logMsg = "[" . date('Y-m-d H:i:s') . "] Extracting poster: video=$videoPath, output=$outputPath, width=$posterWidth, height=$posterHeight, format=$posterFormat, atSecond=$atSecond\n";
+            @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
+
+            $this->logger->info('Extracting poster with settings', [
+                'width' => $posterWidth,
+                'height' => $posterHeight,
+                'format' => $posterFormat,
+                'quality' => $posterQuality,
+                'atSecond' => $atSecond
+            ]);
+
             // Создаем директорию если нужно
             $outputDir = dirname($outputPath);
             if (!is_dir($outputDir)) {
-                if (!mkdir($outputDir, 0755, true)) {
+                if (!@mkdir($outputDir, 0755, true)) {
+                    $this->logger->error("Cannot create output directory", ['outputDir' => $outputDir]);
                     throw new \RuntimeException("Cannot create output directory: {$outputDir}");
                 }
             }
@@ -354,30 +366,41 @@ class VideoProcessingService
             // Определяем параметры качества для разных форматов
             $qualityParams = [];
             $codecParams = [];
+            $outputFormat = 'jpg'; // По умолчанию JPG
+            
             switch ($posterFormat) {
                 case 'jpeg':
                 case 'jpg':
-                    $qualityParams = ['-q:v', (string) max(2, 31 - ($posterQuality * 0.29))];
+                    $qualityParams = ['-q:v', '2']; // Качество 2 (лучшее для JPG)
+                    $outputFormat = 'jpg';
                     break;
                 case 'png':
                     // PNG без потерь, качество не применяется
+                    $outputFormat = 'png';
                     break;
                 case 'webp':
                     $codecParams = ['-c:v', 'libwebp'];
                     $qualityParams = ['-quality', (string) $posterQuality];
+                    $outputFormat = 'webp';
                     break;
                 case 'avif':
                     $codecParams = ['-c:v', 'libaom-av1', '-still-picture', '1'];
-                    $qualityParams = ['-crf', (string) max(0, 63 - ($posterQuality * 0.63))];
+                    $qualityParams = ['-crf', '23'];
+                    $outputFormat = 'avif';
                     break;
+                default:
+                    $outputFormat = 'jpg';
             }
+
+            // Используем более простой и надежный фильтр масштабирования
+            $scaleFilter = "scale={$posterWidth}:{$posterHeight}:force_original_aspect_ratio=decrease";
 
             $command = [
                 $this->ffmpegPath,
                 '-i', $videoPath,
                 '-ss', (string) $atSecond,
                 '-vframes', '1',
-                '-vf', "scale={$posterWidth}:{$posterHeight}:force_original_aspect_ratio=decrease,pad={$posterWidth}:{$posterHeight}:(ow-iw)/2:(oh-ih)/2",
+                '-vf', $scaleFilter,
                 '-avoid_negative_ts', 'make_zero',
             ];
 
@@ -394,32 +417,81 @@ class VideoProcessingService
             $command[] = '-y';
             $command[] = $outputPath;
 
+            $this->logger->info('Executing FFmpeg command for poster', [
+                'command' => implode(' ', array_map('escapeshellarg', $command))
+            ]);
+
             $result = $this->executeFFmpegCommand($command, 60);
 
+            $logMsg = "[" . date('Y-m-d H:i:s') . "] FFmpeg result: success=" . ($result['success'] ? 'true' : 'false') . ", exit_code=" . $result['exit_code'] . ", error=" . ($result['error'] ?? 'none') . "\n";
+            @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
+
+            $this->logger->info('FFmpeg command result', [
+                'success' => $result['success'],
+                'exit_code' => $result['exit_code'],
+                'error' => $result['error']
+            ]);
+
             if (!$result['success']) {
-                error_log("Poster extraction failed: " . $result['error']);
+                $this->logger->error("Poster extraction FFmpeg failed", [
+                    'error' => $result['error'],
+                    'output' => $result['output'] ?? '',
+                    'exit_code' => $result['exit_code']
+                ]);
                 return false;
             }
 
             // Проверяем что файл создался и имеет разумный размер
             if (!file_exists($outputPath)) {
-                error_log("Poster file was not created: {$outputPath}");
+                $logMsg = "[" . date('Y-m-d H:i:s') . "] ERROR: Poster file not created at $outputPath\n";
+                @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
+                
+                $this->logger->error("Poster file was not created", [
+                    'outputPath' => $outputPath,
+                    'outputDir' => $outputDir,
+                    'dirExists' => is_dir($outputDir),
+                    'dirWritable' => is_writable($outputDir)
+                ]);
                 return false;
             }
 
             $fileSize = filesize($outputPath);
+            $logMsg = "[" . date('Y-m-d H:i:s') . "] Poster file created: size=$fileSize bytes\n";
+            @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
+            
             if ($fileSize === false || $fileSize < 100) { // Минимум 100 байт
-                error_log("Poster file is too small: {$fileSize} bytes");
-                unlink($outputPath);
+                $logMsg = "[" . date('Y-m-d H:i:s') . "] ERROR: Poster file too small: $fileSize bytes\n";
+                @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
+                
+                $this->logger->error("Poster file is too small or unreadable", [
+                    'fileSize' => $fileSize,
+                    'outputPath' => $outputPath
+                ]);
+                @unlink($outputPath);
                 return false;
             }
+
+            $this->logger->info('Poster extracted successfully', [
+                'outputPath' => $outputPath,
+                'fileSize' => $fileSize,
+                'format' => $outputFormat
+            ]);
+
+            $logMsg = "[" . date('Y-m-d H:i:s') . "] SUCCESS: Poster extracted successfully\n";
+            @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
 
             return true;
 
         } catch (\Exception $e) {
-            error_log("Poster extraction exception: " . $e->getMessage());
+            $logMsg = "[" . date('Y-m-d H:i:s') . "] EXCEPTION: " . $e->getMessage() . "\n";
+            @file_put_contents('/tmp/poster_debug.log', $logMsg, FILE_APPEND);
+            
+            $this->logger->error("Poster extraction exception", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             if (file_exists($outputPath)) {
-                unlink($outputPath);
+                @unlink($outputPath);
             }
             return false;
         }
@@ -843,8 +915,23 @@ class VideoProcessingService
                 mkdir(dirname($posterPath), 0777, true);
             }
 
+            $this->logger->info('Attempting to extract poster', [
+                'videoPath' => $videoPath,
+                'posterPath' => $posterPath,
+                'posterFormat' => $posterFormat
+            ]);
+
             if ($this->extractPoster($videoPath, $posterPath)) {
                 $result['poster'] = 'posters/' . $posterFilename;
+                $this->logger->info('Poster extracted successfully', [
+                    'posterPath' => $posterPath,
+                    'fileSize' => filesize($posterPath)
+                ]);
+            } else {
+                $this->logger->warning('Poster extraction failed', [
+                    'videoPath' => $videoPath,
+                    'posterPath' => $posterPath
+                ]);
             }
 
             // Extract preview

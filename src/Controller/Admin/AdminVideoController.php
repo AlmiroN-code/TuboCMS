@@ -9,6 +9,7 @@ use App\Repository\VideoRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\TagRepository;
 use App\Repository\ModelProfileRepository;
+use App\Repository\ChannelRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +28,7 @@ class AdminVideoController extends AbstractController
         private CategoryRepository $categoryRepository,
         private TagRepository $tagRepository,
         private ModelProfileRepository $modelProfileRepository,
+        private ChannelRepository $channelRepository,
         private EntityManagerInterface $em,
         private MessageBusInterface $messageBus
     ) {
@@ -73,6 +75,7 @@ class AdminVideoController extends AbstractController
             'categories' => $this->categoryRepository->findAll(),
             'tags' => $this->tagRepository->findAll(),
             'models' => $this->modelProfileRepository->findBy(['isActive' => true], ['displayName' => 'ASC']),
+            'channels' => $this->channelRepository->findBy(['isActive' => true], ['name' => 'ASC']),
         ]);
     }
 
@@ -88,6 +91,7 @@ class AdminVideoController extends AbstractController
             'categories' => $this->categoryRepository->findAll(),
             'tags' => $this->tagRepository->findAll(),
             'models' => $this->modelProfileRepository->findBy(['isActive' => true], ['displayName' => 'ASC']),
+            'channels' => $this->channelRepository->findBy(['isActive' => true], ['name' => 'ASC']),
         ]);
     }
 
@@ -355,6 +359,15 @@ class AdminVideoController extends AbstractController
         $newStatus = $request->request->get('status', Video::STATUS_DRAFT);
         $video->setStatus($newStatus);
         $video->setFeatured($request->request->get('is_featured') === '1');
+        
+        // Обработка канала
+        $channelId = $request->request->get('channel');
+        if ($channelId) {
+            $channel = $this->channelRepository->find($channelId);
+            $video->setChannel($channel);
+        } else {
+            $video->setChannel(null);
+        }
         
         // Обработка категорий (мультивыбор)
         $categoryIds = $request->request->all('categories');

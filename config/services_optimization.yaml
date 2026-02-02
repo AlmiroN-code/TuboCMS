@@ -1,0 +1,31 @@
+services:
+    # Circuit Breaker Factory
+    App\Service\CircuitBreaker\CircuitBreakerFactory:
+        arguments:
+            $cache: '@cache.app'
+            $logger: '@logger'
+
+    # Materialized Views Service
+    App\Service\MaterializedViewService:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+            $cache: '@cache.app'
+            $logger: '@logger'
+
+    # Optimized Query Service
+    App\Service\OptimizedQueryService:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $videoRepository: '@App\Repository\VideoRepository'
+            $channelRepository: '@App\Repository\ChannelRepository'
+            $commentRepository: '@App\Repository\CommentRepository'
+            $circuitBreakerFactory: '@App\Service\CircuitBreaker\CircuitBreakerFactory'
+            $cache: '@cache.app'
+            $logger: '@logger'
+
+    # Cache Optimization Service
+    App\Service\CacheOptimizationService:
+        arguments:
+            $cache: '@cache.app'
+            $tagAwareCache: '@cache.app'
+            $logger: '@logger'

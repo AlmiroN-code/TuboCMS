@@ -1,0 +1,402 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Управление видео - {{ channel.name }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    Управление видео канала "{{ channel.name }}"
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">
+                    Добавляйте и удаляйте видео из канала
+                </p>
+            </div>
+            <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Вернуться к каналу
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Видео канала -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Видео в канале ({{ channelVideos|length }})
+                </h2>
+                {% if channelVideos|length > 0 %}
+                <button type="button" id="bulk-remove-btn" 
+                        class="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    <i class="fas fa-minus mr-2"></i>
+                    Удалить выбранные
+                </button>
+                {% endif %}
+            </div>
+
+            {% if channelVideos|length > 0 %}
+            <form id="channel-videos-form">
+                <div class="space-y-3">
+                    {% for video in channelVideos %}
+                    <div class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <input type="checkbox" name="channel_video_ids[]" value="{{ video.id }}" 
+                               class="channel-video-checkbox w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500">
+                        
+                        <div class="ml-3 flex-1 min-w-0">
+                            <div class="flex items-center space-x-3">
+                                {% if video.poster %}
+                                <img src="/media/{{ video.poster }}" alt="{{ video.title }}" 
+                                     class="w-16 h-12 object-cover rounded">
+                                {% else %}
+                                <div class="w-16 h-12 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
+                                    <i class="fas fa-video text-gray-400"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                        {{ video.title }}
+                                    </p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        <span>{{ video.viewsCount|number_format }} просмотров</span>
+                                        <span>{{ video.createdAt|date('d.m.Y') }}</span>
+                                        <span class="px-2 py-1 rounded 
+                                                   {{ video.status == 'published' ? 'bg-green-100 text-green-800' : 
+                                                      (video.status == 'processing' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
+                                            {{ video.status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="remove-single-btn ml-3 p-2 text-red-600 hover:text-red-800" 
+                                data-video-id="{{ video.id }}" data-video-title="{{ video.title }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-video text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500 dark:text-gray-400">В канале пока нет видео</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Доступные видео -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Мои видео без канала ({{ userVideos|length }})
+                </h2>
+                {% if userVideos|length > 0 %}
+                <button type="button" id="bulk-add-btn" 
+                        class="inline-flex items-center px-3 py-2 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    <i class="fas fa-plus mr-2"></i>
+                    Добавить выбранные
+                </button>
+                {% endif %}
+            </div>
+
+            {% if userVideos|length > 0 %}
+            <form id="user-videos-form">
+                <div class="space-y-3">
+                    {% for video in userVideos %}
+                    <div class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <input type="checkbox" name="user_video_ids[]" value="{{ video.id }}" 
+                               class="user-video-checkbox w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                        
+                        <div class="ml-3 flex-1 min-w-0">
+                            <div class="flex items-center space-x-3">
+                                {% if video.poster %}
+                                <img src="/media/{{ video.poster }}" alt="{{ video.title }}" 
+                                     class="w-16 h-12 object-cover rounded">
+                                {% else %}
+                                <div class="w-16 h-12 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
+                                    <i class="fas fa-video text-gray-400"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                        {{ video.title }}
+                                    </p>
+                                    <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        <span>{{ video.viewsCount|number_format }} просмотров</span>
+                                        <span>{{ video.createdAt|date('d.m.Y') }}</span>
+                                        <span class="px-2 py-1 rounded 
+                                                   {{ video.status == 'published' ? 'bg-green-100 text-green-800' : 
+                                                      (video.status == 'processing' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
+                                            {{ video.status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-single-btn ml-3 p-2 text-green-600 hover:text-green-800" 
+                                data-video-id="{{ video.id }}" data-video-title="{{ video.title }}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-video text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500 dark:text-gray-400">У вас нет видео без канала</p>
+                <a href="{{ path('video_upload') }}" 
+                   class="inline-flex items-center mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700">
+                    <i class="fas fa-upload mr-2"></i>
+                    Загрузить видео
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения -->
+<div id="confirm-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3 text-center">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100" id="modal-title">Подтверждение</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500 dark:text-gray-400" id="modal-message">Вы уверены?</p>
+            </div>
+            <div class="flex justify-center space-x-4 px-4 py-3">
+                <button id="modal-cancel" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400">
+                    Отмена
+                </button>
+                <button id="modal-confirm" 
+                        class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700">
+                    Подтвердить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const channelSlug = '{{ channel.slug }}';
+    
+    // Элементы
+    const bulkAddBtn = document.getElementById('bulk-add-btn');
+    const bulkRemoveBtn = document.getElementById('bulk-remove-btn');
+    const userCheckboxes = document.querySelectorAll('.user-video-checkbox');
+    const channelCheckboxes = document.querySelectorAll('.channel-video-checkbox');
+    const addSingleBtns = document.querySelectorAll('.add-single-btn');
+    const removeSingleBtns = document.querySelectorAll('.remove-single-btn');
+    const modal = document.getElementById('confirm-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalCancel = document.getElementById('modal-cancel');
+    const modalConfirm = document.getElementById('modal-confirm');
+
+    // Обновление состояния кнопок
+    function updateBulkButtons() {
+        const selectedUserVideos = document.querySelectorAll('.user-video-checkbox:checked');
+        const selectedChannelVideos = document.querySelectorAll('.channel-video-checkbox:checked');
+        
+        if (bulkAddBtn) {
+            bulkAddBtn.disabled = selectedUserVideos.length === 0;
+        }
+        if (bulkRemoveBtn) {
+            bulkRemoveBtn.disabled = selectedChannelVideos.length === 0;
+        }
+    }
+
+    // Обработчики чекбоксов
+    userCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkButtons);
+    });
+    
+    channelCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkButtons);
+    });
+
+    // Показать модальное окно
+    function showModal(title, message, onConfirm) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modal.classList.remove('hidden');
+        
+        modalConfirm.onclick = function() {
+            modal.classList.add('hidden');
+            onConfirm();
+        };
+    }
+
+    // Скрыть модальное окно
+    modalCancel.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    // Добавление одного видео
+    addSingleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const videoId = this.dataset.videoId;
+            const videoTitle = this.dataset.videoTitle;
+            
+            showModal(
+                'Добавить видео в канал',
+                `Добавить видео "${videoTitle}" в канал?`,
+                () => addVideo(videoId)
+            );
+        });
+    });
+
+    // Удаление одного видео
+    removeSingleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const videoId = this.dataset.videoId;
+            const videoTitle = this.dataset.videoTitle;
+            
+            showModal(
+                'Удалить видео из канала',
+                `Удалить видео "${videoTitle}" из канала?`,
+                () => removeVideo(videoId)
+            );
+        });
+    });
+
+    // Массовое добавление
+    if (bulkAddBtn) {
+        bulkAddBtn.addEventListener('click', function() {
+            const selectedVideos = document.querySelectorAll('.user-video-checkbox:checked');
+            const count = selectedVideos.length;
+            
+            showModal(
+                'Добавить видео в канал',
+                `Добавить ${count} видео в канал?`,
+                () => bulkAddVideos()
+            );
+        });
+    }
+
+    // Массовое удаление
+    if (bulkRemoveBtn) {
+        bulkRemoveBtn.addEventListener('click', function() {
+            const selectedVideos = document.querySelectorAll('.channel-video-checkbox:checked');
+            const count = selectedVideos.length;
+            
+            showModal(
+                'Удалить видео из канала',
+                `Удалить ${count} видео из канала?`,
+                () => bulkRemoveVideos()
+            );
+        });
+    }
+
+    // API функции
+    function addVideo(videoId) {
+        fetch(`/channel/${channelSlug}/videos/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `video_id=${videoId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Ошибка при добавлении видео');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка');
+        });
+    }
+
+    function removeVideo(videoId) {
+        fetch(`/channel/${channelSlug}/videos/remove`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `video_id=${videoId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Ошибка при удалении видео');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка');
+        });
+    }
+
+    function bulkAddVideos() {
+        const selectedVideos = document.querySelectorAll('.user-video-checkbox:checked');
+        const videoIds = Array.from(selectedVideos).map(cb => cb.value);
+        
+        const formData = new FormData();
+        videoIds.forEach(id => formData.append('video_ids[]', id));
+        
+        fetch(`/channel/${channelSlug}/videos/bulk-add`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Ошибка при добавлении видео');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка');
+        });
+    }
+
+    function bulkRemoveVideos() {
+        const selectedVideos = document.querySelectorAll('.channel-video-checkbox:checked');
+        const videoIds = Array.from(selectedVideos).map(cb => cb.value);
+        
+        const formData = new FormData();
+        videoIds.forEach(id => formData.append('video_ids[]', id));
+        
+        fetch(`/channel/${channelSlug}/videos/bulk-remove`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Ошибка при удалении видео');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка');
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

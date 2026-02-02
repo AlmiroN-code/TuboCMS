@@ -73,32 +73,6 @@ if (Encore.isProduction()) {
     Encore
         // Минификация JS
         .enableIntegrityHashes(true)
-        
-        // Настройка Webpack напрямую для оптимизации
-        .configureWebpack((config) => {
-            config.optimization = config.optimization || {};
-            config.optimization.minimize = true;
-            config.optimization.sideEffects = false;
-            
-            // Разделение vendor библиотек
-            config.optimization.splitChunks = {
-                cacheGroups: {
-                    vendor: {
-                        test: /[\\/]node_modules[\\/]/,
-                        name: 'vendors',
-                        chunks: 'all',
-                        priority: 10
-                    },
-                    common: {
-                        name: 'common',
-                        minChunks: 2,
-                        chunks: 'all',
-                        priority: 5,
-                        reuseExistingChunk: true
-                    }
-                }
-            };
-        })
     ;
 }
 

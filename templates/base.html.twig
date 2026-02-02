@@ -5,9 +5,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token('htmx') }}">
     <title>{% block title %}{% endblock %}{% if setting('append_site_name_to_title') %} on {{ site_name() }}{% endif %}</title>
-    {% set seo_home_only = setting('seo_home_only', false) %}
-    {% set is_home = app.request.attributes.get('_route') == 'home' %}
-    {% set use_seo_settings = is_home or not seo_home_only %}
+    {% set seo_home_only = setting('seo_home_only', false) %}{% set is_home = app.request.attributes.get('_route') == 'home' %}{% set use_seo_settings = is_home or not seo_home_only %}
     <meta name="description" content="{% block meta_description %}{% if use_seo_settings and setting('seo_home_description') %}{{ setting('seo_home_description') }}{% else %}{{ setting('site_description') }}{% endif %}{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}{% if use_seo_settings and setting('seo_home_keywords') %}{{ setting('seo_home_keywords') }}{% else %}{{ setting('site_keywords') }}{% endif %}{% endblock %}">
     {# Open Graph meta tags #}
@@ -21,9 +19,7 @@
     {# Pagination SEO: rel="prev" and rel="next" #}
     {% block pagination_seo %}{% endblock %}
     {# Noindex for filtered/deep pages #}
-    {% if should_noindex() %}
-    <meta name="robots" content="noindex, follow">
-    {% endif %}
+    {% if should_noindex() %}<meta name="robots" content="noindex, follow">{% endif %}
     {# Alternate language versions (hreflang) #}
     {% set current_locale = app.request.locale %}
     {% set current_path = app.request.pathInfo %}
@@ -39,19 +35,7 @@
     {% endif %}
     <style>[x-cloak]{display:none!important;}html { visibility:hidden;}html.theme-loaded {visibility:visible;}</style>
     <script>
-        // Apply theme before CSS loads to prevent flash
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const theme = savedTheme || systemTheme;
-            
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-            
-            // Show page after theme is applied
-            document.documentElement.classList.add('theme-loaded');
-        })();
+        !function(){const e=localStorage.getItem("theme"),t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";"dark"===(e||t)&&document.documentElement.classList.add("dark"),document.documentElement.classList.add("theme-loaded")}();
     </script>
     {% block stylesheets %}{% endblock %}
     {{ encore_entry_link_tags('app') }}
@@ -65,9 +49,7 @@
     {# oEmbed discovery link #}
     {% if app.request.attributes.get('_route') == 'video_detail' %}<link rel="alternate" type="application/json+oembed" href="{{ oembed_url(video) }}" title="{{ video.title }}">{% endif %}
     {# Google Search Console verification #}
-    {% if google_search_console_code() %}
-        <meta name="google-site-verification" content="{{ google_search_console_code() }}">
-    {% endif %}
+    {% if google_search_console_code() %}<meta name="google-site-verification" content="{{ google_search_console_code() }}">{% endif %}
     
     {# Google Analytics #}
     {% if google_analytics_id() %}

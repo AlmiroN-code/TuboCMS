@@ -98,7 +98,7 @@ class VideoSchemaExtension extends AbstractExtension
             $schema['author'] = [
                 '@type' => 'Person',
                 'name' => $creator->getUsername(),
-                'url' => $this->urlGenerator->generate('app_member_profile', [
+                'url' => $this->urlGenerator->generate('user_profile_overview', [
                     'username' => $creator->getUsername()
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
             ];

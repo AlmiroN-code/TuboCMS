@@ -1,0 +1,122 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}{{ 'history.title'|trans }}{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+            {{ 'history.title'|trans }}
+            <span class="text-sm font-normal text-gray-500">{{ 'history.total_count'|trans({'%count%': total}) }}</span>
+        </h2>
+        {% if history_items|length > 0 %}
+            <button class="text-sm text-red-600 hover:text-red-700 font-medium">
+                {{ 'history.clear_all'|trans }}
+            </button>
+        {% endif %}
+    </div>
+
+    <!-- History Grid -->
+    {% if videos|length > 0 %}
+        <div class="video-grid">
+            {% for i, video in videos %}
+                {% set history_item = history_items[i] %}
+                <div class="relative">
+                    <!-- Standard video card -->
+                    {% include 'video/_card.html.twig' with {'video': video} %}
+                    
+                    <!-- History overlay with watch info -->
+                    <div class="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-md z-20">
+                        <div class="flex flex-col gap-1">
+                            <span>{{ history_item.watchedAt|date('d.m.Y H:i') }}</span>
+                            {% if history_item.watchProgress and video.duration %}
+                                {% set progress_percent = (history_item.watchProgress / video.duration * 100)|round %}
+                                <div class="flex items-center gap-1">
+                                    <span>{{ progress_percent }}%</span>
+                                    <div class="w-8 h-1 bg-gray-600 rounded-full">
+                                        <div class="h-full bg-orange-500 rounded-full" style="width: {{ progress_percent }}%"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Remove from history button -->
+                    <button class="absolute top-2 right-12 w-8 h-8 bg-black bg-opacity-75 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition z-20" 
+                            title="{{ 'history.remove_from_history'|trans }}"
+                            onclick="removeFromHistory({{ video.id }})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+            <div class="flex justify-center">
+                <nav class="flex items-center gap-2">
+                    {% if current_page > 1 %}
+                        <a href="{{ path('user_profile_history', {'username': user.username, 'page': current_page - 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            {{ 'pagination.previous'|trans|default('Предыдущая') }}
+                        </a>
+                    {% endif %}
+
+                    {% for page in range(max(1, current_page - 2), min(total_pages, current_page + 2)) %}
+                        {% if page == current_page %}
+                            <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                                {{ page }}
+                            </span>
+                        {% else %}
+                            <a href="{{ path('user_profile_history', {'username': user.username, 'page': page}) }}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ page }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <a href="{{ path('user_profile_history', {'username': user.username, 'page': current_page + 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            {{ 'pagination.next'|trans|default('Следующая') }}
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ 'history.empty'|trans }}</h3>
+            <p class="mt-1 text-sm text-gray-500">{{ 'history.empty_description'|trans }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function removeFromHistory(videoId) {
+    if (confirm('{{ 'history.confirm_remove'|trans|e('js') }}')) {
+        fetch(`/history/${videoId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+}
+</script>
+{% endblock %}

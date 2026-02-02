@@ -81,6 +81,14 @@ class SubscriptionRepository extends ServiceEntityRepository
         return $this->findBySubscriberAndChannel($subscriber, $channel) !== null;
     }
 
+    /**
+     * @return Subscription[]
+     */
+    public function findUserSubscriptions(User $user, int $limit = 50, int $offset = 0): array
+    {
+        return $this->findBySubscriber($user, $limit, $offset);
+    }
+
     public function deleteBySubscriberAndChannel(User $subscriber, User $channel): int
     {
         return $this->createQueryBuilder('s')

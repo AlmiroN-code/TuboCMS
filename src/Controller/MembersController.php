@@ -37,37 +37,6 @@ class MembersController extends AbstractController
         ]);
     }
 
-    #[Route('/members/{username}', name: 'app_member_profile')]
-    public function profile(string $username, \Doctrine\ORM\EntityManagerInterface $em): Response
-    {
-        $user = $this->userRepository->findOneBy(['username' => $username]);
-        
-        if (!$user) {
-            throw $this->createNotFoundException('Пользователь не найден');
-        }
-        
-        // Получаем статистику и видео через сервис с кешированием
-        $stats = $this->userStatsService->getUserStats($user);
-        $recentVideos = $this->userStatsService->getRecentVideos($user, 6);
-        
-        // Проверяем подписку
-        $isSubscribed = false;
-        if ($this->getUser() && $this->getUser() !== $user) {
-            $subRepo = $em->getRepository(\App\Entity\Subscription::class);
-            $isSubscribed = $subRepo->findOneBy([
-                'subscriber' => $this->getUser(),
-                'channel' => $user
-            ]) !== null;
-        }
-        
-        return $this->render('members/profile.html.twig', [
-            'user' => $user,
-            'stats' => $stats,
-            'recent_videos' => $recentVideos,
-            'is_subscribed' => $isSubscribed,
-        ]);
-    }
-
     #[Route('/members/{username}/edit', name: 'app_member_edit')]
     public function edit(string $username): Response
     {

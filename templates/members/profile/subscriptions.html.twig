@@ -1,0 +1,102 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}Подписки{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+            Подписки пользователя {{ user.username }}
+            <span class="text-sm font-normal text-gray-500">({{ total_subscriptions }})</span>
+        </h2>
+    </div>
+
+    <!-- Subscriptions Grid -->
+    {% if subscriptions|length > 0 %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for subscription in subscriptions %}
+                {% set channel = subscription.channel %}
+                <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                    <div class="flex items-center gap-3 mb-3">
+                        {% if channel.avatar %}
+                            {{ lazy_img(asset('media/channels/' ~ channel.avatar), channel.name, 'w-16 h-16 rounded-full object-cover', 64, 64, true) }}
+                        {% else %}
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                                {{ channel.name|slice(0, 1)|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 mb-1">{{ channel.name }}</h3>
+                            <p class="text-sm text-gray-500">{{ channel.subscribersCount }} подписчиков</p>
+                            <p class="text-xs text-gray-400">Подписка с {{ subscription.createdAt|date('d.m.Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if channel.description %}
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ channel.description }}</p>
+                    {% endif %}
+
+                    <div class="flex gap-2">
+                        <a href="{{ path('channel_show', {'slug': channel.slug}) }}" 
+                           class="flex-1 text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                            Просмотр
+                        </a>
+                        {% if app.user and app.user.id == user.id %}
+                            {% include 'partials/_subscribe_button.html.twig' with {'channel': channel, 'is_subscribed': true, 'size': 'sm'} %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+            <div class="flex justify-center">
+                <nav class="flex items-center gap-2">
+                    {% if current_page > 1 %}
+                        <a href="{{ path('user_profile_subscriptions', {'username': user.username, 'page': current_page - 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Предыдущая
+                        </a>
+                    {% endif %}
+
+                    {% for page in range(max(1, current_page - 2), min(total_pages, current_page + 2)) %}
+                        {% if page == current_page %}
+                            <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                                {{ page }}
+                            </span>
+                        {% else %}
+                            <a href="{{ path('user_profile_subscriptions', {'username': user.username, 'page': page}) }}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ page }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <a href="{{ path('user_profile_subscriptions', {'username': user.username, 'page': current_page + 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Следующая
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет подписок</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if app.user and app.user.id == user.id %}
+                    Вы еще ни на кого не подписались.
+                {% else %}
+                    У этого пользователя пока нет подписок.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

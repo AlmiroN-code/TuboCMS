@@ -210,16 +210,8 @@ class ChannelController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function myChannels(): Response
     {
-        /** @var User $user */
-        $user = $this->getUser();
-        
-        $ownedChannels = $this->channelRepository->findByOwner($user);
-        $subscriptions = $this->subscriptionRepository->findUserSubscriptions($user);
-
-        return $this->render('channel/my_channels.html.twig', [
-            'owned_channels' => $ownedChannels,
-            'subscriptions' => $subscriptions,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_channels', ['username' => $this->getUser()->getUsername()]);
     }
 
     #[Route('/create-channel', name: 'channel_create')]

@@ -13,8 +13,49 @@ framework:
         
     # Кэширование
     cache:
-        app: cache.adapter.filesystem
+        app: cache.adapter.redis
         system: cache.adapter.system
+        default_redis_provider: 'redis://localhost:6379'
+        
+        # Пулы кэширования для разных типов данных
+        pools:
+            # Кеш для Doctrine
+            doctrine.result_cache_pool:
+                adapter: cache.adapter.redis
+                default_lifetime: 300 # 5 минут для результатов запросов
+            doctrine.system_cache_pool:
+                adapter: cache.adapter.redis
+                default_lifetime: 3600 # 1 час для метаданных
+            
+            # Кеш для видео и связанных данных
+            video_cache:
+                adapter: cache.adapter.redis
+                default_lifetime: 300 # 5 минут
+                
+            # Кеш для поиска
+            search_cache:
+                adapter: cache.adapter.redis
+                default_lifetime: 120 # 2 минуты
+                
+            # Кеш для настроек
+            settings_cache:
+                adapter: cache.adapter.redis
+                default_lifetime: 3600 # 1 час
+                
+            # Кеш для главной страницы
+            home_cache:
+                adapter: cache.adapter.redis
+                default_lifetime: 300 # 5 минут
+                
+            # Кеш для сессий
+            session_cache:
+                adapter: cache.adapter.redis
+                default_lifetime: 86400 # 24 часа
+                
+            # Кеш для Circuit Breaker
+            circuit_breaker_cache:
+                adapter: cache.adapter.redis
+                default_lifetime: 3600
 
     #esi: true
     #fragments: true
@@ -29,4 +70,12 @@ when@prod:
     framework:
         cache:
             app: cache.adapter.redis
-            default_redis_provider: 'redis://localhost'
+            default_redis_provider: 'redis://localhost:6379'
+        
+        # HTTP кеширование для production
+        http_cache:
+            default_ttl: 3600
+        
+        # ESI для фрагментного кеширования
+        esi: { enabled: true }
+        fragments: { enabled: true }

@@ -26,18 +26,9 @@ class HistoryController extends AbstractController
     #[Route('', name: 'app_history_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = $this->settingsService->getVideosPerPage();
-
-        $user = $this->getUser();
-        $history = $this->watchHistoryService->getHistory($user, $page, $limit);
-        $total = $this->watchHistoryService->countHistory($user);
-
-        return $this->render('history/index.html.twig', [
-            'history' => $history,
-            'currentPage' => $page,
-            'totalPages' => ceil($total / $limit),
-            'total' => $total,
+        // Redirect to new profile history URL
+        return $this->redirectToRoute('user_profile_history', [
+            'username' => $this->getUser()->getUsername()
         ]);
     }
 
@@ -74,7 +65,9 @@ class HistoryController extends AbstractController
             return new JsonResponse(['success' => true]);
         }
 
-        return $this->redirectToRoute('app_history_index');
+        return $this->redirectToRoute('user_profile_history', [
+            'username' => $this->getUser()->getUsername()
+        ]);
     }
 
     #[Route('', name: 'app_history_clear', methods: ['DELETE'])]
@@ -87,7 +80,9 @@ class HistoryController extends AbstractController
         }
 
         $this->addFlash('success', 'История очищена');
-        return $this->redirectToRoute('app_history_index');
+        return $this->redirectToRoute('user_profile_history', [
+            'username' => $this->getUser()->getUsername()
+        ]);
     }
 
     private function isJsonRequest(): bool

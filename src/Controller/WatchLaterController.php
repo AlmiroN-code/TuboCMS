@@ -27,23 +27,8 @@ class WatchLaterController extends AbstractController
     #[Route('', name: 'watch_later_list', methods: ['GET'])]
     public function list(Request $request): Response
     {
-        $user = $this->getUser();
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = $this->settingsService->getVideosPerPage();
-
-        $watchLaterItems = $this->watchLaterRepository->findUserWatchLater($user, $page, $limit);
-        $total = $this->watchLaterRepository->countUserWatchLater($user);
-        $totalPages = (int) ceil($total / $limit);
-
-        // Извлекаем видео из WatchLater entities
-        $videos = array_map(fn($item) => $item->getVideo(), $watchLaterItems);
-
-        return $this->render('watch_later/list.html.twig', [
-            'videos' => $videos,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'total' => $total,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_watch_later', ['username' => $this->getUser()->getUsername()]);
     }
 
     #[Route('/toggle/{id}', name: 'watch_later_toggle', methods: ['POST'])]

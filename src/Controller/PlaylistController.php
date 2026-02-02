@@ -29,29 +29,8 @@ class PlaylistController extends AbstractController
     #[Route('/playlists', name: 'playlists_index')]
     public function index(Request $request): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = $this->settingsService->getVideosPerPage();
-        $offset = ($page - 1) * $limit;
-
-        $search = $request->query->get('search');
-        
-        if ($search) {
-            $playlists = $this->playlistRepository->search($search, $this->getUser(), $limit, $offset);
-            $totalPlaylists = count($playlists); // Приблизительный подсчет для поиска
-        } else {
-            $playlists = $this->playlistRepository->findPopular($this->getUser(), $limit, $offset);
-            $totalPlaylists = count($playlists); // Приблизительный подсчет
-        }
-
-        $totalPages = ceil($totalPlaylists / $limit);
-
-        return $this->render('playlist/index.html.twig', [
-            'playlists' => $playlists,
-            'current_page' => $page,
-            'total_pages' => $totalPages,
-            'total_playlists' => $totalPlaylists,
-            'search' => $search,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_playlists', ['username' => $this->getUser()->getUsername()]);
     }
 
     #[Route('/playlist/{slug}', name: 'playlist_show')]

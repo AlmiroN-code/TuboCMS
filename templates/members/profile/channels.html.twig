@@ -1,0 +1,103 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}{{ 'profile.tabs.channels'|trans }}{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <h2 class="text-xl font-semibold text-gray-900">{{ 'profile.channels.title'|trans }} {{ user.username }}</h2>
+    
+    <!-- Debug info -->
+    <div class="bg-gray-100 p-4 rounded">
+        <p>Owned channels count: {{ owned_channels|length }}</p>
+        <p>Subscriptions count: {{ subscriptions|length }}</p>
+    </div>
+
+    <!-- Owned Channels -->
+    {% if owned_channels|length > 0 %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                {{ 'profile.channels.owned_channels'|trans({'%count%': owned_channels|length}) }}
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for channel in owned_channels %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                {{ channel.name|slice(0, 1)|upper }}
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900">{{ channel.name }}</h4>
+                                <p class="text-sm text-gray-500">{{ channel.subscribersCount|default(0) }} {{ 'members.subscribers'|trans|default('подписчиков') }}</p>
+                            </div>
+                        </div>
+                        {% if channel.description %}
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ channel.description }}</p>
+                        {% endif %}
+                        <div class="flex gap-2">
+                            <a href="{{ path('channel_show', {'slug': channel.slug}) }}" 
+                               class="flex-1 text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                                {{ 'profile.channels.view_channel'|trans }}
+                            </a>
+                            {% if app.user and app.user.id == user.id %}
+                                <a href="{{ path('channel_videos_manage', {'slug': channel.slug}) }}" 
+                                   class="flex-1 text-center px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition text-sm">
+                                    {{ 'profile.channels.manage_channel'|trans }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Subscriptions -->
+    {% if subscriptions|length > 0 %}
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                {{ 'profile.channels.subscriptions'|trans({'%count%': subscriptions|length}) }}
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for subscription in subscriptions %}
+                    {% set channel = subscription.channel %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                {{ channel.name|slice(0, 1)|upper }}
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900">{{ channel.name }}</h4>
+                                <p class="text-sm text-gray-500">{{ channel.subscribersCount|default(0) }} {{ 'members.subscribers'|trans|default('подписчиков') }}</p>
+                            </div>
+                        </div>
+                        {% if channel.description %}
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ channel.description }}</p>
+                        {% endif %}
+                        <a href="{{ path('channel_show', {'slug': channel.slug}) }}" 
+                           class="block text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                            {{ 'profile.channels.view_channel'|trans }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if owned_channels|length == 0 and subscriptions|length == 0 %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ 'profile.channels.no_channels'|trans }}</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if app.user and app.user.id == user.id %}
+                    {{ 'profile.channels.no_channels_owner'|trans }}
+                {% else %}
+                    {{ 'profile.channels.no_channels_user'|trans }}
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

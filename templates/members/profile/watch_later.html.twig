@@ -1,0 +1,66 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}Смотреть позже{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+            Смотреть позже
+            <span class="text-sm font-normal text-gray-500">({{ total }})</span>
+        </h2>
+    </div>
+
+    <!-- Watch Later Grid -->
+    {% if videos|length > 0 %}
+        <div class="video-grid">
+            {% for video in videos %}
+                {% include 'video/_card.html.twig' with {'video': video} %}
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+            <div class="flex justify-center">
+                <nav class="flex items-center gap-2">
+                    {% if current_page > 1 %}
+                        <a href="{{ path('user_profile_watch_later', {'username': user.username, 'page': current_page - 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Предыдущая
+                        </a>
+                    {% endif %}
+
+                    {% for page in range(max(1, current_page - 2), min(total_pages, current_page + 2)) %}
+                        {% if page == current_page %}
+                            <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                                {{ page }}
+                            </span>
+                        {% else %}
+                            <a href="{{ path('user_profile_watch_later', {'username': user.username, 'page': page}) }}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ page }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <a href="{{ path('user_profile_watch_later', {'username': user.username, 'page': current_page + 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Следующая
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Список пуст</h3>
+            <p class="mt-1 text-sm text-gray-500">Вы еще не добавили ни одного видео для просмотра позже.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

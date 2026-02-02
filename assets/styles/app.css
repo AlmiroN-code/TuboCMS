@@ -148,7 +148,7 @@ body{background-color: var(--bg-primary);}
 .video-card .thumbnail {
     background: var(--bg-tertiary);
     padding-top: 58.25%;
-    border-radius: 4px;
+    border-radius: 2px;
     margin-bottom: 10px;
     overflow: hidden;
     position: relative;
@@ -170,7 +170,7 @@ body{background-color: var(--bg-primary);}
 }
 
 .video-card .preview-video {
-    border-radius: 3px;
+    border-radius:2px;
     height: 100%;
     left: 0;
     object-fit: cover;

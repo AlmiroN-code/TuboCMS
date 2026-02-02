@@ -3,7 +3,7 @@
 {% set breadcrumbs = [
     {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
     {'label': 'nav.community'|trans, 'url': path('app_members')},
-    {'label': user.username, 'url': path('app_member_profile', {'username': user.username})},
+    {'label': user.username, 'url': path('user_profile_overview', {'username': user.username})},
     {'label': 'members.edit'|trans, 'url': ''}
 ] %}
 
@@ -14,7 +14,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <a href="{{ path('app_member_profile', {'username': user.username}) }}" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium">
+            <a href="{{ path('user_profile_overview', {'username': user.username}) }}" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 Back to profile
             </a>
@@ -181,7 +181,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Save changes
                 </button>
-                <a href="{{ path('app_member_profile', {'username': user.username}) }}" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition font-medium">
+                <a href="{{ path('user_profile_overview', {'username': user.username}) }}" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     Cancel
                 </a>

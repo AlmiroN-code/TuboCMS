@@ -212,6 +212,7 @@ members:
     reset: "Сбросить"
     videos: "Видео:"
     subscribers: "Подписчиков:"
+    subscribers_count: "подписчиков"
     member_since: "Участник с:"
     profile: "Профиль"
     no_users: "Пользователи не найдены"
@@ -287,8 +288,59 @@ common:
 
 # Profile
 profile:
+    title: "Профиль"
     avatar: "Аватар"
     cover: "Обложка профиля"
+    # Profile tabs
+    tabs:
+        overview: "Обзор"
+        videos: "Видео"
+        bookmarks: "Закладки"
+        watch_later: "Смотреть позже"
+        history: "История просмотров"
+        channels: "Каналы"
+        series: "Серии"
+        subscriptions: "Подписки"
+        playlists: "Плейлисты"
+        notifications: "Уведомления"
+        about: "О пользователе"
+    # Profile content
+    overview:
+        recent_videos: "Недавние видео"
+        statistics: "Статистика"
+        videos_count: "видео"
+        subscribers_count: "подписчиков"
+        views_count: "просмотров"
+    videos:
+        title: "Видео пользователя"
+        no_videos: "У пользователя пока нет видео"
+        total_videos: "Всего видео: %count%"
+    channels:
+        title: "Каналы"
+        owned_channels: "Мои каналы (%count%)"
+        subscriptions: "Подписки (%count%)"
+        no_channels: "Нет каналов"
+        no_channels_owner: "У вас пока нет каналов и подписок."
+        no_channels_user: "У этого пользователя пока нет каналов."
+        view_channel: "Просмотр"
+        manage_channel: "Управление"
+    series:
+        title: "Серии"
+        no_series: "Серии не найдены"
+    playlists:
+        title: "Плейлисты"
+        no_playlists: "Плейлисты не найдены"
+    subscriptions:
+        title: "Подписки"
+        no_subscriptions: "Подписки не найдены"
+        total_subscriptions: "Всего подписок: %count%"
+    notifications:
+        title: "Уведомления"
+        no_notifications: "Уведомления не найдены"
+    about:
+        title: "О пользователе"
+        member_since: "Участник с"
+        no_description: "Описание не добавлено"
     birth_date: "Дата рождения"
     bio_placeholder: "Расскажите о себе..."
 
@@ -387,8 +439,14 @@ playlist:
 history:
     title: "История просмотров"
     empty: "История просмотров пуста"
+    empty_description: "Вы еще не просматривали видео."
     clear_all: "Очистить историю"
+    remove_from_history: "Удалить из истории"
+    confirm_remove: "Удалить это видео из истории?"
     confirm_clear: "Вы уверены, что хотите очистить всю историю?"
+    watched_at: "Просмотрено:"
+    progress: "Прогресс:"
+    total_count: "(%count%)"
 
 # Bookmark
 bookmark:

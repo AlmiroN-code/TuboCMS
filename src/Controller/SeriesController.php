@@ -26,12 +26,8 @@ class SeriesController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function index(): Response
     {
-        $user = $this->getUser();
-        $series = $this->seriesRepository->findByAuthor($user);
-
-        return $this->render('series/index.html.twig', [
-            'series' => $series,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_series', ['username' => $this->getUser()->getUsername()]);
     }
 
     #[Route('/{slug}', name: 'app_series_show', methods: ['GET'])]

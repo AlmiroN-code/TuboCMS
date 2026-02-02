@@ -25,16 +25,8 @@ class NotificationController extends AbstractController
     #[Route('', name: 'app_notification_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
-
-        $user = $this->getUser();
-        $notifications = $this->notificationService->getNotifications($user, $page, $limit);
-
-        return $this->render('notification/index.html.twig', [
-            'notifications' => $notifications,
-            'currentPage' => $page,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_notifications', ['username' => $this->getUser()->getUsername()]);
     }
 
     #[Route('/{id}/read', name: 'app_notification_mark_read', methods: ['POST'])]

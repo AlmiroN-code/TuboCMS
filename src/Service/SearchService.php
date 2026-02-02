@@ -4,14 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Entity\Category;
-use App\Entity\ModelProfile;
-use App\Entity\Tag;
 use App\Entity\Video;
-use App\Repository\CategoryRepository;
-use App\Repository\ModelProfileRepository;
 use App\Repository\TagRepository;
-use App\Repository\VideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -21,10 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class SearchService
 {
     public function __construct(
-        private readonly VideoRepository $videoRepository,
         private readonly TagRepository $tagRepository,
-        private readonly CategoryRepository $categoryRepository,
-        private readonly ModelProfileRepository $modelRepository,
         private readonly EntityManagerInterface $em,
     ) {}
 

@@ -100,7 +100,7 @@
             <!-- Username -->
             <div class="text-center mb-3">
                 <h3 class="font-semibold text-gray-900 truncate">
-                    <a href="{{ path('app_member_profile', {username: user.username}) }}" 
+                    <a href="{{ path('user_profile_overview', {username: user.username}) }}" 
                        class="hover:text-blue-600 transition-colors">
                         {{ user.username }}
                     </a>
@@ -143,7 +143,7 @@
             
             <!-- Profile Button -->
             <div class="mt-4">
-                <a href="{{ path('app_member_profile', {username: user.username}) }}" 
+                <a href="{{ path('user_profile_overview', {username: user.username}) }}" 
                    class="block w-full text-center px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm">
                     {{ 'members.profile'|trans }}
                 </a>

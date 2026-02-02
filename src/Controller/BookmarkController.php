@@ -27,19 +27,8 @@ class BookmarkController extends AbstractController
     #[Route('', name: 'app_bookmark_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = $this->settingsService->getVideosPerPage();
-
-        $user = $this->getUser();
-        $bookmarks = $this->bookmarkService->getBookmarks($user, $page, $limit);
-        $total = $this->bookmarkService->countBookmarks($user);
-
-        return $this->render('bookmark/index.html.twig', [
-            'bookmarks' => $bookmarks,
-            'currentPage' => $page,
-            'totalPages' => ceil($total / $limit),
-            'total' => $total,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_bookmarks', ['username' => $this->getUser()->getUsername()]);
     }
 
     #[Route('/video/{id}', name: 'app_bookmark_toggle', methods: ['POST'])]

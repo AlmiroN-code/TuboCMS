@@ -24,7 +24,7 @@ class ChannelService
     /**
      * Создать новый канал
      */
-    public function createChannel(User $owner, string $name, string $description = null, string $type = Channel::TYPE_PERSONAL): Channel
+    public function createChannel(User $owner, string $name, ?string $description = null, string $type = Channel::TYPE_PERSONAL): Channel
     {
         $channel = new Channel();
         $channel->setName($name);
@@ -129,7 +129,7 @@ class ChannelService
     /**
      * Получить рекомендуемые каналы для пользователя
      */
-    public function getRecommendedChannels(User $user = null, int $limit = 10): array
+    public function getRecommendedChannels(?User $user = null, int $limit = 10): array
     {
         // Простая логика рекомендаций - популярные каналы
         return $this->channelRepository->findPopular($limit);

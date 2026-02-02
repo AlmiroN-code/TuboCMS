@@ -143,3 +143,7 @@ services:
     App\Service\VideoProcessingService:
         arguments:
             $contentProtectionService: '@App\Service\ContentProtectionService'
+
+# Импорт конфигурации оптимизации
+imports:
+    - { resource: services_optimization.yaml }

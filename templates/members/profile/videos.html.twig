@@ -1,0 +1,66 @@
+{% extends 'members/profile/base.html.twig' %}
+
+{% block page_title %}Видео{% endblock %}
+
+{% block tab_content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">
+            Видео пользователя {{ user.username }}
+            <span class="text-sm font-normal text-gray-500">({{ total_videos }})</span>
+        </h2>
+    </div>
+
+    <!-- Videos Grid -->
+    {% if videos|length > 0 %}
+        <div class="video-grid">
+            {% for video in videos %}
+                {% include 'video/_card.html.twig' with {'video': video} %}
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+            <div class="flex justify-center">
+                <nav class="flex items-center gap-2">
+                    {% if current_page > 1 %}
+                        <a href="{{ path('user_profile_videos', {'username': user.username, 'page': current_page - 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Предыдущая
+                        </a>
+                    {% endif %}
+
+                    {% for page in range(max(1, current_page - 2), min(total_pages, current_page + 2)) %}
+                        {% if page == current_page %}
+                            <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                                {{ page }}
+                            </span>
+                        {% else %}
+                            <a href="{{ path('user_profile_videos', {'username': user.username, 'page': page}) }}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ page }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <a href="{{ path('user_profile_videos', {'username': user.username, 'page': current_page + 1}) }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Следующая
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет видео</h3>
+            <p class="mt-1 text-sm text-gray-500">У этого пользователя пока нет загруженных видео.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

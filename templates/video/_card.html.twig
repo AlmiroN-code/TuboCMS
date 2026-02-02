@@ -1,19 +1,13 @@
-<div class="overflow-hidden hover:shadow-sm transition group video-card mb-4"
-     data-controller="impression-tracker"
-     data-impression-tracker-video-id-value="{{ video.id }}">
-    <a href="{{ path('video_detail', {slug: video.slug}) }}">
+<div class="overflow-hidden hover:shadow-sm transition group video-card mb-4" data-controller="impression-tracker" data-impression-tracker-video-id-value="{{ video.id }}">
+    <a href="{{ path('video_detail', {slug: video.slug}) }}" data-turbo="false">
         <div class="thumbnail relative">
             {# Progress bar for hover preview loading #}
-            <div class="preview-progress-bar absolute bottom-0 left-0 w-full h-0.5 bg-black/20 z-20 opacity-0 transition-opacity">
-                <div class="progress-fill h-full bg-orange-500 transition-all duration-300 ease-out" style="width: 0%"></div>
-            </div>
+            <div class="preview-progress-bar absolute bottom-0 left-0 w-full h-0.5 bg-black/20 z-20 opacity-0 transition-opacity"><div class="progress-fill h-full bg-orange-500 transition-all duration-300 ease-out" style="width: 0%"></div></div>
             
             {% if video.poster %}
                 {{ lazy_img('/media/' ~ video.poster, video.title, 'poster-image w-full h-full object-cover') }}
             {% else %}
-                <div class="poster-placeholder absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500 to-orange-500 text-white font-bold">
-                    {{ ux_icon('video-camera', {class: 'w-16 h-16'}) }}
-                </div>
+                <div class="poster-placeholder absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500 to-orange-500 text-white font-bold">{{ ux_icon('video-camera', {class: 'w-16 h-16'}) }}</div>
             {% endif %}
             
             {% if video.preview %}
@@ -21,36 +15,18 @@
             {% endif %}
             
             {% if video.duration > 0 %}
-                <span class="duration flex items-center gap-1">
-                    {{ ux_icon('mingcute:time-duration-line', {class: 'w-4 h-4'}) }} {{ video.durationFormatted }}
-                </span>
+                <span class="duration flex items-center gap-1">{{ ux_icon('mingcute:time-duration-line', {class: 'w-4 h-4'}) }} {{ video.durationFormatted }}</span>
             {% endif %}
             
             {# Action buttons overlay - hidden when preview is playing #}
             {% if app.user %}
             <div class="video-card-actions absolute top-2 right-2 flex flex-col gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                 {# Watch Later button #}
-                <button type="button" 
-                        onclick="event.preventDefault(); event.stopPropagation(); toggleWatchLater(this, {{ video.id }})"
-                        class="watch-later-btn w-10 h-10 md:w-8 md:h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white hover:text-orange-500 transition touch-manipulation"
-                        data-video-id="{{ video.id }}"
-                        title="{{ 'watch_later.add'|trans }}">
-                    {{ ux_icon('mingcute:time-line', {class: 'w-5 h-5 md:w-4 md:h-4'}) }}
-                </button>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleWatchLater(this, {{ video.id }})" class="watch-later-btn w-10 h-10 md:w-8 md:h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white hover:text-orange-500 transition touch-manipulation" data-video-id="{{ video.id }}" title="{{ 'watch_later.add'|trans }}"> {{ ux_icon('mingcute:time-line', {class: 'w-5 h-5 md:w-4 md:h-4'}) }}</button>
                 {# Bookmark button #}
-                <button type="button" 
-                        onclick="event.preventDefault(); event.stopPropagation(); toggleCardBookmark(this, {{ video.id }})"
-                        class="w-10 h-10 md:w-8 md:h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white hover:text-orange-500 transition touch-manipulation"
-                        title="{{ 'bookmark.add'|trans }}">
-                    {{ ux_icon('bookmark', {class: 'w-5 h-5 md:w-4 md:h-4'}) }}
-                </button>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleCardBookmark(this, {{ video.id }})" class="w-10 h-10 md:w-8 md:h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white hover:text-orange-500 transition touch-manipulation" title="{{ 'bookmark.add'|trans }}">{{ ux_icon('bookmark', {class: 'w-5 h-5 md:w-4 md:h-4'}) }}</button>
                 {# Add to playlist button #}
-                <button type="button" 
-                        onclick="event.preventDefault(); event.stopPropagation(); openPlaylistModal({{ video.id }})"
-                        class="w-10 h-10 md:w-8 md:h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white hover:text-orange-500 transition touch-manipulation"
-                        title="{{ 'playlist.add_video'|trans }}">
-                    {{ ux_icon('plus', {class: 'w-5 h-5 md:w-4 md:h-4'}) }}
-                </button>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openPlaylistModal({{ video.id }})" class="w-10 h-10 md:w-8 md:h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white hover:text-orange-500 transition touch-manipulation" title="{{ 'playlist.add_video'|trans }}">{{ ux_icon('plus', {class: 'w-5 h-5 md:w-4 md:h-4'}) }}</button>
             </div>
             {% endif %}
         </div>
@@ -61,21 +37,13 @@
                 <a href="{{ path('video_detail', {slug: video.slug}) }}" class="text-gray-700 hover:text-orange-500 transition-colors">{{ video.title }}</a>
             </div>
             <div class="video-meta">
-                <span class="flex items-center gap-1">
-                    {{ ux_icon('flowbite:eye-outline', {class: 'w-4 h-4'}) }}
-                    {{ video.viewsCount|locale_number }}
-                </span>
-                <span class="flex items-center gap-1">
-                    {{ ux_icon('flowbite:calendar-month-outline', {class: 'w-4 h-4'}) }}
-                    {{ video.createdAt|time_ago }}
-                    </span>
+                <span class="flex items-center gap-1">{{ ux_icon('flowbite:eye-outline', {class: 'w-4 h-4'}) }}{{ video.viewsCount|locale_number }}</span>
+                <span class="flex items-center gap-1">{{ ux_icon('flowbite:calendar-month-outline', {class: 'w-4 h-4'}) }}{{ video.createdAt|time_ago }}</span>
             </div>
             {% if video.performers|length > 0 %}
             <div class="video-performers mt-1 text-xs text-gray-500 truncate">
                 {% for performer in video.performers|slice(0, 3) %}
-                    <a href="{{ path('app_model_show', {slug: performer.slug}) }}" 
-                       class="hover:text-orange-500 transition-colors"
-                       onclick="event.stopPropagation();">{{ performer.displayName }}</a>{% if not loop.last %}, {% endif %}
+                    <a href="{{ path('app_model_show', {slug: performer.slug}) }}" class="hover:text-orange-500 transition-colors" onclick="event.stopPropagation();">{{ performer.displayName }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
                 {% if video.performers|length > 3 %}
                     <span class="text-gray-400">+{{ video.performers|length - 3 }}</span>
@@ -92,11 +60,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-96 overflow-y-auto">
         <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
             <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ 'playlist.add_video'|trans }}</h2>
-            <button type="button" onclick="closePlaylistModal({{ video.id }})" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+            <button type="button" onclick="closePlaylistModal({{ video.id }})" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
         </div>
         
         <div class="p-6 space-y-3" id="playlist-list-{{ video.id }}">
@@ -104,12 +68,7 @@
         </div>
         
         <div class="sticky bottom-0 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 p-6">
-            <a href="{{ path('playlist_create') }}" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md font-medium transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                {{ 'playlist.create_new'|trans }}
-            </a>
+            <a href="{{ path('playlist_create') }}" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md font-medium transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>{{ 'playlist.create_new'|trans }}</a>
         </div>
     </div>
 </div>

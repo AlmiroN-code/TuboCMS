@@ -205,6 +205,7 @@ members:
     reset: "Reset"
     videos: "Videos:"
     subscribers: "Subscribers:"
+    subscribers_count: "subscribers"
     member_since: "Member since:"
     profile: "Profile"
     no_users: "No users found"
@@ -279,8 +280,59 @@ common:
 
 # Profile
 profile:
+    title: "Profile"
     avatar: "Avatar"
     cover: "Cover Image"
+    # Profile tabs
+    tabs:
+        overview: "Overview"
+        videos: "Videos"
+        bookmarks: "Bookmarks"
+        watch_later: "Watch Later"
+        history: "Watch History"
+        channels: "Channels"
+        series: "Series"
+        subscriptions: "Subscriptions"
+        playlists: "Playlists"
+        notifications: "Notifications"
+        about: "About"
+    # Profile content
+    overview:
+        recent_videos: "Recent videos"
+        statistics: "Statistics"
+        videos_count: "videos"
+        subscribers_count: "subscribers"
+        views_count: "views"
+    videos:
+        title: "User videos"
+        no_videos: "User has no videos yet"
+        total_videos: "Total videos: %count%"
+    channels:
+        title: "Channels"
+        owned_channels: "My channels (%count%)"
+        subscriptions: "Subscriptions (%count%)"
+        no_channels: "No channels"
+        no_channels_owner: "You don't have any channels or subscriptions yet."
+        no_channels_user: "This user doesn't have any channels yet."
+        view_channel: "View"
+        manage_channel: "Manage"
+    series:
+        title: "Series"
+        no_series: "No series found"
+    playlists:
+        title: "Playlists"
+        no_playlists: "No playlists found"
+    subscriptions:
+        title: "Subscriptions"
+        no_subscriptions: "No subscriptions found"
+        total_subscriptions: "Total subscriptions: %count%"
+    notifications:
+        title: "Notifications"
+        no_notifications: "No notifications found"
+    about:
+        title: "About user"
+        member_since: "Member since"
+        no_description: "No description added"
     birth_date: "Birth Date"
     bio_placeholder: "Tell us about yourself..."
 
@@ -379,8 +431,14 @@ playlist:
 history:
     title: "Watch History"
     empty: "Your watch history is empty"
+    empty_description: "You haven't watched any videos yet."
     clear_all: "Clear history"
+    remove_from_history: "Remove from history"
+    confirm_remove: "Remove this video from history?"
     confirm_clear: "Are you sure you want to clear all history?"
+    watched_at: "Watched:"
+    progress: "Progress:"
+    total_count: "(%count%)"
 
 # Bookmark
 bookmark:

@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+{% set breadcrumbs = [
+{'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
+{'label': 'nav.community'|trans, 'url': path('app_members')},
+{'label': user.username, 'url': path('user_profile_overview', {'username': user.username})}
+] %}
+{% block title %}{{ user.username }} - {{ block('page_title') }}{% endblock %}
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+	<!-- Profile Cover -->
+	<div class="relative h-64 bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden">
+		{% if user.coverImage %}
+		{{ lazy_img(asset('media/covers/' ~ user.coverImage), 'Profile cover', 'w-full h-full object-cover') }}
+		{% endif %}
+	</div>
+	<!-- Main Content -->
+	<div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+
+		<!-- User Information -->
+		<div class="relative -mt-32 mb-2">
+			<div class="bg-white rounded-md shadow p-6">
+				<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+					<!-- Avatar and Main Info -->
+					<div class="flex flex-col md:flex-row md:items-end gap-6">
+						<!-- Avatar -->
+						<div class="flex-shrink-0">
+							{% if user.avatar %}
+							{{ lazy_img(asset('media/avatars/' ~ user.avatar), user.username, 'w-40 h-40 rounded-full border-4 border-white object-cover shadow-lg', 160, 160, true) }}
+							{% else %}
+							<div class="w-40 h-40 rounded-full border-4 border-white bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-5xl shadow-lg">
+								{{ user.username|slice(0, 1)|upper }}
+							</div>
+							{% endif %}
+						</div>
+						<!-- Info -->
+						<div class="flex-1">
+							<h1 class="text-4xl font-bold text-gray-900 mb-2">{{ user.username }}</h1>
+							<!-- Badges -->
+							<div class="flex flex-wrap gap-2 mb-4">
+								{% if user.isVerified %}
+								<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+									<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+									</svg>
+									{{ 'members.verified'|trans }}
+								</span>
+								{% endif %}
+								{% if user.isPremium %}
+								<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+									<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+									</svg>
+									{{ 'members.premium'|trans }}
+								</span>
+								{% endif %}
+							</div>
+							<!-- Statistics -->
+							<div class="flex flex-wrap gap-6 text-sm text-gray-600">
+								<div class="flex items-center gap-1">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+									</svg>
+									<span>{{ user.videosCount }} видео</span>
+								</div>
+								<div class="flex items-center gap-1">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+									</svg>
+									<span>{{ user.subscribersCount }} подписчиков</span>
+								</div>
+								<div class="flex items-center gap-1">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+									</svg>
+									<span>{{ user.totalViews|number_format }} просмотров</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Action Buttons -->
+					<div class="flex gap-3">
+						{% if app.user and app.user.id == user.id %}
+						<a href="{{ path('app_member_edit', {'username': user.username}) }}" class="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+							</svg>
+							{{ 'members.edit'|trans }}
+						</a>
+						{% elseif app.user %}
+						{% include 'partials/_subscribe_button.html.twig' with {'channel': user, 'is_subscribed': is_subscribed|default(false)} %}
+						{% else %}
+						<a href="{{ path('app_login') }}" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">{{ 'members.subscribe'|trans }}</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Navigation Tabs -->
+		<div class="bg-white rounded-md shadow mb-2">
+			<nav class="flex space-x-8 px-6" aria-label="Tabs">
+				<a href="{{ path('user_profile_overview', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'overview' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-user mr-2"></i>{{ 'profile.tabs.overview'|trans }}
+				</a>
+				<a href="{{ path('user_profile_videos', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'videos' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-video mr-2"></i>{{ 'profile.tabs.videos'|trans }}
+				</a>
+				{% if app.user and app.user.id == user.id %}
+				<a href="{{ path('user_profile_bookmarks', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'bookmarks' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-bookmark mr-2"></i>{{ 'profile.tabs.bookmarks'|trans }}
+				</a>
+				<a href="{{ path('user_profile_watch_later', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'watch_later' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-clock mr-2"></i>{{ 'profile.tabs.watch_later'|trans }}
+				</a>
+				<a href="{{ path('user_profile_history', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-history mr-2"></i>{{ 'profile.tabs.history'|trans }}
+				</a>
+				{% endif %}
+				<a href="{{ path('user_profile_channels', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'channels' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-tv mr-2"></i>{{ 'profile.tabs.channels'|trans }}
+				</a>
+				<a href="{{ path('user_profile_series', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'series' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-list mr-2"></i>{{ 'profile.tabs.series'|trans }}
+				</a>
+				<a href="{{ path('user_profile_subscriptions', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'subscriptions' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-heart mr-2"></i>{{ 'profile.tabs.subscriptions'|trans }}
+				</a>
+				<a href="{{ path('user_profile_playlists', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'playlists' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-list-ul mr-2"></i>{{ 'profile.tabs.playlists'|trans }}
+				</a>
+				{% if app.user and app.user.id == user.id %}
+				<a href="{{ path('user_profile_notifications', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'notifications' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-bell mr-2"></i>{{ 'profile.tabs.notifications'|trans }}
+				</a>
+				{% endif %}
+				<a href="{{ path('user_profile_about', {'username': user.username}) }}" 
+					class="py-4 px-1 border-b-2 font-medium text-sm {{ active_tab == 'about' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+				<i class="fas fa-info-circle mr-2"></i>{{ 'profile.tabs.about'|trans }}
+				</a>
+			</nav>
+		</div>
+		<!-- Tab Content -->
+		<div class="bg-white rounded-md shadow p-6">
+			{% block tab_content %}{% endblock %}
+		</div>
+	</div>
+</div>
+{% endblock %}

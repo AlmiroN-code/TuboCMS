@@ -138,13 +138,7 @@ class VideoUploadController extends AbstractController
     #[Route('/my-videos', name: 'video_my_videos')]
     public function myVideos(EntityManagerInterface $em): Response
     {
-        $videos = $em->getRepository(Video::class)->findBy(
-            ['createdBy' => $this->getUser()],
-            ['createdAt' => 'DESC']
-        );
-
-        return $this->render('video/my_videos.html.twig', [
-            'videos' => $videos,
-        ]);
+        // Перенаправляем на новую систему профилей с вкладками
+        return $this->redirectToRoute('user_profile_videos', ['username' => $this->getUser()->getUsername()]);
     }
 }

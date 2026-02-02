@@ -38,10 +38,6 @@ when@test:
 when@prod:
     doctrine:
         orm:
-            # Оптимизация для production
-            auto_generate_proxy_classes: false
-            proxy_dir: '%kernel.cache_dir%/doctrine/orm/Proxies'
-            
             # Кеширование метаданных
             metadata_cache_driver:
                 type: pool
