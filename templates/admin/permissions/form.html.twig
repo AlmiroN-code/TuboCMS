@@ -30,12 +30,20 @@
                 <select name="category" id="category" required
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="">Выберите категорию</option>
-                    <option value="users" {{ permission.category == 'users' ? 'selected' : '' }}>Пользователи</option>
-                    <option value="videos" {{ permission.category == 'videos' ? 'selected' : '' }}>Видео</option>
-                    <option value="comments" {{ permission.category == 'comments' ? 'selected' : '' }}>Комментарии</option>
-                    <option value="categories" {{ permission.category == 'categories' ? 'selected' : '' }}>Категории</option>
-                    <option value="tags" {{ permission.category == 'tags' ? 'selected' : '' }}>Теги</option>
-                    <option value="admin" {{ permission.category == 'admin' ? 'selected' : '' }}>Администрирование</option>
+                    <option value="video" {{ permission.category == 'video' ? 'selected' : '' }}>Видео</option>
+                    <option value="category" {{ permission.category == 'category' ? 'selected' : '' }}>Категории</option>
+                    <option value="tag" {{ permission.category == 'tag' ? 'selected' : '' }}>Теги</option>
+                    <option value="model" {{ permission.category == 'model' ? 'selected' : '' }}>Модели</option>
+                    <option value="channel" {{ permission.category == 'channel' ? 'selected' : '' }}>Каналы</option>
+                    <option value="user" {{ permission.category == 'user' ? 'selected' : '' }}>Пользователи</option>
+                    <option value="comment" {{ permission.category == 'comment' ? 'selected' : '' }}>Комментарии</option>
+                    <option value="playlist" {{ permission.category == 'playlist' ? 'selected' : '' }}>Плейлисты</option>
+                    <option value="post" {{ permission.category == 'post' ? 'selected' : '' }}>Посты</option>
+                    <option value="advertising" {{ permission.category == 'advertising' ? 'selected' : '' }}>Реклама</option>
+                    <option value="security" {{ permission.category == 'security' ? 'selected' : '' }}>Роли и разрешения</option>
+                    <option value="settings" {{ permission.category == 'settings' ? 'selected' : '' }}>Настройки</option>
+                    <option value="system" {{ permission.category == 'system' ? 'selected' : '' }}>Система</option>
+                    <option value="streaming" {{ permission.category == 'streaming' ? 'selected' : '' }}>Live Streaming</option>
                 </select>
             </div>
 

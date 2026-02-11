@@ -64,7 +64,14 @@ class AdminAdController extends AbstractController
     public function adsList(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $perPage = $request->query->getInt('per_page', 20);
+        
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 20;
+        }
+        
+        $limit = $perPage;
         $offset = ($page - 1) * $limit;
         $status = $request->query->get('status');
         $placementId = $request->query->getInt('placement');
@@ -76,6 +83,7 @@ class AdminAdController extends AbstractController
             'ads' => $ads,
             'placements' => $this->placementRepository->findAllOrdered(),
             'currentPage' => $page,
+            'perPage' => $perPage,
             'totalPages' => ceil($total / $limit),
             'total' => $total,
             'status' => $status,
@@ -520,7 +528,14 @@ class AdminAdController extends AbstractController
     public function campaigns(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $perPage = $request->query->getInt('per_page', 20);
+        
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 20;
+        }
+        
+        $limit = $perPage;
         $offset = ($page - 1) * $limit;
         $status = $request->query->get('status');
 
@@ -530,6 +545,7 @@ class AdminAdController extends AbstractController
         return $this->render('admin/ads/campaigns/list.html.twig', [
             'campaigns' => $campaigns,
             'currentPage' => $page,
+            'perPage' => $perPage,
             'totalPages' => ceil($total / $limit),
             'total' => $total,
             'status' => $status,
@@ -691,7 +707,14 @@ class AdminAdController extends AbstractController
     public function abTests(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 20;
+        $perPage = $request->query->getInt('per_page', 20);
+        
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 20;
+        }
+        
+        $limit = $perPage;
         $offset = ($page - 1) * $limit;
         $status = $request->query->get('status');
 
@@ -701,6 +724,7 @@ class AdminAdController extends AbstractController
         return $this->render('admin/ads/abtests/list.html.twig', [
             'tests' => $tests,
             'currentPage' => $page,
+            'perPage' => $perPage,
             'totalPages' => ceil($total / $limit),
             'total' => $total,
             'status' => $status,

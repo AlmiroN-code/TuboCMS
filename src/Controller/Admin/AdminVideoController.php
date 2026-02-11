@@ -38,13 +38,35 @@ class AdminVideoController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 15;
+        $perPage = $request->query->getInt('per_page', 15);
+        
+        // Ограничиваем допустимые значения
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 15;
+        }
+        
+        $limit = $perPage;
         $offset = ($page - 1) * $limit;
         $sort = $request->query->get('sort');
         $status = $request->query->get('status');
+        $categoryId = $request->query->get('category');
+        $authorId = $request->query->get('author');
+        $dateFrom = $request->query->get('date_from');
+        $dateTo = $request->query->get('date_to');
+        $search = $request->query->get('search');
         
-        $videos = $this->videoRepository->findForAdminList($limit, $offset, $sort, $status);
-        $total = $this->videoRepository->countForAdminList($status);
+        $filters = [
+            'status' => $status,
+            'categoryId' => $categoryId,
+            'authorId' => $authorId,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'search' => $search,
+        ];
+        
+        $videos = $this->videoRepository->findForAdminList($limit, $offset, $sort, $filters);
+        $total = $this->videoRepository->countForAdminList($filters);
         
         // Для HTMX запросов возвращаем только таблицу
         if ($request->headers->get('HX-Request')) {
@@ -53,13 +75,26 @@ class AdminVideoController extends AbstractController
             ]);
         }
         
+        // Получаем список категорий и авторов для фильтров
+        $categories = $this->em->getRepository(\App\Entity\Category::class)->findAll();
+        $authors = $this->em->getRepository(\App\Entity\User::class)
+            ->createQueryBuilder('u')
+            ->select('u.id', 'u.username')
+            ->where('u.id IN (SELECT IDENTITY(v.createdBy) FROM App\Entity\Video v)')
+            ->orderBy('u.username', 'ASC')
+            ->getQuery()
+            ->getResult();
+        
         return $this->render('admin/videos/index.html.twig', [
             'videos' => $videos,
             'page' => $page,
+            'perPage' => $perPage,
             'total' => $total,
             'pages' => ceil($total / $limit),
             'currentSort' => $sort,
-            'currentStatus' => $status,
+            'filters' => $filters,
+            'categories' => $categories,
+            'authors' => $authors,
         ]);
     }
 
@@ -312,6 +347,154 @@ class AdminVideoController extends AbstractController
                 $this->addFlash('success', "Отправлено на переобработку: {$reprocessed} из {$count}");
                 break;
 
+            case 'add_category':
+                $categoryId = $request->request->get('category_id');
+                if ($categoryId) {
+                    $category = $this->categoryRepository->find($categoryId);
+                    if ($category) {
+                        foreach ($videos as $video) {
+                            if (!$video->getCategories()->contains($category)) {
+                                $video->addCategory($category);
+                            }
+                        }
+                        $this->em->flush();
+                        $this->addFlash('success', "Категория добавлена к {$count} видео");
+                    } else {
+                        $this->addFlash('error', 'Категория не найдена');
+                    }
+                } else {
+                    $this->addFlash('error', 'Не выбрана категория');
+                }
+                break;
+
+            case 'remove_category':
+                $categoryId = $request->request->get('category_id');
+                if ($categoryId) {
+                    $category = $this->categoryRepository->find($categoryId);
+                    if ($category) {
+                        foreach ($videos as $video) {
+                            $video->removeCategory($category);
+                        }
+                        $this->em->flush();
+                        $this->addFlash('success', "Категория удалена у {$count} видео");
+                    } else {
+                        $this->addFlash('error', 'Категория не найдена');
+                    }
+                } else {
+                    $this->addFlash('error', 'Не выбрана категория');
+                }
+                break;
+
+            case 'replace_categories':
+                $categoryId = $request->request->get('category_id');
+                if ($categoryId) {
+                    $category = $this->categoryRepository->find($categoryId);
+                    if ($category) {
+                        foreach ($videos as $video) {
+                            // Удаляем все категории
+                            foreach ($video->getCategories() as $oldCategory) {
+                                $video->removeCategory($oldCategory);
+                            }
+                            // Добавляем новую
+                            $video->addCategory($category);
+                        }
+                        $this->em->flush();
+                        $this->addFlash('success', "Категории заменены у {$count} видео");
+                    } else {
+                        $this->addFlash('error', 'Категория не найдена');
+                    }
+                } else {
+                    $this->addFlash('error', 'Не выбрана категория');
+                }
+                break;
+
+            case 'add_tags':
+                $tagNames = $request->request->get('tag_names');
+                if ($tagNames) {
+                    $tagNamesArray = array_map('trim', explode(',', $tagNames));
+                    $tags = [];
+                    foreach ($tagNamesArray as $tagName) {
+                        if (!empty($tagName)) {
+                            $tag = $this->tagRepository->findOneBy(['name' => $tagName]);
+                            if (!$tag) {
+                                $tag = new \App\Entity\Tag();
+                                $tag->setName($tagName);
+                                $slugger = new AsciiSlugger();
+                                $tag->setSlug(strtolower($slugger->slug($tagName)));
+                                $this->em->persist($tag);
+                            }
+                            $tags[] = $tag;
+                        }
+                    }
+                    
+                    foreach ($videos as $video) {
+                        foreach ($tags as $tag) {
+                            if (!$video->getTags()->contains($tag)) {
+                                $video->addTag($tag);
+                            }
+                        }
+                    }
+                    $this->em->flush();
+                    $this->addFlash('success', "Теги добавлены к {$count} видео");
+                } else {
+                    $this->addFlash('error', 'Не указаны теги');
+                }
+                break;
+
+            case 'remove_tags':
+                $tagNames = $request->request->get('tag_names');
+                if ($tagNames) {
+                    $tagNamesArray = array_map('trim', explode(',', $tagNames));
+                    $tags = $this->tagRepository->findBy(['name' => $tagNamesArray]);
+                    
+                    foreach ($videos as $video) {
+                        foreach ($tags as $tag) {
+                            $video->removeTag($tag);
+                        }
+                    }
+                    $this->em->flush();
+                    $this->addFlash('success', "Теги удалены у {$count} видео");
+                } else {
+                    $this->addFlash('error', 'Не указаны теги');
+                }
+                break;
+
+            case 'replace_tags':
+                $tagNames = $request->request->get('tag_names');
+                if ($tagNames) {
+                    $tagNamesArray = array_map('trim', explode(',', $tagNames));
+                    $tags = [];
+                    foreach ($tagNamesArray as $tagName) {
+                        if (!empty($tagName)) {
+                            $tag = $this->tagRepository->findOneBy(['name' => $tagName]);
+                            if (!$tag) {
+                                $tag = new \App\Entity\Tag();
+                                $tag->setName($tagName);
+                                $slugger = new AsciiSlugger();
+                                $tag->setSlug(strtolower($slugger->slug($tagName)));
+                                $this->em->persist($tag);
+                            }
+                            $tags[] = $tag;
+                        }
+                    }
+                    
+                    foreach ($videos as $video) {
+                        // Удаляем все теги
+                        foreach ($video->getTags() as $oldTag) {
+                            $video->removeTag($oldTag);
+                        }
+                        // Добавляем новые
+                        foreach ($tags as $tag) {
+                            $video->addTag($tag);
+                        }
+                    }
+                    $this->em->flush();
+                    $this->addFlash('success', "Теги заменены у {$count} видео");
+                } else {
+                    $this->addFlash('error', 'Не указаны теги');
+                }
+                break;
+
             default:
                 $this->addFlash('error', 'Неизвестное действие');
         }
@@ -522,5 +705,197 @@ class AdminVideoController extends AbstractController
         return $this->redirectToRoute('admin_videos');
     }
 
+    #[Route('/{id}/chapters', name: 'admin_videos_chapters')]
+    public function chapters(Video $video): Response
+    {
+        return $this->render('admin/video/chapters.html.twig', [
+            'video' => $video,
+        ]);
+    }
 
+    #[Route('/export/{format}', name: 'admin_videos_export', requirements: ['format' => 'csv|xlsx'])]
+    public function export(Request $request, string $format): Response
+    {
+        // Получаем те же фильтры что и в списке
+        $status = $request->query->get('status');
+        $categoryId = $request->query->get('category');
+        $authorId = $request->query->get('author');
+        $dateFrom = $request->query->get('date_from');
+        $dateTo = $request->query->get('date_to');
+        $search = $request->query->get('search');
+        
+        $filters = [
+            'status' => $status,
+            'categoryId' => $categoryId,
+            'authorId' => $authorId,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'search' => $search,
+        ];
+        
+        // Получаем все видео без пагинации
+        $videos = $this->videoRepository->findForAdminList(null, 0, null, $filters);
+        
+        if ($format === 'csv') {
+            return $this->exportCsv($videos);
+        }
+        
+        return $this->exportExcel($videos);
+    }
+
+    private function exportCsv(array $videos): Response
+    {
+        $filename = 'videos_export_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $response = new Response();
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        
+        $handle = fopen('php://temp', 'r+');
+        
+        // BOM для корректного отображения UTF-8 в Excel
+        fwrite($handle, "\xEF\xBB\xBF");
+        
+        // Заголовки
+        fputcsv($handle, [
+            'ID',
+            'Название',
+            'Slug',
+            'Категория',
+            'Теги',
+            'Модели',
+            'Канал',
+            'Статус',
+            'Обработка',
+            'Длительность',
+            'Разрешение',
+            'Размер',
+            'Показы',
+            'Просмотры',
+            'CTR (%)',
+            'Лайки',
+            'Дизлайки',
+            'Комментарии',
+            'Автор',
+            'Дата создания',
+            'Дата публикации',
+            'URL',
+        ], ';');
+        
+        // Данные
+        foreach ($videos as $video) {
+            $categories = array_map(fn($c) => $c->getName(), $video->getCategories()->toArray());
+            $tags = array_map(fn($t) => $t->getName(), $video->getTags()->toArray());
+            $performers = array_map(fn($p) => $p->getDisplayName(), $video->getPerformers()->toArray());
+            
+            fputcsv($handle, [
+                $video->getId(),
+                $video->getTitle(),
+                $video->getSlug(),
+                implode(', ', $categories),
+                implode(', ', $tags),
+                implode(', ', $performers),
+                $video->getChannel()?->getName() ?? '-',
+                $video->getStatus(),
+                $video->getProcessingStatus(),
+                $video->getDurationFormatted(),
+                $video->getResolution() ?? '-',
+                $video->getFileSizeFormatted(),
+                $video->getImpressionsCount(),
+                $video->getViewsCount(),
+                $video->getCtr(),
+                $video->getLikesCount(),
+                $video->getDislikesCount(),
+                $video->getCommentsCount(),
+                $video->getCreatedBy()?->getUsername() ?? '-',
+                $video->getCreatedAt()->format('d.m.Y H:i'),
+                $video->getPublishedAt()?->format('d.m.Y H:i') ?? '-',
+                $this->generateUrl('video_detail', ['slug' => $video->getSlug()], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL),
+            ], ';');
+        }
+        
+        rewind($handle);
+        $response->setContent(stream_get_contents($handle));
+        fclose($handle);
+        
+        return $response;
+    }
+
+    private function exportExcel(array $videos): Response
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Заголовки
+        $headers = [
+            'ID', 'Название', 'Slug', 'Категория', 'Теги', 'Модели', 'Канал',
+            'Статус', 'Обработка', 'Длительность', 'Разрешение', 'Размер',
+            'Показы', 'Просмотры', 'CTR (%)', 'Лайки', 'Дизлайки', 'Комментарии',
+            'Автор', 'Дата создания', 'Дата публикации', 'URL'
+        ];
+        
+        $sheet->fromArray($headers, null, 'A1');
+        
+        // Стилизация заголовков
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+        ];
+        $sheet->getStyle('A1:V1')->applyFromArray($headerStyle);
+        
+        // Данные
+        $row = 2;
+        foreach ($videos as $video) {
+            $categories = array_map(fn($c) => $c->getName(), $video->getCategories()->toArray());
+            $tags = array_map(fn($t) => $t->getName(), $video->getTags()->toArray());
+            $performers = array_map(fn($p) => $p->getDisplayName(), $video->getPerformers()->toArray());
+            
+            $sheet->fromArray([
+                $video->getId(),
+                $video->getTitle(),
+                $video->getSlug(),
+                implode(', ', $categories),
+                implode(', ', $tags),
+                implode(', ', $performers),
+                $video->getChannel()?->getName() ?? '-',
+                $video->getStatus(),
+                $video->getProcessingStatus(),
+                $video->getDurationFormatted(),
+                $video->getResolution() ?? '-',
+                $video->getFileSizeFormatted(),
+                $video->getImpressionsCount(),
+                $video->getViewsCount(),
+                $video->getCtr(),
+                $video->getLikesCount(),
+                $video->getDislikesCount(),
+                $video->getCommentsCount(),
+                $video->getCreatedBy()?->getUsername() ?? '-',
+                $video->getCreatedAt()->format('d.m.Y H:i'),
+                $video->getPublishedAt()?->format('d.m.Y H:i') ?? '-',
+                $this->generateUrl('video_detail', ['slug' => $video->getSlug()], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL),
+            ], null, 'A' . $row);
+            
+            $row++;
+        }
+        
+        // Автоширина колонок
+        foreach (range('A', 'V') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Создаем файл
+        $filename = 'videos_export_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        
+        ob_start();
+        $writer->save('php://output');
+        $response->setContent(ob_get_clean());
+        
+        return $response;
+    }
 }

@@ -29,7 +29,14 @@ class AdminChannelController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = $this->settingsService->getVideosPerPage();
+        $perPage = $request->query->getInt('per_page', $this->settingsService->getVideosPerPage());
+        
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = $this->settingsService->getVideosPerPage();
+        }
+        
+        $limit = $perPage;
         $offset = ($page - 1) * $limit;
 
         $filters = [
@@ -48,6 +55,7 @@ class AdminChannelController extends AbstractController
         return $this->render('admin/channels/index.html.twig', [
             'channels' => $channels,
             'current_page' => $page,
+            'perPage' => $perPage,
             'total_pages' => $totalPages,
             'total_channels' => $totalChannels,
             'filters' => $filters,
@@ -322,6 +330,94 @@ class AdminChannelController extends AbstractController
 
         $status = $channel->isActive() ? 'активирован' : 'деактивирован';
         $this->addFlash('success', "Канал {$status}");
+
+        return $this->redirectToRoute('admin_channels_index');
+    }
+
+    #[Route('/bulk', name: 'admin_channels_bulk', methods: ['POST'])]
+    public function bulk(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('bulk_channels', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Недействительный токен безопасности');
+            return $this->redirectToRoute('admin_channels_index');
+        }
+
+        $channelIds = $request->request->all('channel_ids');
+        $action = $request->request->get('bulk_action');
+
+        if (empty($channelIds)) {
+            $this->addFlash('error', 'Не выбрано ни одного канала');
+            return $this->redirectToRoute('admin_channels_index');
+        }
+
+        if (empty($action)) {
+            $this->addFlash('error', 'Не выбрано действие');
+            return $this->redirectToRoute('admin_channels_index');
+        }
+
+        $channels = $this->channelRepository->findBy(['id' => $channelIds]);
+        $count = count($channels);
+
+        switch ($action) {
+            case 'verify':
+                foreach ($channels as $channel) {
+                    $channel->setIsVerified(true);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Верифицировано каналов: {$count}");
+                break;
+
+            case 'unverify':
+                foreach ($channels as $channel) {
+                    $channel->setIsVerified(false);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Снята верификация у каналов: {$count}");
+                break;
+
+            case 'premium':
+                foreach ($channels as $channel) {
+                    $channel->setIsPremium(true);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Выдан премиум каналам: {$count}");
+                break;
+
+            case 'remove_premium':
+                foreach ($channels as $channel) {
+                    $channel->setIsPremium(false);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Снят премиум у каналов: {$count}");
+                break;
+
+            case 'activate':
+                foreach ($channels as $channel) {
+                    $channel->setIsActive(true);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Активировано каналов: {$count}");
+                break;
+
+            case 'deactivate':
+                foreach ($channels as $channel) {
+                    $channel->setIsActive(false);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Деактивировано каналов: {$count}");
+                break;
+
+            case 'delete':
+                foreach ($channels as $channel) {
+                    $this->entityManager->remove($channel);
+                }
+                $this->entityManager->flush();
+                $this->addFlash('success', "Удалено каналов: {$count}");
+                break;
+
+            default:
+                $this->addFlash('error', 'Неизвестное действие');
+        }
 
         return $this->redirectToRoute('admin_channels_index');
     }

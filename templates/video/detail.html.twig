@@ -38,39 +38,82 @@
                 {% if video.encodedFiles|length > 0 or video.tempVideoFile %}
                     {% include 'video/_player.html.twig' with {'video': video, 'video_file_urls': video_file_urls|default({})} %}
                 {% else %}
-                    <div class="bg-black rounded-md overflow-hidden">
-                        <div class="aspect-video flex items-center justify-center bg-gray-800">
+                    <div class="bg-black rounded-md overflow-hidden relative">
+                        {# Фоновое изображение заглушки #}
+                        <img src="{{ video_poster(video.poster) }}" alt="{{ video.title }}" class="absolute inset-0 w-full h-full object-cover opacity-30">
+                        
+                        <div class="aspect-video flex items-center justify-center bg-gray-800/80 relative z-10">
                             <div class="text-center">
                                 {% if video.processingStatus == 'processing' %}
-                                    <svg class="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-16 h-16 text-blue-400 mx-auto mb-4 animate-spin drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                     </svg>
-                                    <p class="text-white mb-2">{{ 'video.processing.in_progress'|trans }}</p>
+                                    <p class="mb-2 font-bold text-lg drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] [color:#333333] [text-shadow:_-2px_-2px_0_#fff,_2px_-2px_0_#fff,_-2px_2px_0_#fff,_2px_2px_0_#fff,_0_-2px_0_#fff,_0_2px_0_#fff,_-2px_0_0_#fff,_2px_0_0_#fff]">{{ 'video.processing.in_progress'|trans }}</p>
                                     {% if video.processingProgress > 0 %}
-                                        <div class="w-64 bg-gray-700 rounded-full h-2 mx-auto">
+                                        <div class="w-64 bg-gray-700 rounded-full h-2 mx-auto shadow-lg">
                                             <div class="bg-blue-600 h-2 rounded-full" style="width: {{ video.processingProgress }}%"></div>
                                         </div>
-                                        <p class="text-gray-300 text-sm mt-2">{{ video.processingProgress }}%</p>
+                                        <p class="text-sm mt-2 font-semibold drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] [color:#333333] [text-shadow:_-2px_-2px_0_#fff,_2px_-2px_0_#fff,_-2px_2px_0_#fff,_2px_2px_0_#fff,_0_-2px_0_#fff,_0_2px_0_#fff,_-2px_0_0_#fff,_2px_0_0_#fff]">{{ video.processingProgress }}%</p>
                                     {% endif %}
                                 {% elseif video.processingStatus == 'error' %}
-                                    <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-16 h-16 text-red-400 mx-auto mb-4 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <p class="text-white">{{ 'video.processing.error'|trans }}</p>
+                                    <p class="font-bold text-lg drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] [color:#333333] [text-shadow:_-2px_-2px_0_#fff,_2px_-2px_0_#fff,_-2px_2px_0_#fff,_2px_2px_0_#fff,_0_-2px_0_#fff,_0_2px_0_#fff,_-2px_0_0_#fff,_2px_0_0_#fff]">{{ 'video.processing.error'|trans }}</p>
                                     {% if video.processingError %}
-                                        <p class="text-gray-300 text-sm mt-2">{{ video.processingError }}</p>
+                                        <p class="text-sm mt-2 font-semibold drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] [color:#333333] [text-shadow:_-2px_-2px_0_#fff,_2px_-2px_0_#fff,_-2px_2px_0_#fff,_2px_2px_0_#fff,_0_-2px_0_#fff,_0_2px_0_#fff,_-2px_0_0_#fff,_2px_0_0_#fff]">{{ video.processingError }}</p>
                                     {% endif %}
                                 {% else %}
-                                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <p class="text-white">{{ 'video.processing.waiting'|trans }}</p>
+                                    <p class="font-bold text-lg drop-shadow-[0_4px_6px_rgba(0,0,0,0.9)] [color:#333333] [text-shadow:_-2px_-2px_0_#fff,_2px_-2px_0_#fff,_-2px_2px_0_#fff,_2px_2px_0_#fff,_0_-2px_0_#fff,_0_2px_0_#fff,_-2px_0_0_#fff,_2px_0_0_#fff]">{{ 'video.processing.waiting'|trans }}</p>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
                 {% endif %}
             </div>
+
+            {# Главы видео #}
+            {% if chapters is defined and chapters|length > 0 %}
+            <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-4 mb-4">
+                <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    Главы видео
+                </h3>
+                <div class="space-y-2">
+                    {% for chapter in chapters %}
+                    <button type="button" 
+                            onclick="seekToChapter({{ chapter.timestamp }})"
+                            class="w-full flex items-start gap-3 p-3 bg-white dark:bg-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition text-left">
+                        <span class="flex-shrink-0 text-sm font-mono text-orange-600 dark:text-orange-400 font-semibold">
+                            {{ chapter.formattedTimestamp }}
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ chapter.title }}</p>
+                            {% if chapter.description %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ chapter.description }}</p>
+                            {% endif %}
+                        </div>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <script>
+            function seekToChapter(timestamp) {
+                const videoElement = document.querySelector('[data-video-player-target="video"]');
+                if (videoElement) {
+                    videoElement.currentTime = timestamp;
+                    videoElement.play();
+                }
+            }
+            </script>
+            {% endif %}
+
 <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center gap-2">
                     {# Like Buttons #}

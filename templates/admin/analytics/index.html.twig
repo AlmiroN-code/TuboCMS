@@ -1,0 +1,420 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Детальная аналитика{% endblock %}
+{% block page_title %}
+    <div class="flex items-center">
+        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        Детальная аналитика
+    </div>
+{% endblock %}
+
+{% block content %}
+<div x-data="{
+    period: {{ period }},
+    compareWith: {{ compareWith }},
+    changePeriod(days) {
+        window.location.href = '{{ path('admin_analytics') }}?period=' + days + '&compare=' + this.compareWith;
+    },
+    toggleCompare() {
+        const newCompare = this.compareWith > 0 ? 0 : this.period;
+        window.location.href = '{{ path('admin_analytics') }}?period=' + this.period + '&compare=' + newCompare;
+    }
+}">
+    {# Фильтры периода #}
+    <div class="bg-white rounded-md shadow p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-2 block">Период:</label>
+                <div class="flex gap-2">
+                    <button @click="changePeriod(7)" 
+                            :class="period === 7 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                        7 дней
+                    </button>
+                    <button @click="changePeriod(30)" 
+                            :class="period === 30 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                        30 дней
+                    </button>
+                    <button @click="changePeriod(90)" 
+                            :class="period === 90 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                        90 дней
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label class="text-sm font-medium text-gray-700 mb-2 block">Сравнение:</label>
+                <button @click="toggleCompare()" 
+                        :class="compareWith > 0 ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'"
+                        class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                    <span x-show="compareWith === 0">Включить сравнение</span>
+                    <span x-show="compareWith > 0">Отключить сравнение</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if comparison %}
+    {# Сравнение периодов #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-md shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-gray-500">Видео</span>
+                {% set change = comparison.changes.videos %}
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ change >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    {{ change >= 0 ? '+' : '' }}{{ change }}%
+                </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">{{ comparison.current.videos }}</p>
+            <p class="text-xs text-gray-500 mt-1">Было: {{ comparison.previous.videos }}</p>
+        </div>
+        
+        <div class="bg-white rounded-md shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-gray-500">Пользователи</span>
+                {% set change = comparison.changes.users %}
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ change >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    {{ change >= 0 ? '+' : '' }}{{ change }}%
+                </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">{{ comparison.current.users }}</p>
+            <p class="text-xs text-gray-500 mt-1">Было: {{ comparison.previous.users }}</p>
+        </div>
+        
+        <div class="bg-white rounded-md shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-gray-500">Просмотры</span>
+                {% set change = comparison.changes.views %}
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ change >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    {{ change >= 0 ? '+' : '' }}{{ change }}%
+                </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900">{{ comparison.current.views|number_format }}</p>
+            <p class="text-xs text-gray-500 mt-1">Было: {{ comparison.previous.views|number_format }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Графики #}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">📈 Загрузки видео</h3>
+            {{ component('stats_chart', {type: 'uploads', days: period}) }}
+        </div>
+        
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">👥 Новые пользователи</h3>
+            {{ component('stats_chart', {type: 'users', days: period}) }}
+        </div>
+        
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">👁 Просмотры</h3>
+            {{ component('stats_chart', {type: 'views', days: period}) }}
+        </div>
+        
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">💬 Вовлеченность</h3>
+            {{ component('analytics_chart', {type: 'engagement', days: period}) }}
+        </div>
+    </div>
+
+    {# Воронка конверсии #}
+    <div class="bg-white rounded-md shadow p-6 mb-6">
+        <h3 class="text-sm font-semibold text-gray-900 mb-4">🎯 Воронка конверсии</h3>
+        <div class="space-y-4">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm text-gray-600">Загружено видео</span>
+                    <span class="text-sm font-bold text-gray-900">{{ conversionFunnel.uploaded|number_format }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            {% set viewedPercent = conversionFunnel.uploaded > 0 ? (conversionFunnel.viewed / conversionFunnel.uploaded * 100)|round : 0 %}
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm text-gray-600">Просмотрено</span>
+                    <span class="text-sm font-bold text-gray-900">{{ conversionFunnel.viewed|number_format }} ({{ viewedPercent }}%)</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-600 h-2 rounded-full" style="width: {{ viewedPercent }}%"></div>
+                </div>
+            </div>
+            
+            {% set likedPercent = conversionFunnel.uploaded > 0 ? (conversionFunnel.liked / conversionFunnel.uploaded * 100)|round : 0 %}
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm text-gray-600">Получили лайки</span>
+                    <span class="text-sm font-bold text-gray-900">{{ conversionFunnel.liked|number_format }} ({{ likedPercent }}%)</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-purple-600 h-2 rounded-full" style="width: {{ likedPercent }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Топ видео, категорий, моделей #}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {# Топ видео #}
+        <div class="bg-white rounded-md shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-900">🏆 Топ видео</h3>
+            </div>
+            <div class="p-4">
+                {% if topVideos|length > 0 %}
+                <div class="space-y-3">
+                    {% for video in topVideos %}
+                    <div class="flex items-center">
+                        <span class="text-lg font-bold text-gray-400 w-6">{{ loop.index }}</span>
+                        <img src="{{ video_poster(video.poster) }}" alt="{{ video.title }}" class="w-16 h-10 object-cover rounded mx-2">
+                        <div class="flex-1 min-w-0">
+                            <a href="{{ path('admin_videos_edit', {id: video.id}) }}" class="text-sm text-gray-900 hover:text-blue-600 block truncate">
+                                {{ video.title }}
+                            </a>
+                            <p class="text-xs text-gray-500">{{ video.viewsCount|number_format }} просмотров</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 text-sm py-4">Нет данных</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Топ категорий #}
+        <div class="bg-white rounded-md shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-900">📁 Топ категорий</h3>
+            </div>
+            <div class="p-4">
+                {% if topCategories|length > 0 %}
+                <div class="space-y-3">
+                    {% for category in topCategories %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <span class="text-lg font-bold text-gray-400 w-6">{{ loop.index }}</span>
+                            <a href="{{ path('app_category_show', {slug: category.slug}) }}" class="text-sm text-gray-900 hover:text-blue-600 ml-2 truncate">
+                                {{ category.name }}
+                            </a>
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-sm font-bold text-gray-900">{{ category.totalViews|number_format }}</p>
+                            <p class="text-xs text-gray-500">{{ category.videoCount }} видео</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 text-sm py-4">Нет данных</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Топ моделей #}
+        <div class="bg-white rounded-md shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-900">⭐ Топ моделей</h3>
+            </div>
+            <div class="p-4">
+                {% if topModels|length > 0 %}
+                <div class="space-y-3">
+                    {% for model in topModels %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <span class="text-lg font-bold text-gray-400 w-6">{{ loop.index }}</span>
+                            <a href="{{ path('app_model_show', {slug: model.slug}) }}" class="text-sm text-gray-900 hover:text-blue-600 ml-2 truncate">
+                                {{ model.displayName }}
+                            </a>
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-sm font-bold text-gray-900">{{ model.totalViews|number_format }}</p>
+                            <p class="text-xs text-gray-500">{{ model.videoCount }} видео</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 text-sm py-4">Нет данных</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Топ каналов #}
+    <div class="bg-white rounded-md shadow mb-6">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-sm font-semibold text-gray-900">📺 Топ каналов</h3>
+        </div>
+        <div class="p-4">
+            {% if topChannels|length > 0 %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for channel in topChannels %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center flex-1 min-w-0">
+                        <span class="text-lg font-bold text-gray-400 w-6 mr-2">{{ loop.index }}</span>
+                        <div class="flex-1 min-w-0">
+                            <a href="{{ path('channel_show', {slug: channel.slug}) }}" class="text-sm font-medium text-gray-900 hover:text-blue-600 block truncate">
+                                {{ channel.name }}
+                            </a>
+                            <div class="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                <span>{{ channel.subscribersCount|number_format }} подписчиков</span>
+                                <span>{{ channel.videoCount }} видео</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right ml-2">
+                        <p class="text-sm font-bold text-blue-600">{{ channel.totalViews|number_format }}</p>
+                        <p class="text-xs text-gray-500">просмотров</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 text-sm py-4">Нет данных</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Дополнительная аналитика #}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {# Метрики вовлеченности #}
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">📊 Метрики вовлеченности</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">CTR (Click-Through Rate)</span>
+                    <span class="text-lg font-bold text-blue-600">{{ engagementMetrics.ctr }}%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Средние лайки на видео</span>
+                    <span class="text-lg font-bold text-green-600">{{ engagementMetrics.avgLikes }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Средние комментарии</span>
+                    <span class="text-lg font-bold text-purple-600">{{ engagementMetrics.avgComments }}</span>
+                </div>
+                <div class="pt-3 border-t">
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>Всего показов</span>
+                        <span>{{ engagementMetrics.totalImpressions|number_format }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+                        <span>Всего просмотров</span>
+                        <span>{{ engagementMetrics.totalViews|number_format }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Распределение по длительности #}
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">⏱ Распределение по длительности</h3>
+            {{ component('analytics_chart', {type: 'duration', days: period}) }}
+            <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
+                <div>
+                    <div class="text-gray-500">Короткие</div>
+                    <div class="font-bold text-gray-900">{{ durationDistribution.short }}</div>
+                    <div class="text-gray-400">&lt; 5 мин</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">Средние</div>
+                    <div class="font-bold text-gray-900">{{ durationDistribution.medium }}</div>
+                    <div class="text-gray-400">5-20 мин</div>
+                </div>
+                <div>
+                    <div class="text-gray-500">Длинные</div>
+                    <div class="font-bold text-gray-900">{{ durationDistribution.long }}</div>
+                    <div class="text-gray-400">&gt; 20 мин</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Топ тегов и статусы видео #}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {# Топ тегов #}
+        <div class="bg-white rounded-md shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-900">🏷 Топ тегов</h3>
+            </div>
+            <div class="p-4">
+                {% if topTags|length > 0 %}
+                <div class="space-y-3">
+                    {% for tag in topTags %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <span class="text-lg font-bold text-gray-400 w-6">{{ loop.index }}</span>
+                            <span class="text-sm text-gray-900 ml-2 truncate">{{ tag.name }}</span>
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-sm font-bold text-gray-900">{{ tag.totalViews|number_format }}</p>
+                            <p class="text-xs text-gray-500">{{ tag.videoCount }} видео</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 text-sm py-4">Нет данных</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Статусы видео #}
+        <div class="bg-white rounded-md shadow p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">📹 Статусы видео</h3>
+            {{ component('analytics_chart', {type: 'status', days: period}) }}
+            <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
+                {% for status, count in statusStats %}
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span class="text-gray-600 capitalize">{{ status }}</span>
+                    <span class="font-bold text-gray-900">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# География просмотров #}
+        <div class="bg-white rounded-md shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-sm font-semibold text-gray-900">🌍 География просмотров</h3>
+            </div>
+            <div class="p-4">
+                {% if geoData|length > 0 %}
+                <div class="space-y-3">
+                    {% for geo in geoData %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <span class="text-lg font-bold text-gray-400 w-6">{{ loop.index }}</span>
+                            {% if geo.country and geo.country != '' %}
+                                <img src="https://flagcdn.com/w20/{{ geo.country|lower }}.png" 
+                                     alt="{{ geo.country|upper }}" 
+                                     class="w-5 h-auto rounded-sm shadow ml-2 mr-2"
+                                     onerror="this.style.display='none'">
+                                <span class="text-sm text-gray-900 truncate">{{ geo.country|upper }}</span>
+                            {% else %}
+                                <span class="text-sm text-gray-500 truncate ml-2">Неизвестно</span>
+                            {% endif %}
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-sm font-bold text-gray-900">{{ geo.viewCount }}</p>
+                            <p class="text-xs text-gray-500">{{ geo.uniqueViews }} уник.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-500 text-sm py-4">Нет данных о просмотрах</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

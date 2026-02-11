@@ -12,10 +12,9 @@
 
 {% block body %}
 <div class="flex gap-2">
-    {% include 'partials/_sidebar.html.twig' %}
     
     <div class="flex-1 p-3">
-        <article class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <article class="bg-white dark:bg-gray-800">
             {% if post.featuredImage %}
                 <div class="aspect-video w-full overflow-hidden rounded-t-lg">
                     <img src="/media/posts/{{ post.featuredImage }}" 

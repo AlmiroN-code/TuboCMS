@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VideoRepository::class)]
 #[ORM\Table(name: 'video')]
-#[ORM\Index(columns: ['status', 'created_at'], name: 'idx_status_created')]
+#[ORM\Index(columns: ['status', 'published_at'], name: 'idx_status_published')]
 #[ORM\Index(columns: ['slug'], name: 'idx_slug')]
 #[ORM\Index(columns: ['views_count'], name: 'idx_views')]
 class Video
@@ -95,6 +95,9 @@ class Video
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $publishedAt = null;
+
     #[ORM\ManyToOne(inversedBy: 'videos')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $createdBy = null;
@@ -112,6 +115,10 @@ class Video
 
     #[ORM\OneToMany(targetEntity: VideoFile::class, mappedBy: 'video', cascade: ['persist', 'remove'])]
     private Collection $encodedFiles;
+
+    #[ORM\OneToMany(targetEntity: VideoChapter::class, mappedBy: 'video', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['timestamp' => 'ASC'])]
+    private Collection $chapters;
 
     #[ORM\ManyToMany(targetEntity: ModelProfile::class, inversedBy: 'videos')]
     #[ORM\JoinTable(name: 'video_model')]
@@ -135,6 +142,10 @@ class Video
     {
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->encodedFiles = new ArrayCollection();
+        $this->chapters = new ArrayCollection();
+        $this->performers = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->encodedFiles = new ArrayCollection();
         $this->performers = new ArrayCollection();
@@ -264,6 +275,11 @@ class Video
 
     public function setStatus(string $status): static
     {
+        // Автоматически устанавливаем publishedAt при первой публикации
+        if ($status === self::STATUS_PUBLISHED && $this->status !== self::STATUS_PUBLISHED && $this->publishedAt === null) {
+            $this->publishedAt = new \DateTimeImmutable();
+        }
+        
         $this->status = $status;
         return $this;
     }
@@ -421,6 +437,17 @@ class Video
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getPublishedAt(): ?\DateTimeImmutable
+    {
+        return $this->publishedAt;
+    }
+
+    public function setPublishedAt(?\DateTimeImmutable $publishedAt): static
+    {
+        $this->publishedAt = $publishedAt;
         return $this;
     }
 
@@ -613,6 +640,68 @@ class Video
     public function setChannel(?Channel $channel): static
     {
         $this->channel = $channel;
+        return $this;
+    }
+
+    /**
+     * Получить общий размер всех файлов видео в байтах
+     */
+    public function getTotalFileSize(): int
+    {
+        $totalSize = 0;
+        foreach ($this->encodedFiles as $file) {
+            $totalSize += $file->getFileSize();
+        }
+        return $totalSize;
+    }
+
+    /**
+     * Получить отформатированный размер файла
+     */
+    public function getFileSizeFormatted(): string
+    {
+        $bytes = $this->getTotalFileSize();
+        
+        if ($bytes === 0) {
+            return '-';
+        }
+        
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $power = floor(log($bytes, 1024));
+        $power = min($power, count($units) - 1);
+        
+        return round($bytes / pow(1024, $power), 2) . ' ' . $units[$power];
+    }
+
+    /**
+     * @return Collection<int, VideoChapter>
+     */
+    public function getChapters(): Collection
+    {
+        if (!isset($this->chapters)) {
+            $this->chapters = new ArrayCollection();
+        }
+        return $this->chapters;
+    }
+
+    public function addChapter(VideoChapter $chapter): static
+    {
+        if (!$this->chapters->contains($chapter)) {
+            $this->chapters->add($chapter);
+            $chapter->setVideo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChapter(VideoChapter $chapter): static
+    {
+        if ($this->chapters->removeElement($chapter)) {
+            if ($chapter->getVideo() === $this) {
+                $chapter->setVideo(null);
+            }
+        }
+
         return $this;
     }
 }

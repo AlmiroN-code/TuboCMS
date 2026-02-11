@@ -27,7 +27,7 @@ class VideoRepository extends ServiceEntityRepository
             ->addSelect('u', 'c', 'p')
             ->where('v.status = :status')
             ->setParameter('status', Video::STATUS_PUBLISHED)
-            ->orderBy('v.createdAt', 'DESC')
+            ->orderBy('v.publishedAt', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
@@ -212,7 +212,19 @@ class VideoRepository extends ServiceEntityRepository
 
     public function findTrending(int $limit = 24, int $offset = 0): array
     {
-        // Тренды - видео с наибольшим количеством просмотров за последние 7 дней
+        /**
+         * Улучшенный алгоритм трендов с учётом:
+         * - Просмотров (базовый вес)
+         * - Лайков и дизлайков (engagement)
+         * - Комментариев (активность)
+         * - Свежести видео (буст для новых видео)
+         * 
+         * Формула trending score:
+         * score = (views * 1.0) + (likes * 5.0) - (dislikes * 2.0) + (comments * 3.0)
+         * 
+         * Свежесть учитывается через сортировку по дате после основного score
+         */
+        
         $weekAgo = new \DateTime('-7 days');
         
         return $this->createQueryBuilder('v')
@@ -220,12 +232,20 @@ class VideoRepository extends ServiceEntityRepository
             ->leftJoin('v.categories', 'c')
             ->leftJoin('v.performers', 'p')
             ->addSelect('u', 'c', 'p')
+            ->addSelect('
+                (
+                    (v.viewsCount * 1.0) + 
+                    (v.likesCount * 5.0) - 
+                    (v.dislikesCount * 2.0) + 
+                    (v.commentsCount * 3.0)
+                ) as HIDDEN trending_score
+            ')
             ->where('v.status = :status')
             ->andWhere('v.createdAt >= :weekAgo')
             ->setParameter('status', Video::STATUS_PUBLISHED)
             ->setParameter('weekAgo', $weekAgo)
-            ->orderBy('v.viewsCount', 'DESC')
-            ->addOrderBy('v.createdAt', 'DESC')
+            ->orderBy('trending_score', 'DESC')
+            ->addOrderBy('v.createdAt', 'DESC') // Свежие видео выше при равном score
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
@@ -507,7 +527,7 @@ class VideoRepository extends ServiceEntityRepository
         return (int) $result->fetchOne();
     }
 
-    public function findForAdminList(int $limit = 20, int $offset = 0, ?string $sort = null, ?string $status = null): array
+    public function findForAdminList(?int $limit = 20, int $offset = 0, ?string $sort = null, array $filters = []): array
     {
         $qb = $this->createQueryBuilder('v')
             ->leftJoin('v.createdBy', 'u')
@@ -516,9 +536,50 @@ class VideoRepository extends ServiceEntityRepository
             ->addSelect('u', 'c', 'p');
         
         // Фильтр по статусу
-        if ($status) {
-            $qb->where('v.status = :status')
-               ->setParameter('status', $status);
+        if (!empty($filters['status'])) {
+            $qb->andWhere('v.status = :status')
+               ->setParameter('status', $filters['status']);
+        }
+        
+        // Фильтр по категории
+        if (!empty($filters['categoryId'])) {
+            $qb->andWhere(':category MEMBER OF v.categories')
+               ->setParameter('category', $filters['categoryId']);
+        }
+        
+        // Фильтр по автору
+        if (!empty($filters['authorId'])) {
+            $qb->andWhere('v.createdBy = :author')
+               ->setParameter('author', $filters['authorId']);
+        }
+        
+        // Фильтр по дате (от)
+        if (!empty($filters['dateFrom'])) {
+            try {
+                $dateFrom = new \DateTime($filters['dateFrom']);
+                $qb->andWhere('v.createdAt >= :dateFrom')
+                   ->setParameter('dateFrom', $dateFrom);
+            } catch (\Exception $e) {
+                // Игнорируем некорректную дату
+            }
+        }
+        
+        // Фильтр по дате (до)
+        if (!empty($filters['dateTo'])) {
+            try {
+                $dateTo = new \DateTime($filters['dateTo']);
+                $dateTo->setTime(23, 59, 59); // Конец дня
+                $qb->andWhere('v.createdAt <= :dateTo')
+                   ->setParameter('dateTo', $dateTo);
+            } catch (\Exception $e) {
+                // Игнорируем некорректную дату
+            }
+        }
+        
+        // Поиск по названию
+        if (!empty($filters['search'])) {
+            $qb->andWhere('v.title LIKE :search OR v.description LIKE :search')
+               ->setParameter('search', '%' . $filters['search'] . '%');
         }
         
         // Сортировка
@@ -554,20 +615,66 @@ class VideoRepository extends ServiceEntityRepository
                 break;
         }
         
-        return $qb->setMaxResults($limit)
-                  ->setFirstResult($offset)
-                  ->getQuery()
-                  ->getResult();
+        // Применяем лимит только если он указан (для экспорта может быть null)
+        if ($limit !== null) {
+            $qb->setMaxResults($limit)
+               ->setFirstResult($offset);
+        }
+        
+        return $qb->getQuery()->getResult();
     }
 
-    public function countForAdminList(?string $status = null): int
+    public function countForAdminList(array $filters = []): int
     {
         $qb = $this->createQueryBuilder('v')
             ->select('COUNT(v.id)');
         
-        if ($status) {
-            $qb->where('v.status = :status')
-               ->setParameter('status', $status);
+        // Фильтр по статусу
+        if (!empty($filters['status'])) {
+            $qb->andWhere('v.status = :status')
+               ->setParameter('status', $filters['status']);
+        }
+        
+        // Фильтр по категории
+        if (!empty($filters['categoryId'])) {
+            $qb->leftJoin('v.categories', 'c')
+               ->andWhere(':category MEMBER OF v.categories')
+               ->setParameter('category', $filters['categoryId']);
+        }
+        
+        // Фильтр по автору
+        if (!empty($filters['authorId'])) {
+            $qb->andWhere('v.createdBy = :author')
+               ->setParameter('author', $filters['authorId']);
+        }
+        
+        // Фильтр по дате (от)
+        if (!empty($filters['dateFrom'])) {
+            try {
+                $dateFrom = new \DateTime($filters['dateFrom']);
+                $qb->andWhere('v.createdAt >= :dateFrom')
+                   ->setParameter('dateFrom', $dateFrom);
+            } catch (\Exception $e) {
+                // Игнорируем некорректную дату
+            }
+        }
+        
+        // Фильтр по дате (до)
+        if (!empty($filters['dateTo'])) {
+            try {
+                $dateTo = new \DateTime($filters['dateTo']);
+                $dateTo->setTime(23, 59, 59);
+                $qb->andWhere('v.createdAt <= :dateTo')
+                   ->setParameter('dateTo', $dateTo);
+            } catch (\Exception $e) {
+                // Игнорируем некорректную дату
+            }
+        }
+        
+        // Поиск по названию
+        if (!empty($filters['search'])) {
+            $qb->andWhere('v.title LIKE :search OR v.description LIKE :search')
+               ->setParameter('search', '%' . $filters['search'] . '%');
         }
         
         return $qb->getQuery()->getSingleScalarResult();
@@ -1002,7 +1109,7 @@ class VideoRepository extends ServiceEntityRepository
             ->addSelect('u', 'c')
             ->where('v.status = :status')
             ->setParameter('status', Video::STATUS_PUBLISHED)
-            ->orderBy('v.createdAt', 'DESC')
+            ->orderBy('v.publishedAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->useQueryCache(true)
@@ -1147,5 +1254,71 @@ class VideoRepository extends ServiceEntityRepository
             ->useQueryCache(true)
             ->setResultCacheLifetime(120)
             ->getResult();
+    }
+
+    /**
+     * Подсчет видео за период
+     */
+    public function countByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
+    {
+        return (int) $this->createQueryBuilder('v')
+            ->select('COUNT(v.id)')
+            ->where('v.createdAt >= :startDate')
+            ->andWhere('v.createdAt < :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Сумма просмотров за период
+     */
+    public function sumViewsByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
+    {
+        $result = $this->createQueryBuilder('v')
+            ->select('SUM(v.viewsCount)')
+            ->where('v.createdAt >= :startDate')
+            ->andWhere('v.createdAt < :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        return (int) ($result ?? 0);
+    }
+
+    /**
+     * Сумма лайков за период
+     */
+    public function sumLikesByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
+    {
+        $result = $this->createQueryBuilder('v')
+            ->select('SUM(v.likesCount)')
+            ->where('v.createdAt >= :startDate')
+            ->andWhere('v.createdAt < :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        return (int) ($result ?? 0);
+    }
+
+    /**
+     * Подсчет комментариев за период
+     */
+    public function countCommentsByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
+    {
+        $result = $this->createQueryBuilder('v')
+            ->select('SUM(v.commentsCount)')
+            ->where('v.createdAt >= :startDate')
+            ->andWhere('v.createdAt < :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        return (int) ($result ?? 0);
     }
 }

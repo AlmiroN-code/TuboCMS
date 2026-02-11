@@ -76,35 +76,171 @@ window.toggleCardBookmark = async function(button, videoId) {
  * Открывает модальное окно для добавления в плейлист
  */
 window.openPlaylistModal = async function(videoId) {
-    // Получаем плейлисты пользователя
+    const modal = document.getElementById('playlist-modal-' + videoId);
+    const listContainer = document.getElementById('playlist-list-' + videoId);
+    
+    if (!modal || !listContainer) return;
+    
+    // Показываем модальное окно
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+    
+    // Показываем загрузку
+    listContainer.innerHTML = '<div class="text-center py-4 text-gray-500 dark:text-gray-400">Loading...</div>';
+    
     try {
-        const response = await fetch('/playlists?format=json', {
-            headers: { 'Accept': 'application/json' }
-        });
+        const response = await fetch('/api/playlists/my');
+        if (!response.ok) throw new Error('Failed to load playlists');
         
-        if (response.ok) {
-            const playlists = await response.json();
-            if (playlists.length === 0) {
-                if (confirm('У вас нет плейлистов. Создать новый?')) {
-                    window.location.href = '/playlists/create';
-                }
-            } else {
-                // Простой выбор через prompt
-                let options = playlists.map((p, i) => `${i + 1}. ${p.title}`).join('\n');
-                let choice = prompt(`Выберите плейлист (введите номер):\n${options}`);
-                if (choice) {
-                    let idx = parseInt(choice) - 1;
-                    if (idx >= 0 && idx < playlists.length) {
-                        await window.addToPlaylist(playlists[idx].id, videoId);
-                    }
-                }
-            }
+        const playlists = await response.json();
+        
+        if (playlists.length === 0) {
+            // Получаем переведённый текст из data-атрибута или используем дефолтный
+            const noPlaylistsText = modal.dataset.noPlaylistsText || 'No playlists have been created yet.';
+            
+            listContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <p>${noPlaylistsText}</p>
+                </div>
+            `;
+        } else {
+            const visibilityLabels = {
+                'public': 'Public',
+                'private': 'Private',
+                'unlisted': 'Unlisted',
+                'user_subscribers': 'My Subscribers',
+                'channel_subscribers': 'Channel Subscribers'
+            };
+            
+            listContainer.innerHTML = playlists.map(playlist => {
+                const visibilityLabel = visibilityLabels[playlist.visibility] || playlist.visibility;
+                return `
+                <button type="button" 
+                        onclick="addToPlaylist(${playlist.id}, ${videoId}); closePlaylistModal(${videoId});"
+                        class="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center">
+                            <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="font-medium text-gray-900 dark:text-gray-100">${playlist.title}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${playlist.videosCount} videos • ${visibilityLabel}</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </button>
+            `;
+            }).join('');
         }
-    } catch (e) {
-        console.error('Error loading playlists:', e);
-        window.location.href = '/playlists';
+    } catch (error) {
+        console.error('Error loading playlists:', error);
+        listContainer.innerHTML = '<div class="text-center py-4 text-red-500">Error loading playlists</div>';
     }
 };
+
+/**
+ * Закрывает модальное окно плейлиста
+ */
+window.closePlaylistModal = function(videoId) {
+    const modal = document.getElementById('playlist-modal-' + videoId);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+};
+
+/**
+ * Открывает модальное окно создания плейлиста
+ */
+window.openCreatePlaylistModal = function(videoId) {
+    // Закрываем модальное окно выбора плейлиста
+    closePlaylistModal(videoId);
+    
+    const modal = document.getElementById('create-playlist-modal-' + videoId);
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+        
+        // Добавляем обработчик формы
+        const form = document.getElementById('create-playlist-form-' + videoId);
+        if (form && !form.dataset.listenerAdded) {
+            form.dataset.listenerAdded = 'true';
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await handleCreatePlaylist(videoId, form);
+            });
+        }
+    }
+};
+
+/**
+ * Закрывает модальное окно создания плейлиста
+ */
+window.closeCreatePlaylistModal = function(videoId) {
+    const modal = document.getElementById('create-playlist-modal-' + videoId);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        
+        // Очищаем форму
+        const form = document.getElementById('create-playlist-form-' + videoId);
+        if (form) {
+            form.reset();
+        }
+    }
+};
+
+/**
+ * Обрабатывает создание плейлиста
+ */
+async function handleCreatePlaylist(videoId, form) {
+    const formData = new FormData(form);
+    const title = formData.get('title');
+    const visibility = formData.get('visibility');
+    
+    if (!title) {
+        window.showError('Введите название плейлиста');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/playlists/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title: title,
+                visibility: visibility,
+                videoId: videoId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.showSuccess(data.message || 'Плейлист создан и видео добавлено');
+            closeCreatePlaylistModal(videoId);
+            
+            // Перезагружаем список плейлистов
+            if (typeof openPlaylistModal === 'function') {
+                setTimeout(() => openPlaylistModal(videoId), 300);
+            }
+        } else {
+            window.showError(data.error || 'Не удалось создать плейлист');
+        }
+    } catch (error) {
+        console.error('Error creating playlist:', error);
+        window.showError('Произошла ошибка при создании плейлиста');
+    }
+}
 
 /**
  * Переключает видимость dropdown плейлистов
@@ -139,7 +275,12 @@ window.addToPlaylist = async function(playlistId, videoId) {
                 menu.classList.add('hidden');
             }
         } else {
-            window.showError(data.message || 'Не удалось добавить видео в плейлист');
+            // Проверяем, является ли это ошибкой дубликата
+            if (data.isDuplicate) {
+                window.showInfo(data.error || 'Видео уже добавлено в этот плейлист');
+            } else {
+                window.showError(data.error || 'Не удалось добавить видео в плейлист');
+            }
         }
     } catch (error) {
         console.error('Error adding to playlist:', error);
@@ -372,6 +513,38 @@ function updateLikeProgressBar(likes, dislikes) {
             dislikeBar.style.width = `${100 - likePercent}%`;
         }
     }
+    
+    // Обновляем процент и эмодзи
+    updateRatingDisplay(likes, dislikes);
+}
+
+/**
+ * Обновляет отображение процента рейтинга и эмодзи
+ */
+function updateRatingDisplay(likes, dislikes) {
+    const container = document.getElementById('like-buttons');
+    if (!container) return;
+    
+    const ratingDisplay = container.querySelector('.rating-display');
+    if (!ratingDisplay) return;
+    
+    const total = likes + dislikes;
+    const percent = total > 0 ? Math.round((likes / total) * 100) : 50;
+    
+    // Определяем эмодзи
+    let emoji = '😐'; // Нейтральный
+    if (percent >= 80) {
+        emoji = '😊'; // Радостный
+    } else if (percent < 50) {
+        emoji = '😞'; // Грустный
+    }
+    
+    // Обновляем содержимое
+    const emojiSpan = ratingDisplay.querySelector('.rating-emoji');
+    const percentSpan = ratingDisplay.querySelector('.rating-percent');
+    
+    if (emojiSpan) emojiSpan.textContent = emoji;
+    if (percentSpan) percentSpan.textContent = `${percent}%`;
 }
 
 /**
@@ -415,4 +588,22 @@ document.addEventListener('click', function(event) {
     }
 });
 
+/**
+ * Закрытие модальных окон плейлистов при клике на фон
+ */
+document.addEventListener('click', function(e) {
+    // Закрытие модального окна выбора плейлиста
+    if (e.target.id && e.target.id.startsWith('playlist-modal-')) {
+        const videoId = e.target.id.replace('playlist-modal-', '');
+        closePlaylistModal(videoId);
+    }
+    
+    // Закрытие модального окна создания плейлиста
+    if (e.target.id && e.target.id.startsWith('create-playlist-modal-')) {
+        const videoId = e.target.id.replace('create-playlist-modal-', '');
+        closeCreatePlaylistModal(videoId);
+    }
+});
+
 console.log('Interactions module loaded');
+

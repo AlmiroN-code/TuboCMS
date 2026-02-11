@@ -311,10 +311,19 @@ profile:
         videos_count: "видео"
         subscribers_count: "подписчиков"
         views_count: "просмотров"
+        about_user: "О пользователе"
+        view_all: "Смотреть все"
+        activity: "Активность"
+        registered: "Зарегистрирован %date%"
+        last_activity: "Последняя активность %date%"
+        information: "Информация"
+        achievements: "Достижения"
     videos:
         title: "Видео пользователя"
         no_videos: "У пользователя пока нет видео"
         total_videos: "Всего видео: %count%"
+        user_videos: "Видео пользователя %username%"
+        no_videos_description: "У этого пользователя пока нет загруженных видео."
     channels:
         title: "Каналы"
         owned_channels: "Мои каналы (%count%)"
@@ -327,22 +336,99 @@ profile:
     series:
         title: "Серии"
         no_series: "Серии не найдены"
+        user_series: "Серии пользователя %username%"
+        total_series: "(%count%)"
+        no_series_owner: "Вы еще не создали ни одной серии."
+        no_series_user: "У этого пользователя пока нет серий."
+        videos_count: "%count% видео"
+        views_count: "%count% просмотров"
+        watch_series: "Смотреть серию"
     playlists:
         title: "Плейлисты"
         no_playlists: "Плейлисты не найдены"
+        user_playlists: "Плейлисты пользователя %username%"
+        total_playlists: "(%count%)"
+        no_playlists_owner: "Вы еще не создали ни одного плейлиста."
+        no_playlists_user: "У этого пользователя пока нет плейлистов."
+        videos_count: "%count% видео"
+        watch_playlist: "Смотреть плейлист"
     subscriptions:
         title: "Подписки"
         no_subscriptions: "Подписки не найдены"
         total_subscriptions: "Всего подписок: %count%"
+        user_subscriptions: "Подписки пользователя %username%"
+        total: "Всего: %count%"
+        tab_users: "Пользователи"
+        tab_channels: "Каналы"
+        tab_playlists: "Плейлисты"
+        tab_models: "Модели"
+        no_subscriptions_users_owner: "Вы еще ни на кого не подписались."
+        no_subscriptions_channels_owner: "Вы еще не подписались ни на один канал."
+        no_subscriptions_playlists_owner: "Вы еще не подписались ни на один плейлист."
+        no_subscriptions_models_owner: "Вы еще не подписались ни на одну модель."
+        no_subscriptions_user: "У этого пользователя пока нет подписок в этой категории."
     notifications:
         title: "Уведомления"
         no_notifications: "Уведомления не найдены"
+        my_notifications: "Мои уведомления"
+        mark_all_read: "Отметить все как прочитанные"
+        no_notifications_description: "У вас пока нет новых уведомлений."
     about:
         title: "О пользователе"
         member_since: "Участник с"
         no_description: "Описание не добавлено"
+        description: "Описание"
+        basic_info: "Основная информация"
+        additional_info: "Дополнительная информация"
+        statistics: "Статистика"
+        achievements_statuses: "Достижения и статусы"
+        username: "Имя пользователя"
+        registration_date: "Дата регистрации"
+        country: "Страна"
+        city: "Город"
+        gender: "Пол"
+        gender_male: "Мужской"
+        gender_female: "Женский"
+        age: "Возраст"
+        age_years: "%age% лет"
+        marital_status: "Семейное положение"
+        marital_single: "Холост/не замужем"
+        marital_in_relationship: "В отношениях"
+        marital_engaged: "Помолвлен/а"
+        marital_married: "Женат/замужем"
+        marital_divorced: "Разведен/а"
+        marital_widowed: "Вдовец/вдова"
+        orientation: "Ориентация"
+        orientation_heterosexual: "Гетеросексуальная"
+        orientation_homosexual: "Гомосексуальная"
+        orientation_bisexual: "Бисексуальная"
+        orientation_other: "Другая"
+        website: "Веб-сайт"
+        videos: "Видео"
+        subscribers: "Подписчиков"
+        views: "Просмотров"
+        subscriptions: "Подписок"
+        verified_user: "Верифицированный пользователь"
+        premium_user: "Премиум пользователь"
+        active_creator: "Активный создатель контента"
     birth_date: "Дата рождения"
     bio_placeholder: "Расскажите о себе..."
+    # Bookmarks tab
+    bookmarks:
+        my_bookmarks: "Мои закладки"
+        total_bookmarks: "(%count%)"
+        no_bookmarks: "Нет закладок"
+        no_bookmarks_description: "Вы еще не добавили ни одного видео в закладки."
+    # Watch Later tab
+    watch_later:
+        watch_later: "Смотреть позже"
+        total: "(%count%)"
+        list_empty: "Список пуст"
+        list_empty_description: "Вы еще не добавили ни одного видео для просмотра позже."
+    # Common profile texts
+    videos_text: "видео"
+    subscribers_text: "подписчиков"
+    views_text: "просмотров"
 
 # Models section
 models:
@@ -425,15 +511,29 @@ playlist:
     create_new: "Создать плейлист"
     edit: "Редактировать плейлист"
     title: "Название"
+    title_placeholder: "Введите название плейлиста"
     description: "Описание"
     videos: "видео"
+    visibility: "Видимость"
+    visibility_public: "Публичный"
+    visibility_private: "Приватный"
+    visibility_unlisted: "По ссылке"
+    visibility_user_subscribers: "Мои подписчики"
+    visibility_channel_subscribers: "Подписчики моих каналов"
     public: "Публичный"
     private: "Приватный"
+    unlisted: "По ссылке"
+    user_subscribers: "Мои подписчики"
+    channel_subscribers: "Подписчики каналов"
     make_public: "Сделать публичным"
     no_playlists: "У вас пока нет плейлистов"
+    no_playlists_created: "Плейлистов еще не создано"
     create_first: "Создайте свой первый плейлист"
     no_videos: "В плейлисте пока нет видео"
     add_video: "В плейлист"
+    share_link: "Ссылка для sharing"
+    copy_link: "Скопировать ссылку"
+    link_copied: "Ссылка скопирована"
 
 # History
 history:
@@ -763,6 +863,151 @@ seo:
         model: "модель"
         tag: "тег"
         category: "категория"
+
+# Live Streaming
+live:
+    title: "Прямые трансляции"
+    all_streams: "Все трансляции"
+    my_streams: "Мои стримы"
+    create: "Создать стрим"
+    create_new: "Создать новый стрим"
+    edit: "Редактировать стрим"
+    delete: "Удалить стрим"
+    manage: "Управление"
+    
+    # Navigation
+    nav:
+        live: "Live"
+        my_streams: "Мои стримы"
+    
+    # Stream statuses
+    status:
+        live: "В эфире"
+        scheduled: "Запланирован"
+        ended: "Завершен"
+        cancelled: "Отменен"
+    
+    # Stream list
+    list:
+        active_streams: "активных трансляций"
+        now_live: "Сейчас в эфире"
+        scheduled_streams: "Запланированные трансляции"
+        no_active: "Нет активных трансляций"
+        no_active_desc: "Проверьте позже или создайте свою трансляцию"
+        no_streams: "У вас пока нет стримов"
+        no_streams_desc: "Создайте свою первую трансляцию"
+        create_first: "Создать стрим"
+    
+    # Stream info
+    info:
+        title: "Название"
+        title_placeholder: "Введите название стрима"
+        description: "Описание"
+        channel: "Канал"
+        channel_placeholder: "Выберите канал (необязательно)"
+        scheduled_at: "Запланировано на"
+        scheduled_at_help: "Оставьте пустым для немедленного запуска"
+        viewers: "зрителей"
+        viewers_now: "Сейчас смотрят"
+        viewers_peak: "Пиковое значение"
+        total_views: "Всего просмотров"
+        duration: "Длительность"
+        started_at: "Начало"
+        ended_at: "Завершение"
+        created_at: "Создано"
+    
+    # Stream management
+    manage_stream:
+        title: "Управление стримом"
+        settings: "Настройки трансляции"
+        rtmp_url: "RTMP URL"
+        stream_key: "Stream Key"
+        stream_key_help: "Не делитесь этим ключом с другими"
+        regenerate_key: "Сгенерировать новый ключ"
+        regenerate_confirm: "Сгенерировать новый ключ? Старый ключ перестанет работать."
+        viewer_link: "Ссылка для зрителей"
+        copy: "Копировать"
+        show: "Показать"
+        open: "Открыть"
+        statistics: "Статистика"
+        ready_to_start: "Готовы начать трансляцию?"
+        ready_desc: "Используйте данные ниже для настройки OBS или другого ПО для стриминга"
+        start_stream: "Начать трансляцию"
+        start_confirm: "Начать трансляцию?"
+        stream_active: "Трансляция идет"
+        stream_duration: "Длительность: %duration% мин"
+        end_stream: "Завершить трансляцию"
+        end_confirm: "Завершить трансляцию?"
+        viewers_now: "Сейчас смотрят"
+        viewers_peak: "Пиковое значение"
+    
+    # Stream form
+    form:
+        title: "Название стрима"
+        title_required: "Название стрима обязательно"
+        description: "Описание"
+        channel: "Канал"
+        scheduled_at: "Запланировано на"
+        submit_create: "Создать стрим"
+        submit_save: "Сохранить"
+        cancel: "Отмена"
+    
+    # Stream table
+    table:
+        name: "Название"
+        status: "Статус"
+        viewers: "Зрители"
+        date: "Дата"
+        actions: "Действия"
+        view: "Просмотр"
+        manage: "Управление"
+        delete: "Удалить"
+        delete_confirm: "Удалить стрим?"
+    
+    # Stream viewer page
+    viewer:
+        not_active: "Трансляция не активна"
+        not_found: "Стрим не найден"
+        scheduled_start: "Начало: %date%"
+        ended: "Трансляция завершена"
+        chat: "Чат"
+        chat_placeholder: "Написать сообщение..."
+        chat_send: "Отправить"
+        chat_coming: "Чат будет доступен в следующей версии"
+        chat_websocket: "WebSocket интеграция в разработке"
+        chat_login: "Войдите, чтобы участвовать в чате"
+        subscribe: "Подписаться"
+        subscribers: "подписчиков"
+    
+    # Stream creation info
+    create_info:
+        title: "Создать новый стрим"
+        info_title: "Информация о создании"
+        info_customize: "После создания вы сможете настроить внешний вид стрима"
+        info_settings: "Добавьте описание и выберите канал"
+        info_rtmp: "Используйте RTMP URL и Stream Key для подключения"
+    
+    # Errors and messages
+    errors:
+        not_found: "Стрим не найден"
+        access_denied: "Доступ запрещен"
+        invalid_stream_key: "Неверный Stream Key"
+        stream_already_live: "Стрим уже в эфире"
+        stream_not_live: "Стрим не в эфире"
+    
+    success:
+        created: "Стрим успешно создан"
+        updated: "Стрим успешно обновлен"
+        deleted: "Стрим успешно удален"
+        started: "Трансляция начата"
+        ended: "Трансляция завершена"
+        key_regenerated: "Новый ключ сгенерирован"
+    
+    # API messages
+    api:
+        viewer_joined: "Зритель присоединился"
+        viewer_left: "Зритель ушел"
+        status_updated: "Статус обновлен"
     admin:
         generate_seo: "Сгенерировать SEO"
         generating: "Генерация..."
@@ -807,6 +1052,48 @@ channel:
     type_personal: "Личный канал"
     type_studio: "Студия"
     type_company: "Компания"
+    
+    # Channel page
+    verified_badge: "Верифицирован"
+    premium_badge: "Premium канал"
+    subscribers_count: "%count% подписчиков"
+    videos_count_text: "%count% видео"
+    views_count_text: "%count% просмотров"
+    manage_videos: "Управление видео"
+    videos_tab: "Видео"
+    about_tab: "О канале"
+    videos_list: "Видео (%count%)"
+    no_videos_yet: "Пока нет видео"
+    no_videos_published: "На этом канале еще не опубликовано ни одного видео"
+    back_to_channel: "Вернуться к каналу"
+    
+    # Video management
+    manage:
+        title: "Управление видео канала \"%name%\""
+        description: "Добавляйте и удаляйте видео из канала"
+        channel_videos: "Видео в канале (%count%)"
+        available_videos: "Доступные видео (%count%)"
+        remove_selected: "Удалить выбранные"
+        add_selected: "Добавить выбранные"
+        no_channel_videos: "В канале пока нет видео"
+        no_available_videos: "У вас нет видео без канала"
+        upload_video: "Загрузить видео"
+        views_text: "просмотров"
+        add_video_confirm: "Добавить видео в канал"
+        add_video_message: "Добавить видео \"%title%\" в канал?"
+        remove_video_confirm: "Удалить видео из канала"
+        remove_video_message: "Удалить видео \"%title%\" из канала?"
+        bulk_add_confirm: "Добавить видео в канал"
+        bulk_add_message: "Добавить %count% видео в канал?"
+        bulk_remove_confirm: "Удалить видео из канала"
+        bulk_remove_message: "Удалить %count% видео из канала?"
+        confirm_title: "Подтверждение"
+        confirm_question: "Вы уверены?"
+        cancel: "Отмена"
+        confirm: "Подтвердить"
+        error_add: "Ошибка при добавлении видео"
+        error_remove: "Ошибка при удалении видео"
+        error_occurred: "Произошла ошибка"
     
     # Filters
     filter:

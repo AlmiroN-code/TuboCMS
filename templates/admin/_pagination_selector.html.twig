@@ -1,0 +1,27 @@
+{# Селектор количества записей на страницу #}
+{% macro perPageSelector(perPage, total) %}
+<div class="flex items-center gap-2">
+    <label for="per-page" class="text-sm text-gray-600">Показывать:</label>
+    <select id="per-page" 
+            onchange="window.location.href = updateUrlParameter(window.location.href, 'per_page', this.value)"
+            class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="15" {{ perPage == 15 ? 'selected' : '' }}>15</option>
+        <option value="25" {{ perPage == 25 ? 'selected' : '' }}>25</option>
+        <option value="50" {{ perPage == 50 ? 'selected' : '' }}>50</option>
+        <option value="100" {{ perPage == 100 ? 'selected' : '' }}>100</option>
+    </select>
+    <span class="text-sm text-gray-600">из {{ total }}</span>
+</div>
+{% endmacro %}
+
+{# JavaScript функция для обновления URL параметра #}
+{% macro updateUrlScript() %}
+<script>
+function updateUrlParameter(url, param, value) {
+    const urlObj = new URL(url);
+    urlObj.searchParams.set(param, value);
+    urlObj.searchParams.set('page', '1');
+    return urlObj.toString();
+}
+</script>
+{% endmacro %}

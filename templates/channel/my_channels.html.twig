@@ -33,8 +33,8 @@
                 <!-- Контент -->
                 <div class="relative px-4 pb-4">
                     <div class="flex justify-center -mt-8 mb-4">
-                        {% if channel.avatarUrl %}
-                            <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                        {% if channel_avatar(channel.avatar) %}
+                            <img src="{{ channel_avatar(channel.avatar) }}" alt="{{ channel.name }}" 
                                  class="w-16 h-16 rounded-full border-4 border-white shadow-lg object-cover">
                         {% else %}
                             <div class="w-16 h-16 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
@@ -128,8 +128,8 @@
                 <!-- Контент -->
                 <div class="relative px-4 pb-4">
                     <div class="flex justify-center -mt-6 mb-3">
-                        {% if channel.avatarUrl %}
-                            <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                        {% if channel_avatar(channel.avatar) %}
+                            <img src="{{ channel_avatar(channel.avatar) }}" alt="{{ channel.name }}" 
                                  class="w-12 h-12 rounded-full border-4 border-white shadow-lg object-cover">
                         {% else %}
                             <div class="w-12 h-12 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
@@ -169,3 +169,4 @@
     </div>
 </div>
 {% endblock %}
+

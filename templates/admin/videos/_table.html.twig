@@ -1,59 +1,249 @@
-<form id="bulk-form" method="post" action="{{ path('admin_videos_bulk') }}">
+<form id="bulk-form" 
+      method="post" 
+      action="{{ path('admin_videos_bulk') }}"
+      x-data="{
+          selectedVideos: [],
+          bulkAction: '',
+          get selectedCount() { return this.selectedVideos.length },
+          get showBulkActions() { return this.selectedCount > 0 },
+          toggleAll(event) {
+              if (event.target.checked) {
+                  this.selectedVideos = Array.from(document.querySelectorAll('.video-checkbox')).map(cb => cb.value);
+              } else {
+                  this.selectedVideos = [];
+              }
+          },
+          deselectAll() {
+              this.selectedVideos = [];
+          },
+          async moderateVideo(videoId, action) {
+              try {
+                  const response = await fetch(`/admin/videos/${videoId}/moderate/${action}`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-Requested-With': 'XMLHttpRequest'
+                      }
+                  });
+                  if (response.ok) {
+                      location.reload();
+                  } else {
+                      alert('Ошибка при модерации видео');
+                  }
+              } catch (error) {
+                  console.error('Error:', error);
+                  alert('Произошла ошибка');
+              }
+          },
+          async reprocessVideo(videoId) {
+              try {
+                  const response = await fetch(`/admin/videos/${videoId}/reprocess`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-Requested-With': 'XMLHttpRequest'
+                      }
+                  });
+                  if (response.ok) {
+                      alert('Видео отправлено на переобработку');
+                      location.reload();
+                  } else {
+                      alert('Ошибка при переобработке видео');
+                  }
+              } catch (error) {
+                  console.error('Error:', error);
+                  alert('Произошла ошибка');
+              }
+          },
+          async deleteVideo(videoId, title) {
+              if (!confirm(`Удалить видео '${title}'?`)) return;
+              
+              try {
+                  const response = await fetch(`/admin/videos/${videoId}`, {
+                      method: 'DELETE',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-Requested-With': 'XMLHttpRequest'
+                      }
+                  });
+                  if (response.ok) {
+                      document.getElementById(`video-row-${videoId}`).remove();
+                  } else {
+                      alert('Ошибка при удалении видео');
+                  }
+              } catch (error) {
+                  console.error('Error:', error);
+                  alert('Произошла ошибка');
+              }
+          },
+          validateSubmit(event) {
+              if (!this.bulkAction) {
+                  event.preventDefault();
+                  alert('Выберите действие');
+                  return false;
+              }
+              if (this.selectedCount === 0) {
+                  event.preventDefault();
+                  alert('Выберите хотя бы одно видео');
+                  return false;
+              }
+              if (['add_category', 'remove_category', 'replace_categories'].includes(this.bulkAction)) {
+                  const categoryId = document.querySelector('[name=category_id]').value;
+                  if (!categoryId) {
+                      event.preventDefault();
+                      alert('Выберите категорию');
+                      return false;
+                  }
+              }
+              if (['add_tags', 'remove_tags', 'replace_tags'].includes(this.bulkAction)) {
+                  const tagNames = document.querySelector('[name=tag_names]').value.trim();
+                  if (!tagNames) {
+                      event.preventDefault();
+                      alert('Введите теги');
+                      return false;
+                  }
+              }
+              if (this.bulkAction === 'delete') {
+                  return confirm('Удалить ' + this.selectedCount + ' видео? Это действие нельзя отменить.');
+              }
+              return true;
+          }
+      }"
+      @submit="validateSubmit($event)">
     <input type="hidden" name="_token" value="{{ csrf_token('bulk_videos') }}">
     
     {# Панель групповых операций #}
-    <div id="bulk-actions" class="hidden bg-blue-50 border-b border-blue-200 px-6 py-3 flex items-center gap-4">
-        <span class="text-sm text-blue-800">
-            Выбрано: <span id="selected-count">0</span>
-        </span>
-        <select name="bulk_action" class="px-3 py-1.5 text-sm border border-blue-300 rounded bg-white">
-            <option value="">-- Выберите действие --</option>
-            <option value="publish">Опубликовать</option>
-            <option value="unpublish">Снять с публикации</option>
-            <option value="delete">Удалить</option>
-            <option value="reprocess">Переобработать</option>
-        </select>
-        <button type="submit" class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-            Применить
-        </button>
-        <button type="button" id="deselect-all" class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800">
-            Снять выделение
-        </button>
+    <div x-show="showBulkActions" 
+         x-transition
+         class="bg-blue-50 border-b border-blue-200 px-6 py-3">
+        <div class="flex items-center gap-4 flex-wrap">
+            <span class="text-sm text-blue-800">
+                Выбрано: <span x-text="selectedCount">0</span>
+            </span>
+            
+            <select name="bulk_action" 
+                    x-model="bulkAction"
+                    class="px-3 py-1.5 text-sm border border-blue-300 rounded bg-white">
+                <option value="">-- Выберите действие --</option>
+                <optgroup label="Статус">
+                    <option value="publish">Опубликовать</option>
+                    <option value="unpublish">Снять с публикации</option>
+                </optgroup>
+                <optgroup label="Категории">
+                    <option value="add_category">Добавить категорию</option>
+                    <option value="remove_category">Удалить категорию</option>
+                    <option value="replace_categories">Заменить категории</option>
+                </optgroup>
+                <optgroup label="Теги">
+                    <option value="add_tags">Добавить теги</option>
+                    <option value="remove_tags">Удалить теги</option>
+                    <option value="replace_tags">Заменить теги</option>
+                </optgroup>
+                <optgroup label="Другое">
+                    <option value="reprocess">Переобработать</option>
+                    <option value="delete">Удалить</option>
+                </optgroup>
+            </select>
+            
+            {# Поле для выбора категории #}
+            <div x-show="['add_category', 'remove_category', 'replace_categories'].includes(bulkAction)" 
+                 x-transition>
+                <select name="category_id" class="px-3 py-1.5 text-sm border border-blue-300 rounded bg-white">
+                    <option value="">-- Выберите категорию --</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {# Поле для ввода тегов #}
+            <div x-show="['add_tags', 'remove_tags', 'replace_tags'].includes(bulkAction)" 
+                 x-transition>
+                <input type="text" 
+                       name="tag_names" 
+                       placeholder="Введите теги через запятую"
+                       class="px-3 py-1.5 text-sm border border-blue-300 rounded w-64">
+            </div>
+            
+            <button type="submit" class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                Применить
+            </button>
+            <button type="button" 
+                    @click="deselectAll()"
+                    class="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800">
+                Снять выделение
+            </button>
+        </div>
     </div>
 
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-4 py-3 text-left">
-                    <input type="checkbox" id="select-all" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                    <input type="checkbox" 
+                           @change="toggleAll($event)"
+                           :checked="selectedCount > 0 && selectedCount === document.querySelectorAll('.video-checkbox').length"
+                           :indeterminate.prop="selectedCount > 0 && selectedCount < document.querySelectorAll('.video-checkbox').length"
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded">
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Постер</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="poster">Постер</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Название</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Категория</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="category">Категория</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="filesize">Размер/Качество</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Статус</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Обработка</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Показы</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Просмотры</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">CTR</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Дата</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="processing">Обработка</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="impressions">Показы</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="views">Просмотры</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="ctr">CTR</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" data-column="date">Дата</th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Действия</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             {% for video in videos %}
-            <tr id="video-row-{{ video.id }}">
+            <tr id="video-row-{{ video.id }}" class="hover:bg-gray-50">
                 <td class="px-4 py-4 whitespace-nowrap">
-                    <input type="checkbox" name="video_ids[]" value="{{ video.id }}" 
+                    <input type="checkbox" 
+                           name="video_ids[]" 
+                           value="{{ video.id }}" 
+                           x-model="selectedVideos"
                            class="video-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded">
                 </td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">{{ video.id }}</td>
-                <td class="px-4 py-4 whitespace-nowrap">
-                    {% if video.poster %}
-                        <img src="/media/{{ video.poster }}" alt="" class="w-20 h-12 object-cover rounded">
-                    {% else %}
-                        <div class="w-20 h-12 bg-gray-200 rounded"></div>
-                    {% endif %}
+                <td class="px-4 py-4 whitespace-nowrap text-sm">#{{ video.id }}</td>
+                <td class="px-4 py-4 whitespace-nowrap" data-column="poster">
+                    <div class="relative group">
+                        <img src="{{ video_poster(video.poster) }}" alt="" class="w-20 h-12 object-cover rounded">
+                        
+                        {# Hover preview - всегда показываем, используя постер если нет preview #}
+                        <div class="absolute left-0 top-0 z-50 hidden group-hover:block">
+                            <div class="relative" style="width: 320px; height: 180px;">
+                                {% if video.animatedPreview %}
+                                    <img src="/media/{{ video.animatedPreview }}" 
+                                         alt="{{ video.title }}" 
+                                         class="w-full h-full object-cover rounded-lg shadow-2xl border-2 border-white"
+                                         onerror="this.src='{{ video_poster(video.poster) }}'">
+                                {% elseif video.preview %}
+                                    <img src="/media/{{ video.preview }}" 
+                                         alt="{{ video.title }}" 
+                                         class="w-full h-full object-cover rounded-lg shadow-2xl border-2 border-white"
+                                         onerror="this.src='{{ video_poster(video.poster) }}'">
+                                {% else %}
+                                    <img src="{{ video_poster(video.poster) }}" 
+                                         alt="{{ video.title }}" 
+                                         class="w-full h-full object-cover rounded-lg shadow-2xl border-2 border-white">
+                                {% endif %}
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 rounded-b-lg">
+                                    <div class="text-white text-sm font-medium line-clamp-2">{{ video.title }}</div>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-gray-300">
+                                        <span>{{ video.durationFormatted }}</span>
+                                        <span>👁 {{ video.viewsCount }}</span>
+                                        <span>❤️ {{ video.likesCount }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </td>
                 <td class="px-4 py-4">
                     <div class="text-sm font-medium text-gray-900">
@@ -64,13 +254,21 @@
                     </div>
                     <div class="text-sm text-gray-500">{{ video.durationFormatted }}</div>
                 </td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                <td class="px-4 py-4 whitespace-nowrap text-sm" data-column="category">
                     {{ video.category ? video.category.name : '-' }}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm" data-column="filesize">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-gray-900">{{ video.fileSizeFormatted }}</span>
+                        {% if video.resolution %}
+                            <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded inline-block w-fit">{{ video.resolution }}</span>
+                        {% endif %}
+                    </div>
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap">
                     {% include 'admin/videos/_status_badge.html.twig' with {video: video} %}
                 </td>
-                <td class="px-4 py-4 whitespace-nowrap">
+                <td class="px-4 py-4 whitespace-nowrap" data-column="processing">
                     <div class="text-xs">
                         <span class="px-2 py-1 rounded
                             {% if video.processingStatus == 'completed' %}bg-green-100 text-green-800
@@ -84,14 +282,14 @@
                         {% endif %}
                     </div>
                 </td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">{{ video.impressionsCount }}</td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">{{ video.viewsCount }}</td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                <td class="px-4 py-4 whitespace-nowrap text-sm" data-column="impressions">{{ video.impressionsCount }}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm" data-column="views">{{ video.viewsCount }}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm" data-column="ctr">
                     <span class="px-2 py-1 text-xs rounded {{ video.ctr >= 10 ? 'bg-green-100 text-green-800' : (video.ctr >= 5 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
                         {{ video.ctr }}%
                     </span>
                 </td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm">{{ video.createdAt|date('d.m.Y') }}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm" data-column="date">{{ video.createdAt|date('d.m.Y') }}</td>
                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm">
                     <div class="flex items-center justify-end gap-2">
                         {# Просмотр на сайте #}
@@ -103,10 +301,20 @@
                             </svg>
                         </a>
                         
+                        {# Копировать ссылку #}
+                        <button type="button"
+                                onclick="copyVideoLink('{{ url('video_detail', {slug: video.slug}) }}', this)"
+                                class="text-gray-600 hover:text-gray-900" 
+                                title="Копировать ссылку">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                        </button>
+                        
                         {# Reprocess button - показываем если есть temp_video_file #}
                         {% if video.tempVideoFile %}
-                            <button hx-post="{{ path('admin_videos_reprocess', {id: video.id}) }}"
-                                    hx-swap="none"
+                            <button @click="reprocessVideo({{ video.id }})"
+                                    type="button"
                                     class="text-purple-600 hover:text-purple-800" title="Переобработать">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -116,9 +324,8 @@
                         
                         {# Quick moderation #}
                         {% if video.status != 'published' %}
-                            <button hx-post="{{ path('admin_videos_moderate', {id: video.id, action: 'publish'}) }}"
-                                    hx-target="#video-row-{{ video.id }}"
-                                    hx-swap="outerHTML"
+                            <button @click="moderateVideo({{ video.id }}, 'publish')"
+                                    type="button"
                                     class="text-green-600 hover:text-green-800" title="Опубликовать">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -126,9 +333,8 @@
                             </button>
                         {% endif %}
                         {% if video.status == 'published' %}
-                            <button hx-post="{{ path('admin_videos_moderate', {id: video.id, action: 'unpublish'}) }}"
-                                    hx-target="#video-row-{{ video.id }}"
-                                    hx-swap="outerHTML"
+                            <button @click="moderateVideo({{ video.id }}, 'unpublish')"
+                                    type="button"
                                     class="text-yellow-600 hover:text-yellow-800" title="Снять с публикации">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
@@ -144,11 +350,17 @@
                             </svg>
                         </a>
                         
+                        {# Главы #}
+                        <a href="{{ path('admin_videos_chapters', {id: video.id}) }}" 
+                           class="text-purple-600 hover:text-purple-900" title="Главы видео">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </a>
+                        
                         {# Удалить #}
-                        <button hx-delete="{{ path('admin_videos_delete_htmx', {id: video.id}) }}"
-                                hx-target="#video-row-{{ video.id }}"
-                                hx-swap="outerHTML"
-                                hx-confirm="Удалить видео '{{ video.title }}'?"
+                        <button @click="deleteVideo({{ video.id }}, '{{ video.title|e('js') }}')"
+                                type="button"
                                 class="text-red-600 hover:text-red-800" title="Удалить">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -159,122 +371,82 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="12" class="px-6 py-8 text-center text-gray-500">Видео не найдено</td>
+                <td colspan="13" class="px-6 py-8 text-center text-gray-500">Видео не найдено</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </form>
 
+<style>
+/* Hover preview styles */
+.group:hover .group-hover\:block {
+    animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Убедимся что preview не обрезается */
+#videos-table {
+    overflow: visible !important;
+}
+
+#videos-table table {
+    position: relative;
+}
+
+#videos-table tbody tr {
+    position: relative;
+}
+
+/* Line clamp для заголовка */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
+
+
 <script>
-(function() {
-    function initBulkActions() {
-        const selectAll = document.getElementById('select-all');
-        const bulkActions = document.getElementById('bulk-actions');
-        const selectedCount = document.getElementById('selected-count');
-        const deselectAll = document.getElementById('deselect-all');
-        const bulkForm = document.getElementById('bulk-form');
-        
-        if (!selectAll || !bulkActions) return;
-        
-        function getCheckboxes() {
-            return document.querySelectorAll('.video-checkbox');
-        }
-        
-        function updateBulkActions() {
-            const checkboxes = getCheckboxes();
-            const checked = document.querySelectorAll('.video-checkbox:checked');
-            const count = checked.length;
+/**
+ * Копирование ссылки на видео в буфер обмена
+ */
+function copyVideoLink(url, button) {
+    navigator.clipboard.writeText(url)
+        .then(() => {
+            // Сохраняем оригинальный HTML
+            const originalHTML = button.innerHTML;
+            const originalClass = button.className;
             
-            if (selectedCount) {
-                selectedCount.textContent = count;
-            }
+            // Показываем успешное копирование
+            button.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            `;
+            button.className = 'text-green-600 hover:text-green-900';
             
-            if (count > 0) {
-                bulkActions.classList.remove('hidden');
-            } else {
-                bulkActions.classList.add('hidden');
-            }
-            
-            // Обновляем состояние "выбрать все"
-            selectAll.checked = count === checkboxes.length && count > 0;
-            selectAll.indeterminate = count > 0 && count < checkboxes.length;
-        }
-        
-        // Удаляем старые обработчики перед добавлением новых
-        const newSelectAll = selectAll.cloneNode(true);
-        selectAll.parentNode.replaceChild(newSelectAll, selectAll);
-        
-        newSelectAll.addEventListener('change', function() {
-            const checkboxes = getCheckboxes();
-            checkboxes.forEach(cb => cb.checked = this.checked);
-            updateBulkActions();
+            // Возвращаем обратно через 2 секунды
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.className = originalClass;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Ошибка копирования:', err);
+            alert('Не удалось скопировать ссылку');
         });
-        
-        // Делегирование событий для чекбоксов
-        document.querySelector('#bulk-form tbody').addEventListener('change', function(e) {
-            if (e.target.classList.contains('video-checkbox')) {
-                updateBulkActions();
-            }
-        });
-        
-        if (deselectAll) {
-            const newDeselectAll = deselectAll.cloneNode(true);
-            deselectAll.parentNode.replaceChild(newDeselectAll, deselectAll);
-            
-            newDeselectAll.addEventListener('click', function() {
-                const checkboxes = getCheckboxes();
-                checkboxes.forEach(cb => cb.checked = false);
-                document.getElementById('select-all').checked = false;
-                updateBulkActions();
-            });
-        }
-        
-        if (bulkForm && !bulkForm.dataset.initialized) {
-            bulkForm.dataset.initialized = 'true';
-            bulkForm.addEventListener('submit', function(e) {
-                const action = bulkForm.querySelector('[name="bulk_action"]').value;
-                const checked = document.querySelectorAll('.video-checkbox:checked');
-                
-                if (!action) {
-                    e.preventDefault();
-                    alert('Выберите действие');
-                    return;
-                }
-                
-                if (checked.length === 0) {
-                    e.preventDefault();
-                    alert('Выберите хотя бы одно видео');
-                    return;
-                }
-                
-                if (action === 'delete') {
-                    if (!confirm('Удалить ' + checked.length + ' видео? Это действие нельзя отменить.')) {
-                        e.preventDefault();
-                    }
-                }
-            });
-        }
-        
-        // Инициализируем состояние
-        updateBulkActions();
-    }
-    
-    // Инициализация при загрузке страницы
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initBulkActions);
-    } else {
-        initBulkActions();
-    }
-    
-    // Реинициализация после HTMX обновлений
-    document.body.addEventListener('htmx:afterSwap', function(e) {
-        if (e.detail.target.id === 'videos-table') {
-            initBulkActions();
-        }
-    });
-    
-    // Реинициализация после Turbo навигации
-    document.addEventListener('turbo:load', initBulkActions);
-})();
+}
 </script>

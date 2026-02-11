@@ -37,6 +37,7 @@
     },
     "dependencies": {
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
+        "alpinejs": "^3.15.8",
         "core-js": "^3.39.0",
         "htmx.org": "^2.0.8",
         "quill": "^2.0.3",

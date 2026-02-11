@@ -1,14 +1,14 @@
 {% extends 'members/profile/base.html.twig' %}
 
-{% block page_title %}Серии{% endblock %}
+{% block page_title %}{{ 'profile.tabs.series'|trans }}{% endblock %}
 
 {% block tab_content %}
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-gray-900">
-            Серии пользователя {{ user.username }}
-            <span class="text-sm font-normal text-gray-500">({{ series|length }})</span>
+            {{ 'profile.series.user_series'|trans({'%username%': user.username}) }}
+            <span class="text-sm font-normal text-gray-500">{{ 'profile.series.total_series'|trans({'%count%': series|length}) }}</span>
         </h2>
     </div>
 
@@ -31,7 +31,7 @@
                         
                         <!-- Video Count Badge -->
                         <div class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                            {{ serie.videosCount }} видео
+                            {{ 'profile.series.videos_count'|trans({'%count%': serie.videosCount}) }}
                         </div>
                     </div>
 
@@ -44,12 +44,12 @@
                         
                         <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
                             <span>{{ serie.createdAt|date('d.m.Y') }}</span>
-                            <span>{{ serie.totalViews }} просмотров</span>
+                            <span>{{ 'profile.series.views_count'|trans({'%count%': serie.totalViews}) }}</span>
                         </div>
 
                         <a href="{{ path('app_series_show', {'slug': serie.slug}) }}" 
                            class="block text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
-                            Смотреть серию
+                            {{ 'profile.series.watch_series'|trans }}
                         </a>
                     </div>
                 </div>
@@ -60,12 +60,12 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет серий</h3>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ 'profile.series.no_series'|trans }}</h3>
             <p class="mt-1 text-sm text-gray-500">
                 {% if app.user and app.user.id == user.id %}
-                    Вы еще не создали ни одной серии.
+                    {{ 'profile.series.no_series_owner'|trans }}
                 {% else %}
-                    У этого пользователя пока нет серий.
+                    {{ 'profile.series.no_series_user'|trans }}
                 {% endif %}
             </p>
         </div>

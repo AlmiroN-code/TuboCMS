@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\RegistrationType;
 use App\Service\RolePermissionService;
+use App\Service\EmailVerificationService;
+use App\Service\SettingsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
 
 class SecurityController extends AbstractController
@@ -21,6 +24,7 @@ class SecurityController extends AbstractController
     public function login(
         Request $request,
         AuthenticationUtils $authenticationUtils,
+        #[Autowire(service: 'limiter.login_attempts')]
         RateLimiterFactory $loginAttemptsLimiter,
         LoggerInterface $logger
     ): Response
@@ -67,6 +71,9 @@ class SecurityController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $em,
         RolePermissionService $rolePermissionService,
+        EmailVerificationService $emailVerificationService,
+        SettingsService $settingsService,
+        #[Autowire(service: 'limiter.registration')]
         RateLimiterFactory $registrationLimiter,
         LoggerInterface $logger
     ): Response
@@ -102,6 +109,12 @@ class SecurityController extends AbstractController
                 );
                 $user->setPassword($hashedPassword);
                 $user->setRoles(['ROLE_USER']);
+                
+                // Проверяем, требуется ли верификация email
+                $emailVerificationRequired = $settingsService->get('email_verification_required', false);
+                if (!$emailVerificationRequired) {
+                    $user->setVerified(true);
+                }
 
                 $em->persist($user);
                 $em->flush();
@@ -115,7 +128,14 @@ class SecurityController extends AbstractController
                     'ip' => $request->getClientIp()
                 ]);
 
-                $this->addFlash('success', 'Регистрация успешна! Теперь вы можете войти.');
+                // Отправляем email верификации если требуется
+                if ($emailVerificationRequired) {
+                    $emailVerificationService->sendVerificationEmail($user);
+                    $this->addFlash('success', 'Регистрация успешна! Проверьте email для подтверждения.');
+                } else {
+                    $this->addFlash('success', 'Регистрация успешна! Теперь вы можете войти.');
+                }
+                
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
                 $logger->error('Registration failed', [
@@ -129,5 +149,28 @@ class SecurityController extends AbstractController
         return $this->render('security/register.html.twig', [
             'registrationForm' => $form,
         ]);
+    }
+    
+    #[Route('/verify-email/{token}', name: 'app_verify_email')]
+    public function verifyEmail(
+        string $token,
+        EmailVerificationService $emailVerificationService,
+        LoggerInterface $logger
+    ): Response
+    {
+        $user = $emailVerificationService->verifyEmail($token);
+
+        if (!$user) {
+            $this->addFlash('error', 'Неверная или истёкшая ссылка верификации.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $logger->info('Email verified successfully', [
+            'username' => $user->getUsername(),
+            'email' => $user->getEmail()
+        ]);
+
+        $this->addFlash('success', 'Email успешно подтверждён! Теперь вы можете войти.');
+        return $this->redirectToRoute('app_login');
     }
 }

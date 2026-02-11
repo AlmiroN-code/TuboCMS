@@ -1,0 +1,312 @@
+{% extends 'admin/base.html.twig' %}
+{% import 'admin/_pagination_selector.html.twig' as pagination %}
+
+{% block title %}Управление плейлистами{% endblock %}
+
+{% block page_title %}
+<svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+</svg>
+Управление плейлистами
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <form method="get" class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                {{ pagination.perPageSelector(perPage, total_playlists) }}
+                
+                <div class="flex items-center space-x-2">
+                    <label for="search" class="text-sm font-medium text-gray-700">Поиск:</label>
+                    <input type="text" 
+                           id="search"
+                           name="search" 
+                           value="{{ search }}"
+                           placeholder="Название или канал..."
+                           class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <label for="visibility" class="text-sm font-medium text-gray-700">Видимость:</label>
+                    <select id="visibility" name="visibility" 
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="">Все</option>
+                        <option value="public" {{ visibility == 'public' ? 'selected' : '' }}>Публичные</option>
+                        <option value="private" {{ visibility == 'private' ? 'selected' : '' }}>Приватные</option>
+                        <option value="unlisted" {{ visibility == 'unlisted' ? 'selected' : '' }}>По ссылке</option>
+                        <option value="user_subscribers" {{ visibility == 'user_subscribers' ? 'selected' : '' }}>Подписчики пользователя</option>
+                        <option value="channel_subscribers" {{ visibility == 'channel_subscribers' ? 'selected' : '' }}>Подписчики канала</option>
+                    </select>
+                </div>
+
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Применить
+                </button>
+
+                {% if search or visibility %}
+                    <a href="{{ path('admin_playlists_index') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-times mr-2"></i>Сбросить
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <form method="post" action="{{ path('admin_playlists_bulk') }}" id="bulk-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('bulk_playlists') }}">
+            
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <p class="text-sm text-gray-600">Всего: {{ total_playlists }}</p>
+                    <select name="action" 
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="">Выберите действие...</option>
+                        <option value="activate">Активировать</option>
+                        <option value="deactivate">Деактивировать</option>
+                        <option value="delete">Удалить</option>
+                    </select>
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                            id="bulk-submit" disabled>
+                        Применить к выбранным
+                    </button>
+                    <span class="text-sm text-gray-600" id="selected-count">Выбрано: 0</span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left">
+                        <input type="checkbox" id="select-all" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Плейлист</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Канал</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Видимость</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Видео</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Просмотры</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for playlist in playlists %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" 
+                               name="playlist_ids[]" 
+                               value="{{ playlist.id }}"
+                               form="bulk-form"
+                               class="playlist-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-16">
+                                <div class="h-10 w-16 bg-gray-200 rounded flex items-center justify-center">
+                                    <i class="fas fa-list text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="flex items-center">
+                                    <a href="{{ path('playlist_show', {slug: playlist.slug}) }}" 
+                                       target="_blank"
+                                       class="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                        {{ playlist.title }}
+                                    </a>
+                                    {% if playlist.isCollaborative %}
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                            Совместный
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="{{ path('channel_show', {slug: playlist.channel.slug}) }}" 
+                           target="_blank"
+                           class="text-sm text-gray-900 hover:text-blue-600">
+                            {{ playlist.channel.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if playlist.visibility == 'public' %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Публичный</span>
+                        {% elseif playlist.visibility == 'private' %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Приватный</span>
+                        {% elseif playlist.visibility == 'unlisted' %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">По ссылке</span>
+                        {% elseif playlist.visibility == 'user_subscribers' %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Подписчики</span>
+                        {% elseif playlist.visibility == 'channel_subscribers' %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Подписчики канала</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ playlist.videosCount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ playlist.viewsCount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if playlist.isActive %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Активен</span>
+                        {% else %}
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Неактивен</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ playlist.createdAt|date('d.m.Y H:i') }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end space-x-2">
+                            <form method="post" 
+                                  action="{{ path('admin_playlists_toggle_active', {id: playlist.id}) }}"
+                                  class="inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_active_' ~ playlist.id) }}">
+                                <button type="submit" 
+                                        class="inline-flex items-center justify-center w-8 h-8 text-{{ playlist.isActive ? 'red' : 'green' }}-600 hover:text-{{ playlist.isActive ? 'red' : 'green' }}-900 hover:bg-{{ playlist.isActive ? 'red' : 'green' }}-50 rounded-md transition-colors" 
+                                        title="{{ playlist.isActive ? 'Деактивировать' : 'Активировать' }}">
+                                    <i class="fas fa-{{ playlist.isActive ? 'ban' : 'check' }}"></i>
+                                </button>
+                            </form>
+                            <form method="post" 
+                                  action="{{ path('admin_playlists_delete', {id: playlist.id}) }}"
+                                  onsubmit="return confirm('Вы уверены, что хотите удалить этот плейлист?')"
+                                  class="inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_playlist_' ~ playlist.id) }}">
+                                <button type="submit" 
+                                        class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md transition-colors" 
+                                        title="Удалить">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="px-6 py-4 text-center text-gray-500">
+                        Плейлисты не найдены
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if current_page > 1 %}
+                    <a href="{{ path('admin_playlists_index', {page: current_page - 1, search: search, visibility: visibility}) }}" 
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Предыдущая
+                    </a>
+                {% endif %}
+                {% if current_page < total_pages %}
+                    <a href="{{ path('admin_playlists_index', {page: current_page + 1, search: search, visibility: visibility}) }}" 
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Следующая
+                    </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Показано <span class="font-medium">{{ ((current_page - 1) * 20 + 1) }}</span> - 
+                        <span class="font-medium">{{ min(current_page * 20, total_playlists) }}</span> из 
+                        <span class="font-medium">{{ total_playlists }}</span> плейлистов
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% for page in 1..total_pages %}
+                            {% if page == current_page %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                    {{ page }}
+                                </span>
+                            {% else %}
+                                <a href="{{ path('admin_playlists_index', {page: page, search: search, visibility: visibility}) }}" 
+                                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    {{ page }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function initBulkPlaylists() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const playlistCheckboxes = document.querySelectorAll('.playlist-checkbox');
+    const bulkSubmit = document.getElementById('bulk-submit');
+    const selectedCount = document.getElementById('selected-count');
+    const bulkForm = document.getElementById('bulk-form');
+
+    if (!selectAllCheckbox || !bulkSubmit) return;
+
+    function updateSelectedCount() {
+        const checkedCount = document.querySelectorAll('.playlist-checkbox:checked').length;
+        selectedCount.textContent = `Выбрано: ${checkedCount}`;
+        bulkSubmit.disabled = checkedCount === 0;
+    }
+
+    selectAllCheckbox.addEventListener('change', function() {
+        playlistCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateSelectedCount();
+    });
+
+    playlistCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allChecked = Array.from(playlistCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(playlistCheckboxes).some(cb => cb.checked);
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = someChecked && !allChecked;
+            updateSelectedCount();
+        });
+    });
+
+    bulkForm.addEventListener('submit', function(e) {
+        const action = document.querySelector('[name="action"]').value;
+        const checkedCount = document.querySelectorAll('.playlist-checkbox:checked').length;
+        
+        if (!action) {
+            e.preventDefault();
+            alert('Выберите действие');
+            return;
+        }
+
+        if (action === 'delete') {
+            if (!confirm(`Вы уверены, что хотите удалить ${checkedCount} плейлистов?`)) {
+                e.preventDefault();
+            }
+        }
+    });
+
+    updateSelectedCount();
+}
+
+document.addEventListener('DOMContentLoaded', initBulkPlaylists);
+document.addEventListener('turbo:load', initBulkPlaylists);
+document.addEventListener('turbo:render', initBulkPlaylists);
+</script>
+{% endblock %}

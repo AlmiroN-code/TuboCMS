@@ -1,4 +1,5 @@
 {% extends 'admin/base.html.twig' %}
+{% import 'admin/_pagination_selector.html.twig' as pagination %}
 
 {% block title %}Объявления{% endblock %}
 {% block page_title %}Объявления{% endblock %}
@@ -6,6 +7,8 @@
 {% block content %}
 <div class="mb-6 flex justify-between items-center">
     <div class="flex items-center space-x-4">
+        {{ pagination.perPageSelector(perPage, total) }}
+        
         <form method="GET" class="flex items-center space-x-2">
             <select name="status" onchange="this.form.submit()"
                     class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
@@ -231,13 +234,13 @@
             <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                 <div class="flex-1 flex justify-between sm:hidden">
                     {% if currentPage > 1 %}
-                        <a href="?page={{ currentPage - 1 }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}" 
+                        <a href="?page={{ currentPage - 1 }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}&per_page={{ perPage }}" 
                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Предыдущая
                         </a>
                     {% endif %}
                     {% if currentPage < totalPages %}
-                        <a href="?page={{ currentPage + 1 }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}" 
+                        <a href="?page={{ currentPage + 1 }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}&per_page={{ perPage }}" 
                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Следующая
                         </a>
@@ -259,7 +262,7 @@
                                         {{ page }}
                                     </span>
                                 {% else %}
-                                    <a href="?page={{ page }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}" 
+                                    <a href="?page={{ page }}{{ status ? '&status=' ~ status : '' }}{{ placementId ? '&placement=' ~ placementId : '' }}&per_page={{ perPage }}" 
                                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                         {{ page }}
                                     </a>
@@ -350,4 +353,6 @@ function bulkAction(action) {
     form.submit();
 }
 </script>
+
+{{ pagination.updateUrlScript() }}
 {% endblock %}

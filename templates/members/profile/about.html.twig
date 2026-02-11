@@ -1,13 +1,13 @@
 {% extends 'members/profile/base.html.twig' %}
 
-{% block page_title %}О пользователе{% endblock %}
+{% block page_title %}{{ 'profile.tabs.about'|trans }}{% endblock %}
 
 {% block tab_content %}
 <div class="space-y-6">
     <!-- Bio Section -->
     {% if user.bio %}
         <div class="bg-gray-50 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">Описание</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ 'profile.about.description'|trans }}</h3>
             <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ user.bio }}</p>
         </div>
     {% endif %}
@@ -16,42 +16,42 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Basic Info -->
         <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Основная информация</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'profile.about.basic_info'|trans }}</h3>
             <div class="space-y-3">
                 <div class="flex justify-between">
-                    <span class="text-gray-600">Имя пользователя:</span>
+                    <span class="text-gray-600">{{ 'profile.about.username'|trans }}:</span>
                     <span class="font-medium">{{ user.username }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-gray-600">Дата регистрации:</span>
+                    <span class="text-gray-600">{{ 'profile.about.registration_date'|trans }}:</span>
                     <span class="font-medium">{{ user.createdAt|date('d.m.Y') }}</span>
                 </div>
                 {% if user.country %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Страна:</span>
+                        <span class="text-gray-600">{{ 'profile.about.country'|trans }}:</span>
                         <span class="font-medium">{{ user.country }}</span>
                     </div>
                 {% endif %}
                 {% if user.city %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Город:</span>
+                        <span class="text-gray-600">{{ 'profile.about.city'|trans }}:</span>
                         <span class="font-medium">{{ user.city }}</span>
                     </div>
                 {% endif %}
                 {% if user.gender %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Пол:</span>
+                        <span class="text-gray-600">{{ 'profile.about.gender'|trans }}:</span>
                         <span class="font-medium">
-                            {% if user.gender == 'male' %}Мужской
-                            {% elseif user.gender == 'female' %}Женский
+                            {% if user.gender == 'male' %}{{ 'profile.about.gender_male'|trans }}
+                            {% elseif user.gender == 'female' %}{{ 'profile.about.gender_female'|trans }}
                             {% else %}{{ user.gender }}{% endif %}
                         </span>
                     </div>
                 {% endif %}
                 {% if user.age %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Возраст:</span>
-                        <span class="font-medium">{{ user.age }} лет</span>
+                        <span class="text-gray-600">{{ 'profile.about.age'|trans }}:</span>
+                        <span class="font-medium">{{ 'profile.about.age_years'|trans({'%age%': user.age}) }}</span>
                     </div>
                 {% endif %}
             </div>
@@ -59,37 +59,37 @@
 
         <!-- Additional Info -->
         <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Дополнительная информация</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'profile.about.additional_info'|trans }}</h3>
             <div class="space-y-3">
                 {% if user.maritalStatus %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Семейное положение:</span>
+                        <span class="text-gray-600">{{ 'profile.about.marital_status'|trans }}:</span>
                         <span class="font-medium">
-                            {% if user.maritalStatus == 'single' %}Холост/не замужем
-                            {% elseif user.maritalStatus == 'in_relationship' %}В отношениях
-                            {% elseif user.maritalStatus == 'engaged' %}Помолвлен/а
-                            {% elseif user.maritalStatus == 'married' %}Женат/замужем
-                            {% elseif user.maritalStatus == 'divorced' %}Разведен/а
-                            {% elseif user.maritalStatus == 'widowed' %}Вдовец/вдова
+                            {% if user.maritalStatus == 'single' %}{{ 'profile.about.marital_single'|trans }}
+                            {% elseif user.maritalStatus == 'in_relationship' %}{{ 'profile.about.marital_in_relationship'|trans }}
+                            {% elseif user.maritalStatus == 'engaged' %}{{ 'profile.about.marital_engaged'|trans }}
+                            {% elseif user.maritalStatus == 'married' %}{{ 'profile.about.marital_married'|trans }}
+                            {% elseif user.maritalStatus == 'divorced' %}{{ 'profile.about.marital_divorced'|trans }}
+                            {% elseif user.maritalStatus == 'widowed' %}{{ 'profile.about.marital_widowed'|trans }}
                             {% else %}{{ user.maritalStatus }}{% endif %}
                         </span>
                     </div>
                 {% endif %}
                 {% if user.orientation %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Ориентация:</span>
+                        <span class="text-gray-600">{{ 'profile.about.orientation'|trans }}:</span>
                         <span class="font-medium">
-                            {% if user.orientation == 'heterosexual' %}Гетеросексуальная
-                            {% elseif user.orientation == 'homosexual' %}Гомосексуальная
-                            {% elseif user.orientation == 'bisexual' %}Бисексуальная
-                            {% elseif user.orientation == 'other' %}Другая
+                            {% if user.orientation == 'heterosexual' %}{{ 'profile.about.orientation_heterosexual'|trans }}
+                            {% elseif user.orientation == 'homosexual' %}{{ 'profile.about.orientation_homosexual'|trans }}
+                            {% elseif user.orientation == 'bisexual' %}{{ 'profile.about.orientation_bisexual'|trans }}
+                            {% elseif user.orientation == 'other' %}{{ 'profile.about.orientation_other'|trans }}
                             {% else %}{{ user.orientation }}{% endif %}
                         </span>
                     </div>
                 {% endif %}
                 {% if user.website %}
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Веб-сайт:</span>
+                        <span class="text-gray-600">{{ 'profile.about.website'|trans }}:</span>
                         <a href="{{ user.website }}" target="_blank" class="font-medium text-blue-600 hover:text-blue-700">
                             {{ user.website }}
                         </a>
@@ -101,23 +101,23 @@
 
     <!-- Statistics -->
     <div class="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Статистика</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'profile.about.statistics'|trans }}</h3>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="text-center">
                 <div class="text-2xl font-bold text-blue-600">{{ user.videosCount }}</div>
-                <div class="text-sm text-gray-600">Видео</div>
+                <div class="text-sm text-gray-600">{{ 'profile.about.videos'|trans }}</div>
             </div>
             <div class="text-center">
                 <div class="text-2xl font-bold text-green-600">{{ user.subscribersCount }}</div>
-                <div class="text-sm text-gray-600">Подписчиков</div>
+                <div class="text-sm text-gray-600">{{ 'profile.about.subscribers'|trans }}</div>
             </div>
             <div class="text-center">
                 <div class="text-2xl font-bold text-purple-600">{{ user.totalViews|number_format }}</div>
-                <div class="text-sm text-gray-600">Просмотров</div>
+                <div class="text-sm text-gray-600">{{ 'profile.about.views'|trans }}</div>
             </div>
             <div class="text-center">
                 <div class="text-2xl font-bold text-orange-600">{{ user.subscriptions|length }}</div>
-                <div class="text-sm text-gray-600">Подписок</div>
+                <div class="text-sm text-gray-600">{{ 'profile.about.subscriptions'|trans }}</div>
             </div>
         </div>
     </div>
@@ -125,24 +125,24 @@
     <!-- Badges and Achievements -->
     {% if user.isVerified or user.isPremium or user.videosCount > 10 %}
         <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Достижения и статусы</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'profile.about.achievements_statuses'|trans }}</h3>
             <div class="flex flex-wrap gap-3">
                 {% if user.isVerified %}
                     <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                        Верифицированный пользователь
+                        {{ 'profile.about.verified_user'|trans }}
                     </div>
                 {% endif %}
                 {% if user.isPremium %}
                     <div class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                        Премиум пользователь
+                        {{ 'profile.about.premium_user'|trans }}
                     </div>
                 {% endif %}
                 {% if user.videosCount > 10 %}
                     <div class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                        Активный создатель контента
+                        {{ 'profile.about.active_creator'|trans }}
                     </div>
                 {% endif %}
             </div>

@@ -15,12 +15,13 @@ class CategoryAutocompleteField extends AbstractType
     {
         $resolver->setDefaults([
             'class' => Category::class,
-            'searchable_fields' => ['name'],
             'label' => 'video.upload_page.category',
             'choice_label' => 'name',
             'placeholder' => 'Выберите категорию...',
             'filter_query' => function ($qb, string $query) {
-                $qb->andWhere('entity.isActive = :active')
+                $qb->andWhere('entity.name LIKE :query')
+                   ->andWhere('entity.isActive = :active')
+                   ->setParameter('query', '%' . $query . '%')
                    ->setParameter('active', true);
             },
         ]);

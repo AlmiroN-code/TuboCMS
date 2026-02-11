@@ -6,6 +6,9 @@ use App\Entity\Video;
 use App\Form\VideoUploadType;
 use App\Message\ProcessVideoEncodingMessage;
 use App\Service\FileValidationService;
+use App\Service\PushNotificationService;
+use App\Service\PushNotificationTemplateService;
+use App\Repository\ChannelSubscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -16,6 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
 
 #[Route('/videos')]
@@ -28,21 +32,15 @@ class VideoUploadController extends AbstractController
         EntityManagerInterface $em,
         SluggerInterface $slugger,
         MessageBusInterface $messageBus,
+        #[Autowire(service: 'limiter.video_upload')]
         RateLimiterFactory $videoUploadLimiter,
         FileValidationService $fileValidator,
+        PushNotificationService $pushService,
+        PushNotificationTemplateService $pushTemplateService,
+        ChannelSubscriptionRepository $channelSubscriptionRepo,
         LoggerInterface $logger
     ): Response
     {
-        // Apply rate limiting
-        $limiter = $videoUploadLimiter->create($request->getClientIp());
-        if (false === $limiter->consume(1)->isAccepted()) {
-            $this->addFlash('error', 'Слишком много загрузок. Попробуйте позже.');
-            $logger->warning('Rate limit exceeded for video upload', [
-                'ip' => $request->getClientIp(),
-                'user' => $this->getUser()->getUserIdentifier()
-            ]);
-            return $this->redirectToRoute('video_my_videos');
-        }
         $video = new Video();
         $form = $this->createForm(VideoUploadType::class, $video, [
             'user' => $this->getUser(),
@@ -50,6 +48,19 @@ class VideoUploadController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Apply rate limiting только при отправке формы
+            $limiter = $videoUploadLimiter->create($request->getClientIp());
+            if (false === $limiter->consume(1)->isAccepted()) {
+                $this->addFlash('error', 'Слишком много загрузок. Попробуйте позже.');
+                $logger->warning('Rate limit exceeded for video upload', [
+                    'ip' => $request->getClientIp(),
+                    'user' => $this->getUser()->getUserIdentifier()
+                ]);
+                return $this->render('video/upload.html.twig', [
+                    'uploadForm' => $form,
+                ]);
+            }
+
             $videoFile = $form->get('videoFile')->getData();
 
             if ($videoFile) {
@@ -125,6 +136,31 @@ class VideoUploadController extends AbstractController
             ]);
             $messageBus->dispatch(new ProcessVideoEncodingMessage($video->getId()));
             $logger->info('MESSAGE DISPATCHED', ['video_id' => $video->getId()]);
+
+            // Отправляем Push уведомления подписчикам канала
+            if ($video->getChannel()) {
+                $subscriptions = $channelSubscriptionRepo->findBy([
+                    'channel' => $video->getChannel()
+                ]);
+                
+                if (!empty($subscriptions)) {
+                    $subscribers = array_map(fn($sub) => $sub->getUser(), $subscriptions);
+                    $notifText = $pushTemplateService->formatNewVideo($video->getChannel(), $video);
+                    
+                    $pushService->sendToMultipleUsers(
+                        $subscribers,
+                        $notifText['title'],
+                        $notifText['body'],
+                        '/video/' . $video->getSlug()
+                    );
+                    
+                    $logger->info('Push notifications sent to channel subscribers', [
+                        'video_id' => $video->getId(),
+                        'channel_id' => $video->getChannel()->getId(),
+                        'subscribers_count' => count($subscribers)
+                    ]);
+                }
+            }
 
             $this->addFlash('success', 'Видео успешно загружено! Обработка началась автоматически.');
             return $this->redirectToRoute('video_detail', ['slug' => $video->getSlug()]);

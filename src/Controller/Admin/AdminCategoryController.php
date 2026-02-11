@@ -76,6 +76,63 @@ class AdminCategoryController extends AbstractController
         return $this->redirectToRoute('admin_categories');
     }
 
+    #[Route('/bulk', name: 'admin_categories_bulk', methods: ['POST'])]
+    public function bulk(Request $request): Response
+    {
+        // Проверяем CSRF токен
+        if (!$this->isCsrfTokenValid('bulk_categories', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Недействительный токен безопасности');
+            return $this->redirectToRoute('admin_categories');
+        }
+
+        $categoryIds = $request->request->all('category_ids');
+        $action = $request->request->get('bulk_action');
+
+        if (empty($categoryIds)) {
+            $this->addFlash('error', 'Не выбрано ни одной категории');
+            return $this->redirectToRoute('admin_categories');
+        }
+
+        if (empty($action)) {
+            $this->addFlash('error', 'Не выбрано действие');
+            return $this->redirectToRoute('admin_categories');
+        }
+
+        $categories = $this->categoryRepository->findBy(['id' => $categoryIds]);
+        $count = count($categories);
+
+        switch ($action) {
+            case 'activate':
+                foreach ($categories as $category) {
+                    $category->setActive(true);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Активировано категорий: {$count}");
+                break;
+
+            case 'deactivate':
+                foreach ($categories as $category) {
+                    $category->setActive(false);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Деактивировано категорий: {$count}");
+                break;
+
+            case 'delete':
+                foreach ($categories as $category) {
+                    $this->em->remove($category);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Удалено категорий: {$count}");
+                break;
+
+            default:
+                $this->addFlash('error', 'Неизвестное действие');
+        }
+
+        return $this->redirectToRoute('admin_categories');
+    }
+
     #[Route('/create-ajax', name: 'admin_categories_create_ajax', methods: ['POST'])]
     public function createAjax(Request $request): Response
     {

@@ -105,11 +105,15 @@ class Channel
     #[ORM\OneToMany(mappedBy: 'channel', targetEntity: ChannelMember::class, cascade: ['persist', 'remove'])]
     private Collection $members;
 
+    #[ORM\OneToMany(targetEntity: LiveStream::class, mappedBy: 'channel')]
+    private Collection $liveStreams;
+
     public function __construct()
     {
         $this->videos = new ArrayCollection();
         $this->subscriptions = new ArrayCollection();
         $this->members = new ArrayCollection();
+        $this->liveStreams = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
@@ -495,6 +499,14 @@ class Channel
     public function preUpdate(): void
     {
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * @return Collection<int, LiveStream>
+     */
+    public function getLiveStreams(): Collection
+    {
+        return $this->liveStreams;
     }
 
     public function __toString(): string

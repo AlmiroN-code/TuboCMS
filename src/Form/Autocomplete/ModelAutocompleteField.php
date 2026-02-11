@@ -15,13 +15,14 @@ class ModelAutocompleteField extends AbstractType
     {
         $resolver->setDefaults([
             'class' => ModelProfile::class,
-            'searchable_fields' => ['displayName', 'slug'],
             'label' => 'video.performers',
             'choice_label' => 'displayName',
             'multiple' => true,
             'placeholder' => 'Начните вводить имя модели...',
             'filter_query' => function ($qb, string $query) {
-                $qb->andWhere('entity.isActive = :active')
+                $qb->andWhere('(entity.displayName LIKE :query OR entity.slug LIKE :query)')
+                   ->andWhere('entity.isActive = :active')
+                   ->setParameter('query', '%' . $query . '%')
                    ->setParameter('active', true);
             },
         ]);

@@ -1,13 +1,40 @@
-<div id="comments-section" class="mt-8" data-turbo="false">
+<div id="comments-section" 
+     class="mt-8" 
+     data-turbo="false"
+     x-data="{
+         async submitComment(event) {
+             event.preventDefault();
+             const form = event.target;
+             const formData = new FormData(form);
+             
+             try {
+                 const response = await fetch('{{ path('comment_add') }}', {
+                     method: 'POST',
+                     body: formData
+                 });
+                 
+                 if (response.ok) {
+                     const html = await response.text();
+                     const commentsList = document.getElementById('comments-list');
+                     commentsList.insertAdjacentHTML('afterbegin', html);
+                     form.reset();
+                     
+                     // Обновляем счетчик
+                     const countElement = document.querySelector('#comments-section h2');
+                     const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
+                     countElement.textContent = `Comments (${currentCount + 1})`;
+                 }
+             } catch (error) {
+                 console.error('Error:', error);
+                 alert('Ошибка при добавлении комментария');
+             }
+         }
+     }">
     <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Comments ({{ video.commentsCount }})</h2>
 
     {% if app.user %}
         <div class="bg-gray-100 dark:bg-gray-800 rounded-md p-6 mb-6">
-            <form hx-post="{{ path('comment_add') }}" 
-                  hx-target="#comments-list" 
-                  hx-swap="afterbegin"
-                  hx-on::after-request="this.reset()"
-                  data-turbo="false">
+            <form @submit="submitComment($event)" data-turbo="false">
                 <input type="hidden" name="video_id" value="{{ video.id }}">
                 <textarea 
                     name="content" 

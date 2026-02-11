@@ -1,14 +1,14 @@
 {% extends 'members/profile/base.html.twig' %}
 
-{% block page_title %}Закладки{% endblock %}
+{% block page_title %}{{ 'profile.tabs.bookmarks'|trans }}{% endblock %}
 
 {% block tab_content %}
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-gray-900">
-            Мои закладки
-            <span class="text-sm font-normal text-gray-500">({{ total_bookmarks }})</span>
+            {{ 'profile.bookmarks.my_bookmarks'|trans }}
+            <span class="text-sm font-normal text-gray-500">{{ 'profile.bookmarks.total_bookmarks'|trans({'%count%': total_bookmarks}) }}</span>
         </h2>
     </div>
 
@@ -27,7 +27,7 @@
                     {% if current_page > 1 %}
                         <a href="{{ path('user_profile_bookmarks', {'username': user.username, 'page': current_page - 1}) }}" 
                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Предыдущая
+                            {{ 'pagination.previous'|trans }}
                         </a>
                     {% endif %}
 
@@ -47,7 +47,7 @@
                     {% if current_page < total_pages %}
                         <a href="{{ path('user_profile_bookmarks', {'username': user.username, 'page': current_page + 1}) }}" 
                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Следующая
+                            {{ 'pagination.next'|trans }}
                         </a>
                     {% endif %}
                 </nav>
@@ -58,8 +58,8 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет закладок</h3>
-            <p class="mt-1 text-sm text-gray-500">Вы еще не добавили ни одного видео в закладки.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ 'profile.bookmarks.no_bookmarks'|trans }}</h3>
+            <p class="mt-1 text-sm text-gray-500">{{ 'profile.bookmarks.no_bookmarks_description'|trans }}</p>
         </div>
     {% endif %}
 </div>

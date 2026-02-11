@@ -4,10 +4,12 @@ namespace App\Service;
 
 use App\Entity\Channel;
 use App\Entity\ChannelPlaylist;
+use App\Entity\PlaylistCollaborator;
 use App\Entity\PlaylistVideo;
 use App\Entity\User;
 use App\Entity\Video;
 use App\Repository\ChannelPlaylistRepository;
+use App\Repository\PlaylistCollaboratorRepository;
 use App\Repository\PlaylistVideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -18,6 +20,7 @@ class PlaylistService
         private EntityManagerInterface $entityManager,
         private ChannelPlaylistRepository $playlistRepository,
         private PlaylistVideoRepository $playlistVideoRepository,
+        private PlaylistCollaboratorRepository $collaboratorRepository,
         private SluggerInterface $slugger
     ) {}
 
@@ -37,6 +40,11 @@ class PlaylistService
         $playlist->setVisibility($visibility);
         $playlist->setSortOrder($this->playlistRepository->getNextSortOrder($channel));
         $playlist->generateSlug($this->slugger);
+
+        // Генерируем токен для unlisted плейлистов
+        if ($visibility === ChannelPlaylist::VISIBILITY_UNLISTED) {
+            $playlist->generateShareToken();
+        }
 
         // Проверка уникальности slug
         $originalSlug = $playlist->getSlug();
@@ -62,10 +70,7 @@ class PlaylistService
             throw new \InvalidArgumentException('Видео уже добавлено в этот плейлист');
         }
 
-        // Проверяем, что видео принадлежит тому же каналу
-        if ($video->getChannel() !== $playlist->getChannel()) {
-            throw new \InvalidArgumentException('Можно добавлять только видео своего канала');
-        }
+        // Можно добавлять любое видео в плейлист (убрана проверка канала)
 
         $playlistVideo = new PlaylistVideo();
         $playlistVideo->setPlaylist($playlist);
@@ -195,6 +200,40 @@ class PlaylistService
             return true;
         }
 
+        // Проверяем права соавтора
+        if ($playlist->isCollaborative()) {
+            $permission = $playlist->getUserPermission($user);
+            return $permission === PlaylistCollaborator::PERMISSION_MANAGE;
+        }
+
+        return false;
+    }
+
+    /**
+     * Проверить может ли пользователь добавлять видео в плейлист
+     */
+    public function canUserAddToPlaylist(ChannelPlaylist $playlist, ?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        // Владелец канала может добавлять
+        if ($playlist->getChannel()->getOwner() === $user) {
+            return true;
+        }
+
+        // Админы могут добавлять
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
+            return true;
+        }
+
+        // Проверяем права соавтора
+        if ($playlist->isCollaborative()) {
+            $collaborator = $this->collaboratorRepository->findByPlaylistAndUser($playlist, $user);
+            return $collaborator && $collaborator->canAdd();
+        }
+
         return false;
     }
 
@@ -216,6 +255,23 @@ class PlaylistService
             
             case ChannelPlaylist::VISIBILITY_PREMIUM:
                 return $user && $user->isPremium();
+            
+            case ChannelPlaylist::VISIBILITY_USER_SUBSCRIBERS:
+                // Проверяем, подписан ли пользователь на владельца канала
+                if (!$user) {
+                    return false;
+                }
+                $owner = $playlist->getChannel()->getOwner();
+                return $this->entityManager->getRepository(\App\Entity\UserSubscription::class)
+                    ->findOneBy(['subscriber' => $user, 'subscribedTo' => $owner]) !== null;
+            
+            case ChannelPlaylist::VISIBILITY_CHANNEL_SUBSCRIBERS:
+                // Проверяем, подписан ли пользователь на канал
+                if (!$user) {
+                    return false;
+                }
+                return $this->entityManager->getRepository(\App\Entity\Subscription::class)
+                    ->findOneBy(['subscriber' => $user, 'channel' => $playlist->getChannel()]) !== null;
             
             case ChannelPlaylist::VISIBILITY_PRIVATE:
                 return false;
@@ -327,5 +383,118 @@ class PlaylistService
     {
         $playlist->setViewsCount($playlist->getViewsCount() + 1);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Добавить соавтора в плейлист
+     */
+    public function addCollaborator(
+        ChannelPlaylist $playlist,
+        User $user,
+        string $permission = PlaylistCollaborator::PERMISSION_ADD,
+        ?User $addedBy = null
+    ): PlaylistCollaborator {
+        // Проверяем что плейлист collaborative
+        if (!$playlist->isCollaborative()) {
+            throw new \InvalidArgumentException('Плейлист не является совместным');
+        }
+
+        // Проверяем что пользователь еще не соавтор
+        if ($this->collaboratorRepository->isCollaborator($playlist, $user)) {
+            throw new \InvalidArgumentException('Пользователь уже является соавтором');
+        }
+
+        // Нельзя добавить владельца канала как соавтора
+        if ($playlist->getChannel()->getOwner() === $user) {
+            throw new \InvalidArgumentException('Владелец канала не может быть соавтором');
+        }
+
+        $collaborator = new PlaylistCollaborator();
+        $collaborator->setPlaylist($playlist);
+        $collaborator->setUser($user);
+        $collaborator->setPermission($permission);
+        $collaborator->setAddedBy($addedBy);
+
+        $this->entityManager->persist($collaborator);
+        $this->entityManager->flush();
+
+        return $collaborator;
+    }
+
+    /**
+     * Удалить соавтора из плейлиста
+     */
+    public function removeCollaborator(ChannelPlaylist $playlist, User $user): void
+    {
+        $collaborator = $this->collaboratorRepository->findByPlaylistAndUser($playlist, $user);
+        
+        if (!$collaborator) {
+            throw new \InvalidArgumentException('Пользователь не является соавтором');
+        }
+
+        $this->entityManager->remove($collaborator);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Обновить права соавтора
+     */
+    public function updateCollaboratorPermission(ChannelPlaylist $playlist, User $user, string $permission): void
+    {
+        $collaborator = $this->collaboratorRepository->findByPlaylistAndUser($playlist, $user);
+        
+        if (!$collaborator) {
+            throw new \InvalidArgumentException('Пользователь не является соавтором');
+        }
+
+        $collaborator->setPermission($permission);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Получить соавторов плейлиста
+     */
+    public function getCollaborators(ChannelPlaylist $playlist): array
+    {
+        return $this->collaboratorRepository->findByPlaylist($playlist);
+    }
+
+    /**
+     * Сделать плейлист совместным
+     */
+    public function makeCollaborative(ChannelPlaylist $playlist): void
+    {
+        $playlist->setIsCollaborative(true);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Отключить совместный режим плейлиста
+     */
+    public function disableCollaborative(ChannelPlaylist $playlist): void
+    {
+        $playlist->setIsCollaborative(false);
+        
+        // Удаляем всех соавторов
+        $collaborators = $this->collaboratorRepository->findByPlaylist($playlist);
+        foreach ($collaborators as $collaborator) {
+            $this->entityManager->remove($collaborator);
+        }
+        
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Получить плейлисты где пользователь соавтор
+     */
+    public function getCollaborativePlaylists(User $user): array
+    {
+        $playlistIds = $this->collaboratorRepository->findPlaylistsByUser($user);
+        
+        if (empty($playlistIds)) {
+            return [];
+        }
+
+        return $this->playlistRepository->findBy(['id' => $playlistIds]);
     }
 }

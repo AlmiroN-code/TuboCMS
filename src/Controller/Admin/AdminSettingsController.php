@@ -281,6 +281,21 @@ class AdminSettingsController extends AbstractController
             $settingsRepo->setValue('seo_tags_description', $request->request->get('seo_tags_description'), 'string', 'Описание страницы тегов');
             $settingsRepo->setValue('seo_tags_keywords', $request->request->get('seo_tags_keywords'), 'string', 'Ключевые слова страницы тегов');
             
+            // Мета-теги страницы постов
+            $settingsRepo->setValue('seo_posts_title', $request->request->get('seo_posts_title'), 'string', 'Заголовок страницы постов');
+            $settingsRepo->setValue('seo_posts_description', $request->request->get('seo_posts_description'), 'string', 'Описание страницы постов');
+            $settingsRepo->setValue('seo_posts_keywords', $request->request->get('seo_posts_keywords'), 'string', 'Ключевые слова страницы постов');
+            
+            // Мета-теги страницы каналов
+            $settingsRepo->setValue('seo_channels_title', $request->request->get('seo_channels_title'), 'string', 'Заголовок страницы каналов');
+            $settingsRepo->setValue('seo_channels_description', $request->request->get('seo_channels_description'), 'string', 'Описание страницы каналов');
+            $settingsRepo->setValue('seo_channels_keywords', $request->request->get('seo_channels_keywords'), 'string', 'Ключевые слова страницы каналов');
+            
+            // Мета-теги страницы live стримов
+            $settingsRepo->setValue('seo_live_title', $request->request->get('seo_live_title'), 'string', 'Заголовок страницы live стримов');
+            $settingsRepo->setValue('seo_live_description', $request->request->get('seo_live_description'), 'string', 'Описание страницы live стримов');
+            $settingsRepo->setValue('seo_live_keywords', $request->request->get('seo_live_keywords'), 'string', 'Ключевые слова страницы live стримов');
+            
             // Robots.txt
             $settingsRepo->setValue('robots_txt_content', $request->request->get('robots_txt_content'), 'text', 'Содержимое robots.txt');
             
@@ -318,6 +333,18 @@ class AdminSettingsController extends AbstractController
             'seo_tags_title' => $settingsRepo->getValue('seo_tags_title', ''),
             'seo_tags_description' => $settingsRepo->getValue('seo_tags_description', ''),
             'seo_tags_keywords' => $settingsRepo->getValue('seo_tags_keywords', ''),
+            // Посты
+            'seo_posts_title' => $settingsRepo->getValue('seo_posts_title', ''),
+            'seo_posts_description' => $settingsRepo->getValue('seo_posts_description', ''),
+            'seo_posts_keywords' => $settingsRepo->getValue('seo_posts_keywords', ''),
+            // Каналы
+            'seo_channels_title' => $settingsRepo->getValue('seo_channels_title', ''),
+            'seo_channels_description' => $settingsRepo->getValue('seo_channels_description', ''),
+            'seo_channels_keywords' => $settingsRepo->getValue('seo_channels_keywords', ''),
+            // Live стримы
+            'seo_live_title' => $settingsRepo->getValue('seo_live_title', ''),
+            'seo_live_description' => $settingsRepo->getValue('seo_live_description', ''),
+            'seo_live_keywords' => $settingsRepo->getValue('seo_live_keywords', ''),
             // Robots.txt
             'robots_txt_content' => $settingsRepo->getValue('robots_txt_content', ''),
             // Sitemap

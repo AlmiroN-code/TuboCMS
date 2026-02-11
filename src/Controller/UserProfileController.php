@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\ChannelSubscription;
+use App\Entity\ModelSubscription;
+use App\Entity\PlaylistSubscription;
 use App\Form\ProfileEditType;
 use App\Repository\UserRepository;
 use App\Repository\VideoRepository;
@@ -220,17 +223,46 @@ class UserProfileController extends AbstractController
         $user = $this->findUserByUsername($username);
         $this->checkProfileAccess($user, 'subscriptions');
 
+        $type = $request->query->get('type', 'users'); // users, channels, models, playlists
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 20;
         $offset = ($page - 1) * $limit;
 
-        $subscriptions = $this->subscriptionRepository->findBySubscriber($user, $limit, $offset);
-        $totalSubscriptions = $this->subscriptionRepository->countBySubscriber($user);
+        $subscriptions = [];
+        $totalSubscriptions = 0;
+
+        switch ($type) {
+            case 'channels':
+                $channelSubRepo = $this->entityManager->getRepository(ChannelSubscription::class);
+                $subscriptions = $channelSubRepo->findBy(['user' => $user], ['subscribedAt' => 'DESC'], $limit, $offset);
+                $totalSubscriptions = $channelSubRepo->count(['user' => $user]);
+                break;
+            
+            case 'models':
+                $modelSubRepo = $this->entityManager->getRepository(ModelSubscription::class);
+                $subscriptions = $modelSubRepo->findBy(['user' => $user], ['createdAt' => 'DESC'], $limit, $offset);
+                $totalSubscriptions = $modelSubRepo->count(['user' => $user]);
+                break;
+            
+            case 'playlists':
+                $playlistSubRepo = $this->entityManager->getRepository(PlaylistSubscription::class);
+                $subscriptions = $playlistSubRepo->findByUser($user, $limit, $offset);
+                $totalSubscriptions = $playlistSubRepo->countByUser($user);
+                break;
+            
+            case 'users':
+            default:
+                $subscriptions = $this->subscriptionRepository->findBySubscriber($user, $limit, $offset);
+                $totalSubscriptions = $this->subscriptionRepository->countBySubscriber($user);
+                break;
+        }
+
         $totalPages = ceil($totalSubscriptions / $limit);
 
         return $this->render('members/profile/subscriptions.html.twig', [
             'user' => $user,
             'subscriptions' => $subscriptions,
+            'subscription_type' => $type,
             'current_page' => $page,
             'total_pages' => $totalPages,
             'total_subscriptions' => $totalSubscriptions,

@@ -74,17 +74,17 @@ class VideoUploadType extends AbstractType
                     'data-controller' => 'symfony--ux-dropzone--dropzone',
                 ],
                 'constraints' => [
-                    new File([
-                        'maxSize' => '2048M',
-                        'mimeTypes' => [
+                    new File(
+                        maxSize: '2048M',
+                        mimeTypes: [
                             'video/mp4',
                             'video/mpeg',
                             'video/quicktime',
                             'video/x-msvideo',
                             'video/x-matroska',
                         ],
-                        'mimeTypesMessage' => 'video.file.invalid_type',
-                    ])
+                        mimeTypesMessage: 'video.file.invalid_type'
+                    )
                 ],
             ]);
     }

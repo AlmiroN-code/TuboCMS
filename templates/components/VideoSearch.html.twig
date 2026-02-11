@@ -40,15 +40,7 @@
                         <a href="{{ path('video_detail', {slug: video.slug}) }}" 
                            data-turbo="false"
                            class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition border-b border-gray-100 dark:border-gray-700/50">
-                            {% if video.poster %}
-                                {{ lazy_img('/media/' ~ video.poster, video.title, 'w-20 h-12 object-cover rounded flex-shrink-0', 80, 48) }}
-                            {% else %}
-                                <div class="w-20 h-12 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                    </svg>
-                                </div>
-                            {% endif %}
+                            {{ lazy_img(video_poster(video.poster), video.title, 'w-20 h-12 object-cover rounded flex-shrink-0', 80, 48) }}
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ video.title }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">

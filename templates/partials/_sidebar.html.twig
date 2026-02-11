@@ -1,5 +1,5 @@
 {% block sidebar %}
-<aside class="sidebar flex-shrink-0 border-r border-gray-200 min-h-screen p-3">
+<aside class="sidebar flex-shrink-0 border-r border-gray-200 dark:border-gray-200 min-h-screen p-2">
 	{# Popular Section #}
 	<div class="bg-white mb-4">
 		<nav class="space-y-1">
@@ -35,14 +35,29 @@
 		</nav>
 	</div>
 	{# Categories Section #}
-	<div class="bg-white rounded-md mb-4">
+	<div class="bg-white rounded-md mb-4" x-data="{
+             expanded: localStorage.getItem('sidebar_categories_expanded') === 'true',
+             isAnimating: false,
+             toggle() {
+                 if (this.isAnimating) return;
+                 this.expanded = !this.expanded;
+                 localStorage.setItem('sidebar_categories_expanded', this.expanded ? 'true' : 'false');
+             }
+         }">
 		<h3 class="text-sm font-semibold text-gray-900 mb-3 ml-2 uppercase tracking-wide">{{ 'sidebar.categories'|trans }}</h3>
 		{% set sidebar_categories = global_sidebar_categories %}
 		{% if sidebar_categories|length > 0 %}
 		<nav id="categories-list" class="space-y-1">
 			{% for category in sidebar_categories %}
 			<a href="{{ path('app_category_show', {slug: category.slug}) }}" 
-				class="flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition group {{ loop.index > 10 ? 'hidden-category hidden' : '' }} {{ app.request.attributes.get('_route') == 'app_category_show' and app.request.attributes.get('slug') == category.slug ? 'bg-orange-50 text-orange-600' : '' }}">
+				{% if loop.index > 10 %}x-show="expanded"{% endif %}
+				x-transition:enter="transition ease-out duration-200"
+				x-transition:enter-start="opacity-0 transform -translate-y-2"
+				x-transition:enter-end="opacity-100 transform translate-y-0"
+				x-transition:leave="transition ease-in duration-150"
+				x-transition:leave-start="opacity-100 transform translate-y-0"
+				x-transition:leave-end="opacity-0 transform -translate-y-2"
+				class="flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition group {{ app.request.attributes.get('_route') == 'app_category_show' and app.request.attributes.get('slug') == category.slug ? 'bg-orange-50 text-orange-600' : '' }}">
 				<span class="flex items-center gap-2">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
@@ -54,16 +69,15 @@
 			{% endfor %}
 		</nav>
 		{% if sidebar_categories|length > 10 %}
-		<div class="mx-3">
-			<button id="categories-toggle-btn" 
-				onclick="toggleCategories()" 
-				class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-orange-600 bg-white hover:bg-orange-50 rounded-md shadow transition font-medium">
-				<svg id="categories-toggle-icon" class="w-4 h-4 transition-transform duration-200" style="transform: rotate(-90deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<button @click="toggle()" 
+				class="w-full flex items-center justify-center gap-2 mt-2 px-3 py-2 text-sm text-orange-600 bg-white hover:bg-orange-50 rounded-md shadow transition font-medium">
+				<span x-text="expanded ? '{{ 'sidebar.hide'|trans }}' : '{{ 'sidebar.show_all'|trans }}'"></span>
+				<svg class="w-4 h-4 transition-transform duration-200" 
+					 :style="'transform: rotate(' + (expanded ? '0' : '-90') + 'deg)'"
+					 fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 				</svg>
-				<span id="categories-toggle-text">{{ 'sidebar.show_all'|trans }}</span>
-			</button>
-		</div>
+		</button>
 		{% endif %}
 		<!-- <div class="mt-4 pt-4 border-t">
 			<a href="{{ path('app_categories') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">
@@ -80,145 +94,4 @@
 		{{ show_ad('sidebar', {'page': app.request.attributes.get('_route')}) }}
 	</div>
 </aside>
-<script>
-(function() {
-	const STORAGE_KEY = 'sidebar_categories_expanded';
-	const showAllText = '{{ 'sidebar.show_all'|trans }}';
-	const hideText = '{{ 'sidebar.hide'|trans }}';
-	let isAnimating = false;
-	
-	// Загружаем сохранённое состояние
-	function loadState() {
-		try {
-			const saved = localStorage.getItem(STORAGE_KEY);
-			// false = свёрнуто (по умолчанию), true = развёрнуто
-			return saved === 'true';
-		} catch (e) {
-			return false;
-		}
-	}
-	
-	// Сохраняем состояние
-	function saveState(expanded) {
-		try {
-			localStorage.setItem(STORAGE_KEY, expanded ? 'true' : 'false');
-		} catch (e) {}
-	}
-	
-	// Применяем состояние
-	function applyState(expanded, animate = false) {
-		const hiddenCategories = document.querySelectorAll('.hidden-category');
-		const icon = document.getElementById('categories-toggle-icon');
-		const text = document.getElementById('categories-toggle-text');
-		
-		if (!hiddenCategories.length) return;
-		
-		if (animate && isAnimating) return;
-		
-		if (animate) {
-			isAnimating = true;
-		}
-		
-		// Добавляем transition для всех элементов
-		hiddenCategories.forEach(cat => {
-			if (!cat.style.transition) {
-				cat.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
-			}
-		});
-		
-		if (expanded) {
-			// Разворачиваем - показываем категории
-			hiddenCategories.forEach((cat, index) => {
-				cat.classList.remove('hidden');
-				cat.style.display = '';
-				
-				if (animate) {
-					// Начинаем с невидимого состояния
-					cat.style.opacity = '0';
-					cat.style.transform = 'translateY(-10px)';
-					cat.style.transitionDelay = (index * 0.03) + 's';
-					
-					// Запускаем анимацию появления
-					requestAnimationFrame(() => {
-						requestAnimationFrame(() => {
-							cat.style.opacity = '1';
-							cat.style.transform = 'translateY(0)';
-						});
-					});
-				} else {
-					cat.style.opacity = '1';
-					cat.style.transform = 'translateY(0)';
-					cat.style.transitionDelay = '0s';
-				}
-			});
-			
-			if (animate) {
-				setTimeout(() => {
-					isAnimating = false;
-					hiddenCategories.forEach(cat => {
-						cat.style.transitionDelay = '0s';
-					});
-				}, 250 + hiddenCategories.length * 30);
-			}
-		} else {
-			// Сворачиваем - скрываем категории
-			if (animate) {
-				hiddenCategories.forEach((cat, index) => {
-					cat.style.transitionDelay = ((hiddenCategories.length - index - 1) * 0.02) + 's';
-					cat.style.opacity = '0';
-					cat.style.transform = 'translateY(-10px)';
-				});
-				
-				// Скрываем после анимации
-				setTimeout(() => {
-					hiddenCategories.forEach(cat => {
-						cat.classList.add('hidden');
-						cat.style.transitionDelay = '0s';
-					});
-					isAnimating = false;
-				}, 200 + hiddenCategories.length * 20);
-			} else {
-				hiddenCategories.forEach(cat => {
-					cat.classList.add('hidden');
-					cat.style.opacity = '0';
-					cat.style.transform = 'translateY(-10px)';
-				});
-			}
-		}
-		
-		// Обновляем иконку и текст
-		if (icon) {
-			icon.style.transform = expanded ? 'rotate(0deg)' : 'rotate(-90deg)';
-		}
-		
-		if (text) {
-			text.textContent = expanded ? hideText : showAllText;
-		}
-	}
-	
-	// Переключение
-	window.toggleCategories = function() {
-		if (isAnimating) return;
-		
-		const currentState = loadState();
-		const newState = !currentState;
-		
-		saveState(newState);
-		applyState(newState, true);
-	};
-	
-	// Инициализация при загрузке
-	function init() {
-		const expanded = loadState();
-		// Применяем сохранённое состояние без анимации
-		applyState(expanded, false);
-	}
-	
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', init);
-	} else {
-		init();
-	}
-})();
-</script>
 {% endblock %}

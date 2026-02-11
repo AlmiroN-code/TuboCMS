@@ -33,6 +33,9 @@ class PostController extends AbstractController
             'posts' => $posts,
             'page' => $page,
             'total_pages' => ceil($total / $limit),
+            'seo_title' => $this->settingsService->get('seo_posts_title', 'Все посты'),
+            'seo_description' => $this->settingsService->get('seo_posts_description'),
+            'seo_keywords' => $this->settingsService->get('seo_posts_keywords'),
         ]);
     }
 
@@ -64,7 +67,7 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}', name: 'app_post_show', requirements: ['slug' => '.+'], priority: -1)]
+    #[Route('/{slug}', name: 'app_post_show', requirements: ['slug' => '^(?!videos|admin|api|members|channels|categories|tags|models|playlists|bookmarks|history|like|comments|secure-media|sitemap).*$'], priority: -10)]
     public function show(
         string $slug,
         PostRepository $postRepository

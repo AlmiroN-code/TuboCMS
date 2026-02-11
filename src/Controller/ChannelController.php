@@ -9,6 +9,8 @@ use App\Repository\ChannelRepository;
 use App\Repository\ChannelSubscriptionRepository;
 use App\Repository\VideoRepository;
 use App\Service\SettingsService;
+use App\Service\PushNotificationService;
+use App\Service\PushNotificationTemplateService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,7 +28,9 @@ class ChannelController extends AbstractController
         private VideoRepository $videoRepository,
         private EntityManagerInterface $entityManager,
         private SettingsService $settingsService,
-        private SluggerInterface $slugger
+        private SluggerInterface $slugger,
+        private PushNotificationService $pushService,
+        private PushNotificationTemplateService $pushTemplateService,
     ) {}
 
     #[Route('/channels', name: 'channels_index')]
@@ -54,6 +58,9 @@ class ChannelController extends AbstractController
             'total_pages' => $totalPages,
             'total_channels' => $totalChannels,
             'filters' => $filters,
+            'seo_title' => $this->settingsService->get('seo_channels_title', 'Каналы'),
+            'seo_description' => $this->settingsService->get('seo_channels_description'),
+            'seo_keywords' => $this->settingsService->get('seo_channels_keywords'),
         ]);
     }
 
@@ -169,6 +176,18 @@ class ChannelController extends AbstractController
         $channel->setSubscribersCount($channel->getSubscribersCount() + 1);
         
         $this->entityManager->flush();
+
+        // Push уведомление владельцу канала о новом подписчике
+        $channelOwner = $channel->getOwner();
+        if ($channelOwner && $channelOwner->getId() !== $user->getId()) {
+            $notifText = $this->pushTemplateService->formatNewSubscriber($user, $channel);
+            $this->pushService->sendToUser(
+                $channelOwner,
+                $notifText['title'],
+                $notifText['body'],
+                '/channel/' . $channel->getSlug()
+            );
+        }
 
         return new JsonResponse([
             'success' => true,

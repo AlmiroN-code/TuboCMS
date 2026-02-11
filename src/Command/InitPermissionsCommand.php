@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Entity\Permission;
-use App\Entity\Role;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -13,12 +12,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:init-permissions',
-    description: 'Инициализация базовых прав доступа и ролей',
+    description: 'Инициализация базовых разрешений системы',
 )]
 class InitPermissionsCommand extends Command
 {
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $em
     ) {
         parent::__construct();
     }
@@ -27,160 +26,136 @@ class InitPermissionsCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        // Определяем базовые права доступа
         $permissions = [
-            // Управление видео
-            ['name' => 'video.view', 'displayName' => 'Просмотр видео', 'description' => 'Просмотр списка и деталей видео', 'category' => 'video'],
-            ['name' => 'video.create', 'displayName' => 'Создание видео', 'description' => 'Загрузка новых видео', 'category' => 'video'],
-            ['name' => 'video.edit', 'displayName' => 'Редактирование видео', 'description' => 'Редактирование своих видео', 'category' => 'video'],
-            ['name' => 'video.edit_all', 'displayName' => 'Редактирование всех видео', 'description' => 'Редактирование любых видео', 'category' => 'video'],
-            ['name' => 'video.delete', 'displayName' => 'Удаление видео', 'description' => 'Удаление своих видео', 'category' => 'video'],
-            ['name' => 'video.delete_all', 'displayName' => 'Удаление всех видео', 'description' => 'Удаление любых видео', 'category' => 'video'],
-            ['name' => 'video.moderate', 'displayName' => 'Модерация видео', 'description' => 'Одобрение и отклонение видео', 'category' => 'video'],
-
-            // Управление пользователями
-            ['name' => 'user.view', 'displayName' => 'Просмотр пользователей', 'description' => 'Просмотр списка пользователей', 'category' => 'user'],
-            ['name' => 'user.create', 'displayName' => 'Создание пользователей', 'description' => 'Создание новых пользователей', 'category' => 'user'],
-            ['name' => 'user.edit', 'displayName' => 'Редактирование пользователей', 'description' => 'Редактирование данных пользователей', 'category' => 'user'],
-            ['name' => 'user.delete', 'displayName' => 'Удаление пользователей', 'description' => 'Удаление пользователей', 'category' => 'user'],
-            ['name' => 'user.ban', 'displayName' => 'Блокировка пользователей', 'description' => 'Блокировка и разблокировка пользователей', 'category' => 'user'],
-
-            // Управление комментариями
-            ['name' => 'comment.view', 'displayName' => 'Просмотр комментариев', 'description' => 'Просмотр комментариев', 'category' => 'comment'],
-            ['name' => 'comment.create', 'displayName' => 'Создание комментариев', 'description' => 'Написание комментариев', 'category' => 'comment'],
-            ['name' => 'comment.edit', 'displayName' => 'Редактирование комментариев', 'description' => 'Редактирование своих комментариев', 'category' => 'comment'],
-            ['name' => 'comment.edit_all', 'displayName' => 'Редактирование всех комментариев', 'description' => 'Редактирование любых комментариев', 'category' => 'comment'],
-            ['name' => 'comment.delete', 'displayName' => 'Удаление комментариев', 'description' => 'Удаление своих комментариев', 'category' => 'comment'],
-            ['name' => 'comment.delete_all', 'displayName' => 'Удаление всех комментариев', 'description' => 'Удаление любых комментариев', 'category' => 'comment'],
-
-            // Управление категориями
-            ['name' => 'category.view', 'displayName' => 'Просмотр категорий', 'description' => 'Просмотр списка категорий', 'category' => 'category'],
-            ['name' => 'category.create', 'displayName' => 'Создание категорий', 'description' => 'Создание новых категорий', 'category' => 'category'],
-            ['name' => 'category.edit', 'displayName' => 'Редактирование категорий', 'description' => 'Редактирование категорий', 'category' => 'category'],
-            ['name' => 'category.delete', 'displayName' => 'Удаление категорий', 'description' => 'Удаление категорий', 'category' => 'category'],
-
-            // Управление тегами
-            ['name' => 'tag.view', 'displayName' => 'Просмотр тегов', 'description' => 'Просмотр списка тегов', 'category' => 'tag'],
-            ['name' => 'tag.create', 'displayName' => 'Создание тегов', 'description' => 'Создание новых тегов', 'category' => 'tag'],
-            ['name' => 'tag.edit', 'displayName' => 'Редактирование тегов', 'description' => 'Редактирование тегов', 'category' => 'tag'],
-            ['name' => 'tag.delete', 'displayName' => 'Удаление тегов', 'description' => 'Удаление тегов', 'category' => 'tag'],
-
-            // Управление моделями
-            ['name' => 'model.view', 'displayName' => 'Просмотр моделей', 'description' => 'Просмотр списка моделей', 'category' => 'model'],
-            ['name' => 'model.create', 'displayName' => 'Создание моделей', 'description' => 'Создание профилей моделей', 'category' => 'model'],
-            ['name' => 'model.edit', 'displayName' => 'Редактирование моделей', 'description' => 'Редактирование профилей моделей', 'category' => 'model'],
-            ['name' => 'model.delete', 'displayName' => 'Удаление моделей', 'description' => 'Удаление профилей моделей', 'category' => 'model'],
-
-            // Управление настройками
-            ['name' => 'settings.view', 'displayName' => 'Просмотр настроек', 'description' => 'Просмотр настроек сайта', 'category' => 'settings'],
-            ['name' => 'settings.edit', 'displayName' => 'Редактирование настроек', 'description' => 'Изменение настроек сайта', 'category' => 'settings'],
-
-            // Управление ролями и правами
-            ['name' => 'role.view', 'displayName' => 'Просмотр ролей', 'description' => 'Просмотр списка ролей', 'category' => 'role'],
-            ['name' => 'role.create', 'displayName' => 'Создание ролей', 'description' => 'Создание новых ролей', 'category' => 'role'],
-            ['name' => 'role.edit', 'displayName' => 'Редактирование ролей', 'description' => 'Редактирование ролей', 'category' => 'role'],
-            ['name' => 'role.delete', 'displayName' => 'Удаление ролей', 'description' => 'Удаление ролей', 'category' => 'role'],
-
-            // Доступ к админ-панели
-            ['name' => 'admin.access', 'displayName' => 'Доступ к админ-панели', 'description' => 'Доступ к административной панели', 'category' => 'admin'],
-            ['name' => 'admin.dashboard', 'displayName' => 'Просмотр дашборда', 'description' => 'Просмотр административного дашборда', 'category' => 'admin'],
-            ['name' => 'admin.system', 'displayName' => 'Системные настройки', 'description' => 'Доступ к системным настройкам', 'category' => 'admin'],
+            // Видео
+            ['name' => 'video.view', 'displayName' => 'Просмотр видео', 'category' => 'video', 'description' => 'Просмотр списка и деталей видео'],
+            ['name' => 'video.create', 'displayName' => 'Создание видео', 'category' => 'video', 'description' => 'Загрузка новых видео'],
+            ['name' => 'video.edit', 'displayName' => 'Редактирование видео', 'category' => 'video', 'description' => 'Изменение информации о видео'],
+            ['name' => 'video.delete', 'displayName' => 'Удаление видео', 'category' => 'video', 'description' => 'Удаление видео из системы'],
+            ['name' => 'video.moderate', 'displayName' => 'Модерация видео', 'category' => 'video', 'description' => 'Публикация/снятие с публикации видео'],
+            ['name' => 'video.reprocess', 'displayName' => 'Переобработка видео', 'category' => 'video', 'description' => 'Запуск повторной обработки видео'],
+            
+            // Категории
+            ['name' => 'category.view', 'displayName' => 'Просмотр категорий', 'category' => 'category', 'description' => 'Просмотр списка категорий'],
+            ['name' => 'category.create', 'displayName' => 'Создание категорий', 'category' => 'category', 'description' => 'Добавление новых категорий'],
+            ['name' => 'category.edit', 'displayName' => 'Редактирование категорий', 'category' => 'category', 'description' => 'Изменение категорий'],
+            ['name' => 'category.delete', 'displayName' => 'Удаление категорий', 'category' => 'category', 'description' => 'Удаление категорий'],
+            
+            // Теги
+            ['name' => 'tag.view', 'displayName' => 'Просмотр тегов', 'category' => 'tag', 'description' => 'Просмотр списка тегов'],
+            ['name' => 'tag.create', 'displayName' => 'Создание тегов', 'category' => 'tag', 'description' => 'Добавление новых тегов'],
+            ['name' => 'tag.edit', 'displayName' => 'Редактирование тегов', 'category' => 'tag', 'description' => 'Изменение тегов'],
+            ['name' => 'tag.delete', 'displayName' => 'Удаление тегов', 'category' => 'tag', 'description' => 'Удаление тегов'],
+            
+            // Модели
+            ['name' => 'model.view', 'displayName' => 'Просмотр моделей', 'category' => 'model', 'description' => 'Просмотр списка моделей'],
+            ['name' => 'model.create', 'displayName' => 'Создание моделей', 'category' => 'model', 'description' => 'Добавление новых моделей'],
+            ['name' => 'model.edit', 'displayName' => 'Редактирование моделей', 'category' => 'model', 'description' => 'Изменение информации о моделях'],
+            ['name' => 'model.delete', 'displayName' => 'Удаление моделей', 'category' => 'model', 'description' => 'Удаление моделей'],
+            ['name' => 'model.verify', 'displayName' => 'Верификация моделей', 'category' => 'model', 'description' => 'Верификация/снятие верификации моделей'],
+            
+            // Каналы
+            ['name' => 'channel.view', 'displayName' => 'Просмотр каналов', 'category' => 'channel', 'description' => 'Просмотр списка каналов'],
+            ['name' => 'channel.create', 'displayName' => 'Создание каналов', 'category' => 'channel', 'description' => 'Создание новых каналов'],
+            ['name' => 'channel.edit', 'displayName' => 'Редактирование каналов', 'category' => 'channel', 'description' => 'Изменение информации о каналах'],
+            ['name' => 'channel.delete', 'displayName' => 'Удаление каналов', 'category' => 'channel', 'description' => 'Удаление каналов'],
+            ['name' => 'channel.verify', 'displayName' => 'Верификация каналов', 'category' => 'channel', 'description' => 'Верификация/снятие верификации каналов'],
+            
+            // Пользователи
+            ['name' => 'user.view', 'displayName' => 'Просмотр пользователей', 'category' => 'user', 'description' => 'Просмотр списка пользователей'],
+            ['name' => 'user.create', 'displayName' => 'Создание пользователей', 'category' => 'user', 'description' => 'Создание новых пользователей'],
+            ['name' => 'user.edit', 'displayName' => 'Редактирование пользователей', 'category' => 'user', 'description' => 'Изменение данных пользователей'],
+            ['name' => 'user.delete', 'displayName' => 'Удаление пользователей', 'category' => 'user', 'description' => 'Удаление пользователей'],
+            ['name' => 'user.verify', 'displayName' => 'Верификация пользователей', 'category' => 'user', 'description' => 'Верификация пользователей'],
+            ['name' => 'user.premium', 'displayName' => 'Управление премиум', 'category' => 'user', 'description' => 'Выдача/снятие премиум статуса'],
+            
+            // Комментарии
+            ['name' => 'comment.view', 'displayName' => 'Просмотр комментариев', 'category' => 'comment', 'description' => 'Просмотр списка комментариев'],
+            ['name' => 'comment.moderate', 'displayName' => 'Модерация комментариев', 'category' => 'comment', 'description' => 'Одобрение/отклонение комментариев'],
+            ['name' => 'comment.delete', 'displayName' => 'Удаление комментариев', 'category' => 'comment', 'description' => 'Удаление комментариев'],
+            
+            // Плейлисты
+            ['name' => 'playlist.view', 'displayName' => 'Просмотр плейлистов', 'category' => 'playlist', 'description' => 'Просмотр списка плейлистов'],
+            ['name' => 'playlist.edit', 'displayName' => 'Редактирование плейлистов', 'category' => 'playlist', 'description' => 'Изменение плейлистов'],
+            ['name' => 'playlist.delete', 'displayName' => 'Удаление плейлистов', 'category' => 'playlist', 'description' => 'Удаление плейлистов'],
+            
+            // Посты
+            ['name' => 'post.view', 'displayName' => 'Просмотр постов', 'category' => 'post', 'description' => 'Просмотр списка постов'],
+            ['name' => 'post.create', 'displayName' => 'Создание постов', 'category' => 'post', 'description' => 'Создание новых постов'],
+            ['name' => 'post.edit', 'displayName' => 'Редактирование постов', 'category' => 'post', 'description' => 'Изменение постов'],
+            ['name' => 'post.delete', 'displayName' => 'Удаление постов', 'category' => 'post', 'description' => 'Удаление постов'],
+            
+            // Реклама
+            ['name' => 'ad.view', 'displayName' => 'Просмотр рекламы', 'category' => 'advertising', 'description' => 'Просмотр рекламных объявлений'],
+            ['name' => 'ad.create', 'displayName' => 'Создание рекламы', 'category' => 'advertising', 'description' => 'Создание рекламных объявлений'],
+            ['name' => 'ad.edit', 'displayName' => 'Редактирование рекламы', 'category' => 'advertising', 'description' => 'Изменение рекламных объявлений'],
+            ['name' => 'ad.delete', 'displayName' => 'Удаление рекламы', 'category' => 'advertising', 'description' => 'Удаление рекламных объявлений'],
+            ['name' => 'ad.stats', 'displayName' => 'Статистика рекламы', 'category' => 'advertising', 'description' => 'Просмотр статистики рекламы'],
+            
+            // Роли и разрешения
+            ['name' => 'role.view', 'displayName' => 'Просмотр ролей', 'category' => 'security', 'description' => 'Просмотр списка ролей'],
+            ['name' => 'role.create', 'displayName' => 'Создание ролей', 'category' => 'security', 'description' => 'Создание новых ролей'],
+            ['name' => 'role.edit', 'displayName' => 'Редактирование ролей', 'category' => 'security', 'description' => 'Изменение ролей'],
+            ['name' => 'role.delete', 'displayName' => 'Удаление ролей', 'category' => 'security', 'description' => 'Удаление ролей'],
+            ['name' => 'permission.view', 'displayName' => 'Просмотр разрешений', 'category' => 'security', 'description' => 'Просмотр списка разрешений'],
+            ['name' => 'permission.create', 'displayName' => 'Создание разрешений', 'category' => 'security', 'description' => 'Создание новых разрешений'],
+            ['name' => 'permission.edit', 'displayName' => 'Редактирование разрешений', 'category' => 'security', 'description' => 'Изменение разрешений'],
+            ['name' => 'permission.delete', 'displayName' => 'Удаление разрешений', 'category' => 'security', 'description' => 'Удаление разрешений'],
+            
+            // Настройки
+            ['name' => 'settings.view', 'displayName' => 'Просмотр настроек', 'category' => 'settings', 'description' => 'Просмотр настроек системы'],
+            ['name' => 'settings.edit', 'displayName' => 'Изменение настроек', 'category' => 'settings', 'description' => 'Изменение настроек системы'],
+            ['name' => 'storage.manage', 'displayName' => 'Управление хранилищами', 'category' => 'settings', 'description' => 'Управление хранилищами файлов'],
+            ['name' => 'transcoding.manage', 'displayName' => 'Управление транскодингом', 'category' => 'settings', 'description' => 'Настройка параметров транскодинга'],
+            
+            // Система
+            ['name' => 'cache.manage', 'displayName' => 'Управление кэшем', 'category' => 'system', 'description' => 'Очистка и управление кэшем'],
+            ['name' => 'worker.manage', 'displayName' => 'Управление воркерами', 'category' => 'system', 'description' => 'Управление фоновыми задачами'],
+            ['name' => 'workflow.manage', 'displayName' => 'Управление workflow', 'category' => 'system', 'description' => 'Управление рабочими процессами'],
+            ['name' => 'notification.manage', 'displayName' => 'Управление уведомлениями', 'category' => 'system', 'description' => 'Управление системой уведомлений'],
+            
+            // Live Streaming
+            ['name' => 'stream.view', 'displayName' => 'Просмотр стримов', 'category' => 'streaming', 'description' => 'Просмотр списка стримов'],
+            ['name' => 'stream.create', 'displayName' => 'Создание стримов', 'category' => 'streaming', 'description' => 'Создание новых стримов'],
+            ['name' => 'stream.manage', 'displayName' => 'Управление стримами', 'category' => 'streaming', 'description' => 'Управление стримами пользователей'],
+            ['name' => 'stream.delete', 'displayName' => 'Удаление стримов', 'category' => 'streaming', 'description' => 'Удаление стримов'],
         ];
 
-        $io->section('Создание прав доступа');
-        $permissionEntities = [];
-        
-        foreach ($permissions as $permData) {
-            $permission = $this->entityManager->getRepository(Permission::class)
-                ->findOneBy(['name' => $permData['name']]);
+        $created = 0;
+        $updated = 0;
+        $skipped = 0;
 
-            if (!$permission) {
+        foreach ($permissions as $permData) {
+            $permission = $this->em->getRepository(Permission::class)->findOneBy(['name' => $permData['name']]);
+            
+            if ($permission) {
+                // Обновляем существующее разрешение
+                $permission->setDisplayName($permData['displayName']);
+                $permission->setCategory($permData['category']);
+                $permission->setDescription($permData['description']);
+                $permission->setUpdatedAt(new \DateTimeImmutable());
+                $updated++;
+            } else {
+                // Создаем новое разрешение
                 $permission = new Permission();
                 $permission->setName($permData['name']);
                 $permission->setDisplayName($permData['displayName']);
-                $permission->setDescription($permData['description']);
                 $permission->setCategory($permData['category']);
+                $permission->setDescription($permData['description']);
                 $permission->setActive(true);
-
-                $this->entityManager->persist($permission);
-                $io->writeln(sprintf('✓ Создано право: %s', $permData['displayName']));
-            } else {
-                $io->writeln(sprintf('- Право уже существует: %s', $permData['displayName']));
+                $created++;
             }
-
-            $permissionEntities[$permData['name']] = $permission;
+            
+            $this->em->persist($permission);
         }
 
-        $this->entityManager->flush();
+        $this->em->flush();
 
-        // Определяем базовые роли
-        $roles = [
-            [
-                'name' => 'ROLE_USER',
-                'displayName' => 'Пользователь',
-                'description' => 'Обычный пользователь сайта',
-                'permissions' => [
-                    'video.view', 'video.create', 'video.edit', 'video.delete',
-                    'comment.view', 'comment.create', 'comment.edit', 'comment.delete',
-                    'category.view', 'tag.view', 'model.view',
-                ]
-            ],
-            [
-                'name' => 'ROLE_MODERATOR',
-                'displayName' => 'Модератор',
-                'description' => 'Модератор контента',
-                'permissions' => [
-                    'video.view', 'video.create', 'video.edit', 'video.edit_all', 'video.delete', 'video.delete_all', 'video.moderate',
-                    'comment.view', 'comment.create', 'comment.edit', 'comment.edit_all', 'comment.delete', 'comment.delete_all',
-                    'category.view', 'tag.view', 'model.view',
-                    'user.view', 'user.ban',
-                    'admin.access', 'admin.dashboard',
-                ]
-            ],
-            [
-                'name' => 'ROLE_ADMIN',
-                'displayName' => 'Администратор',
-                'description' => 'Полный доступ к управлению сайтом',
-                'permissions' => array_keys($permissionEntities),
-            ],
-        ];
-
-        $io->section('Создание ролей');
-
-        foreach ($roles as $roleData) {
-            $role = $this->entityManager->getRepository(Role::class)
-                ->findOneBy(['name' => $roleData['name']]);
-
-            if (!$role) {
-                $role = new Role();
-                $role->setName($roleData['name']);
-                $role->setDisplayName($roleData['displayName']);
-                $role->setDescription($roleData['description']);
-                $role->setActive(true);
-
-                $this->entityManager->persist($role);
-                $io->writeln(sprintf('✓ Создана роль: %s', $roleData['displayName']));
-            } else {
-                $io->writeln(sprintf('- Роль уже существует: %s', $roleData['displayName']));
-                // Очищаем существующие права для обновления
-                foreach ($role->getPermissions() as $perm) {
-                    $role->removePermission($perm);
-                }
-            }
-
-            // Добавляем права к роли
-            foreach ($roleData['permissions'] as $permName) {
-                if (isset($permissionEntities[$permName])) {
-                    $role->addPermission($permissionEntities[$permName]);
-                }
-            }
-        }
-
-        $this->entityManager->flush();
-
-        $io->success('Права доступа и роли успешно инициализированы!');
-        $io->note(sprintf('Создано прав: %d', count($permissions)));
-        $io->note(sprintf('Создано ролей: %d', count($roles)));
+        $io->success(sprintf(
+            'Разрешения инициализированы: создано %d, обновлено %d',
+            $created,
+            $updated
+        ));
 
         return Command::SUCCESS;
     }

@@ -1,261 +1,205 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
+use App\Entity\User;
 use App\Entity\Video;
-use App\Entity\Category;
-use App\Entity\Tag;
-use App\Repository\UserRepository;
-use App\Repository\CategoryRepository;
-use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[AsCommand(
     name: 'app:create-test-videos',
-    description: 'Создать тестовые видео для админ-панели',
+    description: 'Создаёт 45 тестовых опубликованных видео'
 )]
 class CreateTestVideosCommand extends Command
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private UserRepository $userRepository,
-        private CategoryRepository $categoryRepository,
-        private TagRepository $tagRepository
+        private EntityManagerInterface $em
     ) {
         parent::__construct();
-    }
-
-    protected function configure(): void
-    {
-        $this
-            ->addOption('count', 'c', InputOption::VALUE_OPTIONAL, 'Количество видео для создания', 15)
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Удалить существующие тестовые видео');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $count = (int) $input->getOption('count');
-        $force = $input->getOption('force');
 
-        $io->title('Создание тестовых видео');
-
-        // Удаляем существующие тестовые видео если нужно
-        if ($force) {
-            $io->writeln('🗑️  Удаляю существующие тестовые видео...');
-            $this->entityManager->createQuery(
-                'DELETE FROM App\Entity\Video v WHERE v.title LIKE :pattern'
-            )->setParameter('pattern', 'Тестовое видео %')->execute();
-        }
-
-        // Получаем админа
-        $admin = $this->userRepository->findOneBy(['email' => 'admin@sexvids.online']);
-        if (!$admin) {
-            $io->error('Админ не найден. Сначала создайте админа командой: php bin/console app:create-default-admin');
-            return Command::FAILURE;
-        }
-
-        // Получаем категории и теги
-        $categories = $this->categoryRepository->findAll();
-        $tags = $this->tagRepository->findAll();
-
-        if (empty($categories)) {
-            $io->warning('Категории не найдены. Создаю базовые категории...');
-            $this->createBasicCategories();
-            $categories = $this->categoryRepository->findAll();
-        }
-
-        if (empty($tags)) {
-            $io->warning('Теги не найдены. Создаю базовые теги...');
-            $this->createBasicTags();
-            $tags = $this->tagRepository->findAll();
-        }
-
-        $slugger = new AsciiSlugger();
-        $statuses = [Video::STATUS_PUBLISHED, Video::STATUS_DRAFT, Video::STATUS_PROCESSING];
+        // Получаем или создаём тестового пользователя
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'test@example.com']);
         
-        $videoTitles = [
-            'Красивая блондинка в красном белье',
-            'Страстная брюнетка соблазняет камеру',
-            'Горячая модель в ванной комнате',
-            'Сексуальная девушка в спальне',
-            'Эротический танец в студии',
-            'Модель в кружевном белье',
-            'Соблазнительная поза на кровати',
-            'Красотка в черных чулках',
-            'Игривая девушка с игрушками',
-            'Страстная модель у окна',
-            'Сексуальная фотосессия дома',
-            'Эротическая съемка в душе',
-            'Горячая блондинка раздевается',
-            'Красивая модель позирует',
-            'Соблазнительная брюнетка дразнит'
+        if (!$user) {
+            $user = new User();
+            $user->setEmail('test@example.com');
+            $user->setUsername('testuser');
+            $user->setPassword('$2y$13$test'); // Dummy hash
+            $user->setRoles(['ROLE_USER']);
+            
+            $this->em->persist($user);
+            $this->em->flush();
+            
+            $io->success('Создан тестовый пользователь: test@example.com');
+        }
+
+        $titles = [
+            // Первые 15
+            'Введение в PHP 8.4',
+            'Symfony 8.0 - Новые возможности',
+            'Doctrine ORM - Лучшие практики',
+            'Tailwind CSS для начинающих',
+            'Stimulus JS - Интерактивность',
+            'MySQL оптимизация запросов',
+            'Docker для разработчиков',
+            'Git и GitHub - Полное руководство',
+            'REST API с Symfony',
+            'Тестирование с PHPUnit',
+            'Webpack Encore настройка',
+            'Безопасность веб-приложений',
+            'Redis кэширование',
+            'Nginx конфигурация',
+            'Микросервисы на PHP',
+            // Дополнительные 30
+            'JavaScript ES2024 новинки',
+            'TypeScript для PHP разработчиков',
+            'React основы и хуки',
+            'Vue.js 3 Composition API',
+            'Node.js и Express.js',
+            'GraphQL с Apollo Server',
+            'MongoDB для начинающих',
+            'PostgreSQL продвинутые запросы',
+            'Elasticsearch полнотекстовый поиск',
+            'RabbitMQ очереди сообщений',
+            'Kubernetes оркестрация контейнеров',
+            'CI/CD с GitHub Actions',
+            'AWS облачные сервисы',
+            'Serverless архитектура',
+            'WebSocket реального времени',
+            'OAuth 2.0 и JWT авторизация',
+            'SOLID принципы ООП',
+            'Design Patterns в PHP',
+            'Clean Code практики',
+            'Refactoring legacy кода',
+            'Performance оптимизация',
+            'Профилирование приложений',
+            'Мониторинг с Prometheus',
+            'Логирование с ELK Stack',
+            'Agile и Scrum методологии',
+            'Code Review лучшие практики',
+            'Документирование API',
+            'OpenAPI спецификация',
+            'Postman для тестирования API',
+            'Linux командная строка',
+            'Bash скриптинг',
+            'Vim текстовый редактор',
+            'SSH и удалённое управление',
+            'Cron задачи по расписанию',
+            'Systemd управление сервисами'
         ];
 
         $descriptions = [
-            'Невероятно красивая модель демонстрирует свою фигуру в эротической фотосессии.',
-            'Страстная и соблазнительная девушка покажет вам все свои прелести.',
-            'Горячая модель в интимной обстановке раскрывает свою сексуальность.',
-            'Эротическая съемка с участием очаровательной красотки.',
-            'Сексуальная модель в откровенных позах для ваших фантазий.',
-            'Красивая девушка соблазняет взглядом и грациозными движениями.',
-            'Интимная фотосессия с участием потрясающей модели.',
-            'Эротическое видео с красивой и страстной девушкой.',
-            'Соблазнительная модель показывает свою естественную красоту.',
-            'Горячая съемка в приватной обстановке с очаровательной моделью.'
+            // Первые 15
+            'Подробное руководство по новым возможностям PHP 8.4',
+            'Обзор всех новых фич Symfony 8.0',
+            'Как правильно работать с Doctrine ORM',
+            'Изучаем Tailwind CSS с нуля',
+            'Создаём интерактивные компоненты со Stimulus',
+            'Оптимизируем производительность MySQL',
+            'Контейнеризация приложений с Docker',
+            'Полный курс по системе контроля версий',
+            'Создание RESTful API на Symfony',
+            'Пишем качественные тесты для PHP',
+            'Настройка сборки фронтенда',
+            'Защита от основных уязвимостей',
+            'Ускоряем приложение с помощью Redis',
+            'Настройка веб-сервера Nginx',
+            'Архитектура микросервисов',
+            // Дополнительные 30
+            'Новые возможности JavaScript 2024',
+            'Типизация для PHP разработчиков',
+            'Современная разработка на React',
+            'Реактивность во Vue.js 3',
+            'Backend на JavaScript',
+            'Современный подход к API',
+            'NoSQL база данных MongoDB',
+            'Сложные запросы в PostgreSQL',
+            'Полнотекстовый поиск с Elasticsearch',
+            'Асинхронная обработка с RabbitMQ',
+            'Управление контейнерами в продакшене',
+            'Автоматизация развёртывания',
+            'Облачная инфраструктура Amazon',
+            'Функции без серверов',
+            'Двусторонняя связь в реальном времени',
+            'Современная аутентификация и авторизация',
+            'Принципы объектно-ориентированного программирования',
+            'Паттерны проектирования на практике',
+            'Написание чистого и понятного кода',
+            'Улучшение существующего кода',
+            'Ускорение работы приложений',
+            'Поиск узких мест в коде',
+            'Мониторинг метрик приложения',
+            'Централизованное логирование',
+            'Гибкая разработка программного обеспечения',
+            'Эффективное ревью кода в команде',
+            'Создание понятной документации',
+            'Стандарт описания REST API',
+            'Тестирование HTTP запросов',
+            'Основы работы в терминале Linux',
+            'Автоматизация задач с Bash',
+            'Эффективная работа в консольном редакторе',
+            'Безопасное подключение к серверам',
+            'Автоматизация повторяющихся задач',
+            'Управление системными службами'
         ];
 
-        $io->progressStart($count);
+        $io->progressStart(45);
 
-        for ($i = 1; $i <= $count; $i++) {
+        for ($i = 0; $i < 45; $i++) {
             $video = new Video();
+            $video->setTitle($titles[$i]);
+            $video->setSlug($this->generateSlug($titles[$i]));
+            $video->setDescription($descriptions[$i]);
+            $video->setStatus(Video::STATUS_PUBLISHED);
+            $video->setCreatedBy($user);
+            $video->setDuration(rand(300, 3600)); // 5-60 минут
             
-            // Используем заготовленные названия или генерируем
-            $title = $videoTitles[$i - 1] ?? "Тестовое видео #{$i}";
-            $video->setTitle($title);
+            // Устанавливаем дату создания (разброс от 1 до 7 дней назад)
+            $daysAgo = rand(1, 7);
+            $createdAt = new \DateTimeImmutable("-{$daysAgo} days");
+            $reflection = new \ReflectionClass($video);
+            $property = $reflection->getProperty('createdAt');
+            $property->setAccessible(true);
+            $property->setValue($video, $createdAt);
             
-            $description = $descriptions[array_rand($descriptions)];
-            $video->setDescription($description);
+            // Устанавливаем метрики для trending алгоритма
+            $video->setViewsCount(rand(100, 5000));
+            $video->setLikesCount(rand(10, 500));
+            $video->setDislikesCount(rand(0, 50));
+            $video->setCommentsCount(rand(5, 100));
             
-            // Генерируем уникальный slug
-            $baseSlug = $slugger->slug($title)->lower();
-            $slug = $baseSlug;
-            $counter = 1;
-            
-            while ($this->entityManager->getRepository(Video::class)->findOneBy(['slug' => $slug])) {
-                $slug = $baseSlug . '-' . $counter;
-                $counter++;
-            }
-            $video->setSlug($slug);
-            
-            // Случайный статус
-            $video->setStatus($statuses[array_rand($statuses)]);
-            
-            // Случайные параметры
-            $video->setFeatured(rand(0, 100) < 20); // 20% шанс быть рекомендуемым
-            $video->setDuration(rand(300, 3600)); // От 5 минут до 1 часа
-            $video->setViewsCount(rand(0, 10000));
-            $video->setLikesCount(rand(0, 500));
-            $video->setCommentsCount(rand(0, 50));
-            
-            // Устанавливаем автора
-            $video->setCreatedBy($admin);
-            
-            // Добавляем случайные категории (1-3)
-            if (!empty($categories)) {
-                $categoryCount = rand(1, min(3, count($categories)));
-                if ($categoryCount === 1) {
-                    $selectedCategories = [array_rand($categories)];
-                } else {
-                    $selectedCategories = array_rand($categories, $categoryCount);
-                    if (!is_array($selectedCategories)) {
-                        $selectedCategories = [$selectedCategories];
-                    }
-                }
-                
-                foreach ($selectedCategories as $categoryIndex) {
-                    $video->addCategory($categories[$categoryIndex]);
-                }
-            }
-            
-            // Добавляем случайные теги (2-5)
-            if (!empty($tags)) {
-                $maxTags = min(5, count($tags));
-                $tagCount = rand(1, $maxTags);
-                
-                if ($tagCount === 1) {
-                    $selectedTags = [array_rand($tags)];
-                } else {
-                    $selectedTags = array_rand($tags, $tagCount);
-                    if (!is_array($selectedTags)) {
-                        $selectedTags = [$selectedTags];
-                    }
-                }
-                
-                foreach ($selectedTags as $tagIndex) {
-                    $video->addTag($tags[$tagIndex]);
-                }
-            }
-            
-            // Устанавливаем даты
-            $createdAt = new \DateTimeImmutable('-' . rand(1, 30) . ' days');
-            $video->setCreatedAt($createdAt);
-            $video->setUpdatedAt($createdAt);
-            
-            $this->entityManager->persist($video);
-            
-            if ($i % 5 === 0) {
-                $this->entityManager->flush();
-            }
-            
+            $this->em->persist($video);
             $io->progressAdvance();
         }
-        
-        $this->entityManager->flush();
+
+        $this->em->flush();
         $io->progressFinish();
 
-        $io->success([
-            "✅ Создано {$count} тестовых видео!",
-            '',
-            '📋 Статистика:',
-            "   - Опубликованных: ~" . round($count * 0.4),
-            "   - Черновиков: ~" . round($count * 0.4), 
-            "   - В обработке: ~" . round($count * 0.2),
-            '',
-            '🔗 Перейти в админ-панель: /admin/videos'
-        ]);
+        $io->success('Успешно создано 45 тестовых видео!');
+        $io->info('Все видео опубликованы и доступны на сайте.');
 
         return Command::SUCCESS;
     }
 
-    private function createBasicCategories(): void
+    private function generateSlug(string $title): string
     {
-        $categories = [
-            ['name' => 'Блондинки', 'slug' => 'blondes'],
-            ['name' => 'Брюнетки', 'slug' => 'brunettes'],
-            ['name' => 'Рыжие', 'slug' => 'redheads'],
-            ['name' => 'Большая грудь', 'slug' => 'big-boobs'],
-            ['name' => 'Стройные', 'slug' => 'skinny'],
-        ];
-
-        foreach ($categories as $categoryData) {
-            $category = new Category();
-            $category->setName($categoryData['name']);
-            $category->setSlug($categoryData['slug']);
-            $category->setActive(true);
-            $this->entityManager->persist($category);
-        }
-
-        $this->entityManager->flush();
-    }
-
-    private function createBasicTags(): void
-    {
-        $tags = [
-            ['name' => 'Красивая', 'slug' => 'beautiful'],
-            ['name' => 'Сексуальная', 'slug' => 'sexy'],
-            ['name' => 'Горячая', 'slug' => 'hot'],
-            ['name' => 'Эротика', 'slug' => 'erotic'],
-            ['name' => 'Соло', 'slug' => 'solo'],
-            ['name' => 'Белье', 'slug' => 'lingerie'],
-            ['name' => 'Стриптиз', 'slug' => 'striptease'],
-            ['name' => 'Позирование', 'slug' => 'posing'],
-        ];
-
-        foreach ($tags as $tagData) {
-            $tag = new Tag();
-            $tag->setName($tagData['name']);
-            $tag->setSlug($tagData['slug']);
-            $this->entityManager->persist($tag);
-        }
-
-        $this->entityManager->flush();
+        $slug = strtolower($title);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = trim($slug, '-');
+        
+        // Добавляем уникальный ID
+        return $slug . '-' . uniqid();
     }
 }

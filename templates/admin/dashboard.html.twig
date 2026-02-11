@@ -4,6 +4,37 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+{# Quick Actions #}
+<div class="bg-white rounded-md shadow p-4 mb-6">
+    <h3 class="text-sm font-semibold text-gray-900 mb-3">⚡ Быстрые действия</h3>
+    <div class="flex flex-wrap gap-2">
+        <a href="{{ path('admin_videos_new') }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Добавить видео
+        </a>
+        <a href="{{ path('admin_users_new') }}" class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+            </svg>
+            Добавить пользователя
+        </a>
+        <a href="{{ path('admin_categories_new') }}" class="inline-flex items-center px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+            </svg>
+            Добавить категорию
+        </a>
+        <a href="{{ path('admin_settings') }}" class="inline-flex items-center px-3 py-1.5 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Настройки
+        </a>
+    </div>
+</div>
 {# Основные карточки статистики #}
 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
     {# Видео #}
@@ -201,6 +232,114 @@
 </div>
 {% endif %}
 
+{# Виджеты: Очередь обработки, Ошибки, Активность #}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    {# Очередь обработки #}
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-sm font-semibold text-gray-900">⚙️ Очередь обработки</h3>
+            <p class="text-xs text-gray-500">Статус worker</p>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">В очереди:</span>
+                    <span class="text-lg font-bold text-blue-600">{{ stats.queue_stats.total }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Обрабатывается:</span>
+                    <span class="text-lg font-bold text-yellow-600">{{ stats.queue_stats.processing }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Черновики:</span>
+                    <span class="text-lg font-bold text-gray-600">{{ stats.queue_stats.draft }}</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t">
+                {% set worker_status = worker_status() %}
+                {% if worker_status.running %}
+                <div class="flex items-center text-xs text-green-600">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
+                    Worker активен (PID: {{ worker_status.pid }})
+                </div>
+                {% else %}
+                <div class="flex items-center text-xs text-red-600">
+                    <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+                    Worker остановлен
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Последние ошибки #}
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">❌ Ошибки обработки</h3>
+                <p class="text-xs text-gray-500">Последние проблемы</p>
+            </div>
+            {% if recent_errors|length > 0 %}
+            <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-800">{{ recent_errors|length }}</span>
+            {% endif %}
+        </div>
+        <div class="p-4">
+            {% if recent_errors|length > 0 %}
+            <div class="space-y-2">
+                {% for video in recent_errors %}
+                <div class="text-xs border-l-2 border-red-500 pl-2 py-1">
+                    <a href="{{ path('admin_videos_edit', {id: video.id}) }}" class="text-gray-900 hover:text-blue-600 font-medium block truncate">
+                        {{ video.title|length > 30 ? video.title|slice(0, 30) ~ '...' : video.title }}
+                    </a>
+                    <span class="text-gray-500">{{ video.updatedAt|date('d.m.Y H:i') }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500 text-sm">
+                <svg class="w-12 h-12 mx-auto mb-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Нет ошибок
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Активность пользователей #}
+    <div class="bg-white rounded-md shadow">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-sm font-semibold text-gray-900">👥 Последние пользователи</h3>
+            <p class="text-xs text-gray-500">Недавно зарегистрированные</p>
+        </div>
+        <div class="p-4">
+            {% if recent_activity|length > 0 %}
+            <div class="space-y-2">
+                {% for user in recent_activity|slice(0, 5) %}
+                <div class="flex items-center text-xs">
+                    {% if user.avatar %}
+                    <img src="{{ asset('media/avatars/' ~ user.avatar) }}" alt="{{ user.username }}" class="w-6 h-6 rounded-full mr-2">
+                    {% else %}
+                    <div class="w-6 h-6 rounded-full mr-2 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                        {{ user.username|slice(0, 1)|upper }}
+                    </div>
+                    {% endif %}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-gray-900 font-medium truncate">{{ user.username }}</p>
+                        <p class="text-gray-500">{{ user.createdAt|date('d.m.Y H:i') }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500 text-sm">
+                Нет пользователей
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 {# Последние видео #}
 <div class="bg-white rounded-md shadow">
     <div class="px-6 py-4 border-b flex items-center justify-between">
@@ -226,13 +365,7 @@
                 {% for video in recent_videos %}
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-2">
-                        {% if video.poster %}
-                        <img src="/media/{{ video.poster }}" alt="{{ video.title }}" class="w-16 h-10 object-cover rounded">
-                        {% else %}
-                        <div class="w-16 h-10 bg-gray-100 rounded flex items-center justify-center">
-                            <span class="text-gray-400 text-xs">—</span>
-                        </div>
-                        {% endif %}
+                        <img src="{{ video_poster(video.poster) }}" alt="{{ video.title }}" class="w-16 h-10 object-cover rounded">
                     </td>
                     <td class="px-4 py-2">
                         <a href="{{ path('admin_videos_edit', {id: video.id}) }}" class="text-sm text-gray-900 hover:text-blue-600">

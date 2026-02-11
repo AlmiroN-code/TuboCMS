@@ -19,6 +19,8 @@ class ChannelPlaylist
     public const VISIBILITY_UNLISTED = 'unlisted';
     public const VISIBILITY_PRIVATE = 'private';
     public const VISIBILITY_PREMIUM = 'premium';
+    public const VISIBILITY_USER_SUBSCRIBERS = 'user_subscribers'; // Подписчики пользователя
+    public const VISIBILITY_CHANNEL_SUBSCRIBERS = 'channel_subscribers'; // Подписчики канала
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -44,8 +46,14 @@ class ChannelPlaylist
     #[ORM\Column(length: 20, options: ['default' => 'public'])]
     private string $visibility = self::VISIBILITY_PUBLIC;
 
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $shareToken = null;
+
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
     private bool $isActive = true;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isCollaborative = false;
 
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
     private int $videosCount = 0;
@@ -66,9 +74,13 @@ class ChannelPlaylist
     #[ORM\OrderBy(['sortOrder' => 'ASC'])]
     private Collection $playlistVideos;
 
+    #[ORM\OneToMany(mappedBy: 'playlist', targetEntity: PlaylistCollaborator::class, cascade: ['persist', 'remove'])]
+    private Collection $collaborators;
+
     public function __construct()
     {
         $this->playlistVideos = new ArrayCollection();
+        $this->collaborators = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
@@ -152,6 +164,17 @@ class ChannelPlaylist
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function isCollaborative(): bool
+    {
+        return $this->isCollaborative;
+    }
+
+    public function setIsCollaborative(bool $isCollaborative): static
+    {
+        $this->isCollaborative = $isCollaborative;
         return $this;
     }
 
@@ -276,6 +299,55 @@ class ChannelPlaylist
         return $this->playlistVideos->map(fn(PlaylistVideo $pv) => $pv->getVideo());
     }
 
+    /**
+     * @return Collection<int, PlaylistCollaborator>
+     */
+    public function getCollaborators(): Collection
+    {
+        return $this->collaborators;
+    }
+
+    public function addCollaborator(PlaylistCollaborator $collaborator): static
+    {
+        if (!$this->collaborators->contains($collaborator)) {
+            $this->collaborators->add($collaborator);
+            $collaborator->setPlaylist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollaborator(PlaylistCollaborator $collaborator): static
+    {
+        if ($this->collaborators->removeElement($collaborator)) {
+            if ($collaborator->getPlaylist() === $this) {
+                $collaborator->setPlaylist(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isUserCollaborator(User $user): bool
+    {
+        foreach ($this->collaborators as $collaborator) {
+            if ($collaborator->getUser() === $user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getUserPermission(User $user): ?string
+    {
+        foreach ($this->collaborators as $collaborator) {
+            if ($collaborator->getUser() === $user) {
+                return $collaborator->getPermission();
+            }
+        }
+        return null;
+    }
+
     #[ORM\PreUpdate]
     public function preUpdate(): void
     {
@@ -285,5 +357,30 @@ class ChannelPlaylist
     public function __toString(): string
     {
         return $this->title ?? '';
+    }
+
+    public function getShareToken(): ?string
+    {
+        return $this->shareToken;
+    }
+
+    public function setShareToken(?string $shareToken): static
+    {
+        $this->shareToken = $shareToken;
+        return $this;
+    }
+
+    public function generateShareToken(): static
+    {
+        $this->shareToken = bin2hex(random_bytes(32));
+        return $this;
+    }
+
+    public function getShareUrl(): ?string
+    {
+        if ($this->visibility === self::VISIBILITY_UNLISTED && $this->shareToken) {
+            return '/playlist/share/' . $this->shareToken;
+        }
+        return null;
     }
 }

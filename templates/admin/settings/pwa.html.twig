@@ -1,0 +1,345 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Настройки PWA и Push уведомлений{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{{ path('admin_settings') }}" class="text-orange-600 hover:text-orange-700 mb-4 inline-flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Назад к настройкам
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900 mt-2">Настройки PWA и Push уведомлений</h1>
+        <p class="text-gray-600 mt-2">Настройте Progressive Web App и систему push-уведомлений</p>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {# PWA настройки #}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                Progressive Web App (PWA)
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="pwa_enabled" value="1" id="pwa_enabled"
+                           {{ pwa_enabled ? 'checked' : '' }}
+                           class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                    <label for="pwa_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                        Включить PWA
+                    </label>
+                </div>
+
+                <div>
+                    <label for="pwa_name" class="block text-sm font-medium text-gray-700 mb-1">
+                        Название приложения
+                    </label>
+                    <input type="text" name="pwa_name" id="pwa_name" value="{{ pwa_name }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">
+                    <p class="text-xs text-gray-500 mt-1">Полное название приложения (до 45 символов)</p>
+                </div>
+
+                <div>
+                    <label for="pwa_short_name" class="block text-sm font-medium text-gray-700 mb-1">
+                        Короткое название
+                    </label>
+                    <input type="text" name="pwa_short_name" id="pwa_short_name" value="{{ pwa_short_name }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">
+                    <p class="text-xs text-gray-500 mt-1">Короткое название для иконки (до 12 символов)</p>
+                </div>
+
+                <div>
+                    <label for="pwa_description" class="block text-sm font-medium text-gray-700 mb-1">
+                        Описание
+                    </label>
+                    <textarea name="pwa_description" id="pwa_description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">{{ pwa_description }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Описание приложения для магазинов приложений</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="pwa_theme_color" class="block text-sm font-medium text-gray-700 mb-1">
+                            Цвет темы
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" name="pwa_theme_color" id="pwa_theme_color" value="{{ pwa_theme_color }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ pwa_theme_color }}" readonly
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Цвет панели браузера</p>
+                    </div>
+
+                    <div>
+                        <label for="pwa_background_color" class="block text-sm font-medium text-gray-700 mb-1">
+                            Цвет фона
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" name="pwa_background_color" id="pwa_background_color" value="{{ pwa_background_color }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ pwa_background_color }}" readonly
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Цвет фона при загрузке</p>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <h4 class="font-medium text-blue-900 mb-2">Требования для PWA:</h4>
+                    <ul class="text-sm text-blue-800 space-y-1">
+                        <li>✓ Иконки 192x192 и 512x512 в /public/media/site/</li>
+                        <li>✓ Манифест /public/manifest.json</li>
+                        <li>✓ Service Worker /public/sw.js</li>
+                        <li>✓ HTTPS (в продакшене)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Service Worker настройки #}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+                </svg>
+                Service Worker
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="sw_enabled" value="1" id="sw_enabled"
+                           {{ sw_enabled ? 'checked' : '' }}
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="sw_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                        Включить Service Worker
+                    </label>
+                </div>
+
+                <div>
+                    <label for="sw_cache_version" class="block text-sm font-medium text-gray-700 mb-1">
+                        Версия кеша
+                    </label>
+                    <input type="text" name="sw_cache_version" id="sw_cache_version" value="{{ sw_cache_version }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Измените версию для очистки кеша у пользователей</p>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <h4 class="font-medium text-gray-900 mb-2">Возможности Service Worker:</h4>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Кеширование статических файлов (CSS, JS, изображения)</li>
+                        <li>• Работа offline для посещённых страниц</li>
+                        <li>• Ускорение загрузки повторных посещений</li>
+                        <li>• Фоновая синхронизация данных</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Push уведомления #}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                Push уведомления
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input type="checkbox" name="push_enabled" value="1" id="push_enabled"
+                           {{ push_enabled ? 'checked' : '' }}
+                           class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                    <label for="push_enabled" class="ml-2 text-sm font-medium text-gray-700">
+                        Включить Push уведомления
+                    </label>
+                </div>
+
+                <div>
+                    <label for="vapid_public_key" class="block text-sm font-medium text-gray-700 mb-1">
+                        VAPID Public Key
+                    </label>
+                    <textarea name="vapid_public_key" id="vapid_public_key" rows="2"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 font-mono text-sm">{{ vapid_public_key }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Публичный ключ для Web Push (сгенерируйте командой: php bin/console app:generate-vapid-keys)</p>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="push_auto_subscribe" value="1" id="push_auto_subscribe"
+                           {{ push_auto_subscribe ? 'checked' : '' }}
+                           class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                    <label for="push_auto_subscribe" class="ml-2 text-sm font-medium text-gray-700">
+                        Автоматически предлагать подписку на уведомления
+                    </label>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <h4 class="font-medium text-yellow-900 mb-2">⚠️ Важно:</h4>
+                    <ul class="text-sm text-yellow-800 space-y-1">
+                        <li>• Добавьте VAPID_PRIVATE_KEY в .env файл</li>
+                        <li>• Push работает только через HTTPS</li>
+                        <li>• Пользователь должен дать разрешение в браузере</li>
+                        <li>• Используйте PushNotificationService для отправки</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Тексты уведомлений #}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                </svg>
+                Тексты уведомлений
+            </h2>
+            
+            <div class="space-y-6">
+                <div class="border-b pb-4">
+                    <h3 class="font-medium text-gray-900 mb-3">Новое видео на канале</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="notif_new_video_title" class="block text-sm font-medium text-gray-700 mb-1">
+                                Заголовок
+                            </label>
+                            <input type="text" name="notif_new_video_title" id="notif_new_video_title" 
+                                   value="{{ notif_new_video_title|default('Новое видео!') }}"
+                                   placeholder="{channel} загрузил новое видео"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                            <p class="text-xs text-gray-500 mt-1">Доступные переменные: {channel}, {video}</p>
+                        </div>
+                        <div>
+                            <label for="notif_new_video_body" class="block text-sm font-medium text-gray-700 mb-1">
+                                Текст
+                            </label>
+                            <input type="text" name="notif_new_video_body" id="notif_new_video_body" 
+                                   value="{{ notif_new_video_body|default('{video}') }}"
+                                   placeholder="Название видео"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-b pb-4">
+                    <h3 class="font-medium text-gray-900 mb-3">Новый комментарий</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="notif_new_comment_title" class="block text-sm font-medium text-gray-700 mb-1">
+                                Заголовок
+                            </label>
+                            <input type="text" name="notif_new_comment_title" id="notif_new_comment_title" 
+                                   value="{{ notif_new_comment_title|default('Новый комментарий') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                            <p class="text-xs text-gray-500 mt-1">Доступные переменные: {user}, {video}</p>
+                        </div>
+                        <div>
+                            <label for="notif_new_comment_body" class="block text-sm font-medium text-gray-700 mb-1">
+                                Текст
+                            </label>
+                            <input type="text" name="notif_new_comment_body" id="notif_new_comment_body" 
+                                   value="{{ notif_new_comment_body|default('{user} прокомментировал ваше видео') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-b pb-4">
+                    <h3 class="font-medium text-gray-900 mb-3">Ответ на комментарий</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="notif_comment_reply_title" class="block text-sm font-medium text-gray-700 mb-1">
+                                Заголовок
+                            </label>
+                            <input type="text" name="notif_comment_reply_title" id="notif_comment_reply_title" 
+                                   value="{{ notif_comment_reply_title|default('Ответ на комментарий') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                            <p class="text-xs text-gray-500 mt-1">Доступные переменные: {user}, {video}</p>
+                        </div>
+                        <div>
+                            <label for="notif_comment_reply_body" class="block text-sm font-medium text-gray-700 mb-1">
+                                Текст
+                            </label>
+                            <input type="text" name="notif_comment_reply_body" id="notif_comment_reply_body" 
+                                   value="{{ notif_comment_reply_body|default('{user} ответил на ваш комментарий') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-b pb-4">
+                    <h3 class="font-medium text-gray-900 mb-3">Новый подписчик</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="notif_new_subscriber_title" class="block text-sm font-medium text-gray-700 mb-1">
+                                Заголовок
+                            </label>
+                            <input type="text" name="notif_new_subscriber_title" id="notif_new_subscriber_title" 
+                                   value="{{ notif_new_subscriber_title|default('Новый подписчик!') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                            <p class="text-xs text-gray-500 mt-1">Доступные переменные: {user}, {channel}</p>
+                        </div>
+                        <div>
+                            <label for="notif_new_subscriber_body" class="block text-sm font-medium text-gray-700 mb-1">
+                                Текст
+                            </label>
+                            <input type="text" name="notif_new_subscriber_body" id="notif_new_subscriber_body" 
+                                   value="{{ notif_new_subscriber_body|default('{user} подписался на ваш канал') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-3">Упоминание в комментарии</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="notif_mention_title" class="block text-sm font-medium text-gray-700 mb-1">
+                                Заголовок
+                            </label>
+                            <input type="text" name="notif_mention_title" id="notif_mention_title" 
+                                   value="{{ notif_mention_title|default('Вас упомянули') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                            <p class="text-xs text-gray-500 mt-1">Доступные переменные: {user}, {video}</p>
+                        </div>
+                        <div>
+                            <label for="notif_mention_body" class="block text-sm font-medium text-gray-700 mb-1">
+                                Текст
+                            </label>
+                            <input type="text" name="notif_mention_body" id="notif_mention_body" 
+                                   value="{{ notif_mention_body|default('{user} упомянул вас в комментарии') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <a href="{{ path('admin_settings') }}" 
+               class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">
+                Отмена
+            </a>
+            <button type="submit" 
+                    class="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition">
+                Сохранить настройки
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Синхронизация цветов с текстовыми полями
+document.getElementById('pwa_theme_color').addEventListener('input', function(e) {
+    e.target.nextElementSibling.value = e.target.value;
+});
+document.getElementById('pwa_background_color').addEventListener('input', function(e) {
+    e.target.nextElementSibling.value = e.target.value;
+});
+</script>
+{% endblock %}

@@ -2,15 +2,24 @@
 
 {% block title %}Управление ролями{% endblock %}
 
-{% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Управление ролями</h1>
-    <a href="{{ path('admin_roles_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
-        Создать роль
-    </a>
-</div>
+{% block page_title %}
+<svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+</svg>
+Управление ролями
+{% endblock %}
 
-<div class="bg-white shadow-sm rounded-md overflow-hidden">
+{% block content %}
+<div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-end">
+            <a href="{{ path('admin_roles_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                Создать роль
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
@@ -33,7 +42,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             {% for role in roles %}
-            <tr>
+            <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div>
                         <div class="text-sm font-medium text-gray-900">{{ role.displayName }}</div>
@@ -89,5 +98,6 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 {% endblock %}

@@ -1,6 +1,7 @@
 {# Расчёт процента лайков для progress-bar #}
 {% set total_votes = video.likesCount + video.dislikesCount %}
 {% set like_percent = total_votes > 0 ? (video.likesCount / total_votes * 100)|round : 50 %}
+{% set rating = rating_info(video.likesCount, video.dislikesCount) %}
 
 <div id="like-buttons" class="flex flex-col gap-2">
     <div class="flex items-center gap-4">
@@ -26,6 +27,12 @@
                 </svg>
                 <span class="dislikes-count">{{ video.dislikesCount|locale_number }}</span>
             </button>
+            
+            {# Процент рейтинга с эмодзи #}
+            <div class="rating-display flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-md">
+                <span class="rating-emoji text-2xl">{{ rating.emoji }}</span>
+                <span class="rating-percent font-semibold text-lg">{{ rating.percent }}%</span>
+            </div>
         {% else %}
             <a href="{{ path('app_login') }}" class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,6 +47,12 @@
                 </svg>
                 <span>{{ video.dislikesCount|locale_number }}</span>
             </span>
+            
+            {# Процент рейтинга с эмодзи #}
+            <div class="rating-display flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-md">
+                <span class="rating-emoji text-2xl">{{ rating.emoji }}</span>
+                <span class="rating-percent font-semibold text-lg">{{ rating.percent }}%</span>
+            </div>
         {% endif %}
     </div>
     

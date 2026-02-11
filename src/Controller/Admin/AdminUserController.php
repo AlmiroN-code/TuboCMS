@@ -29,7 +29,15 @@ class AdminUserController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 30;
+        $perPage = $request->query->getInt('per_page', 30);
+        
+        // Ограничиваем допустимые значения
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 30;
+        }
+        
+        $limit = $perPage;
         
         // Получаем пользователей с подсчетом видео
         $qb = $this->userRepository->createQueryBuilder('u')
@@ -60,6 +68,7 @@ class AdminUserController extends AbstractController
         return $this->render('admin/users/index.html.twig', [
             'users' => $users,
             'page' => $page,
+            'perPage' => $perPage,
             'total' => $total,
             'pages' => ceil($total / $limit),
         ]);
@@ -138,6 +147,79 @@ class AdminUserController extends AbstractController
         $this->em->flush();
         
         $this->addFlash('success', $isNew ? 'Пользователь создан' : 'Пользователь обновлен');
+        return $this->redirectToRoute('admin_users');
+    }
+
+    #[Route('/bulk', name: 'admin_users_bulk', methods: ['POST'])]
+    public function bulk(Request $request): Response
+    {
+        // Проверяем CSRF токен
+        if (!$this->isCsrfTokenValid('bulk_users', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Недействительный токен безопасности');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        $userIds = $request->request->all('user_ids');
+        $action = $request->request->get('bulk_action');
+
+        if (empty($userIds)) {
+            $this->addFlash('error', 'Не выбрано ни одного пользователя');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        if (empty($action)) {
+            $this->addFlash('error', 'Не выбрано действие');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        $users = $this->userRepository->findBy(['id' => $userIds]);
+        $count = count($users);
+
+        switch ($action) {
+            case 'verify':
+                foreach ($users as $user) {
+                    $user->setVerified(true);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Верифицировано пользователей: {$count}");
+                break;
+
+            case 'unverify':
+                foreach ($users as $user) {
+                    $user->setVerified(false);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Снята верификация у пользователей: {$count}");
+                break;
+
+            case 'premium':
+                foreach ($users as $user) {
+                    $user->setPremium(true);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Выдан премиум пользователям: {$count}");
+                break;
+
+            case 'remove_premium':
+                foreach ($users as $user) {
+                    $user->setPremium(false);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Снят премиум у пользователей: {$count}");
+                break;
+
+            case 'delete':
+                foreach ($users as $user) {
+                    $this->em->remove($user);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Удалено пользователей: {$count}");
+                break;
+
+            default:
+                $this->addFlash('error', 'Неизвестное действие');
+        }
+
         return $this->redirectToRoute('admin_users');
     }
 }

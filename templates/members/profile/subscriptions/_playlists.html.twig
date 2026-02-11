@@ -1,0 +1,38 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for subscription in subscriptions %}
+        {% set playlist = subscription.playlist %}
+        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3 mb-3">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-gray-900 mb-1 truncate">{{ playlist.title }}</h3>
+                    <p class="text-xs text-gray-500">{{ playlist.channel.name }}</p>
+                    <p class="text-xs text-gray-400">{{ playlist.videosCount|default(0) }} видео</p>
+                    <p class="text-xs text-gray-400">Подписка с {{ subscription.createdAt|date('d.m.Y') }}</p>
+                </div>
+            </div>
+            
+            {% if playlist.description %}
+                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ playlist.description }}</p>
+            {% endif %}
+
+            <div class="flex gap-2">
+                <a href="{{ path('playlist_show', {'slug': playlist.slug}) }}" 
+                   class="flex-1 text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                    Просмотр
+                </a>
+                {% if app.user and app.user.id == user.id %}
+                    <button data-action="unsubscribe-playlist" 
+                            data-playlist-id="{{ playlist.id }}"
+                            class="flex-1 px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition text-sm">
+                        Отписаться
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

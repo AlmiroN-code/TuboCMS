@@ -1,58 +1,298 @@
 {% extends 'admin/base.html.twig' %}
 
 {% block title %}Видео{% endblock %}
-{% block page_title %}Видео{% endblock %}
+
+{% block page_title %}
+<svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+</svg>
+Видео
+{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex justify-between items-center">
-    <div class="flex items-center gap-4">
-        <p class="text-gray-600">Всего: {{ total }}</p>
-        {# Status Filter #}
-        <select id="status-filter" 
-                hx-get="{{ path('admin_videos') }}"
-                hx-target="#videos-table"
-                hx-swap="innerHTML"
-                hx-include="[name='sort']"
-                name="status"
-                class="px-3 py-2 border border-gray-300 rounded text-sm">
-            <option value="" {{ currentStatus is same as(null) ? 'selected' : '' }}>Все статусы</option>
-            <option value="published" {{ currentStatus == 'published' ? 'selected' : '' }}>Опубликовано</option>
-            <option value="draft" {{ currentStatus == 'draft' ? 'selected' : '' }}>Черновик</option>
-            <option value="processing" {{ currentStatus == 'processing' ? 'selected' : '' }}>Обработка</option>
-            <option value="rejected" {{ currentStatus == 'rejected' ? 'selected' : '' }}>Отклонено</option>
-        </select>
-        {# Sort Filter #}
-        <select id="sort-filter" 
-                hx-get="{{ path('admin_videos') }}"
-                hx-target="#videos-table"
-                hx-swap="innerHTML"
-                hx-include="[name='status']"
-                name="sort"
-                class="px-3 py-2 border border-gray-300 rounded text-sm">
-            <option value="date_desc" {{ currentSort is same as(null) or currentSort == 'date_desc' ? 'selected' : '' }}>По дате ↓</option>
-            <option value="date_asc" {{ currentSort == 'date_asc' ? 'selected' : '' }}>По дате ↑</option>
-            <option value="views_desc" {{ currentSort == 'views_desc' ? 'selected' : '' }}>По просмотрам ↓</option>
-            <option value="views_asc" {{ currentSort == 'views_asc' ? 'selected' : '' }}>По просмотрам ↑</option>
-            <option value="impressions_desc" {{ currentSort == 'impressions_desc' ? 'selected' : '' }}>По показам ↓</option>
-            <option value="impressions_asc" {{ currentSort == 'impressions_asc' ? 'selected' : '' }}>По показам ↑</option>
-            <option value="ctr_desc" {{ currentSort == 'ctr_desc' ? 'selected' : '' }}>По CTR ↓</option>
-            <option value="ctr_asc" {{ currentSort == 'ctr_asc' ? 'selected' : '' }}>По CTR ↑</option>
-        </select>
+<div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+                <p class="text-sm text-gray-600">Всего: {{ total }}</p>
+                
+                {# Селектор количества записей на страницу #}
+                <div class="flex items-center gap-2">
+                    <label for="per-page" class="text-sm text-gray-600">Показывать:</label>
+                    <select id="per-page" 
+                            onchange="window.location.href = updateUrlParameter(window.location.href, 'per_page', this.value)"
+                            class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="15" {{ perPage == 15 ? 'selected' : '' }}>15</option>
+                        <option value="25" {{ perPage == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ perPage == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ perPage == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+                
+                {# Кнопка управления колонками #}
+                <div class="relative" 
+                     x-data="{ 
+                         open: false,
+                         columns: {
+                             poster: true,
+                             category: true,
+                             filesize: true,
+                             processing: true,
+                             impressions: true,
+                             views: true,
+                             ctr: true,
+                             date: true
+                         },
+                         init() {
+                             const saved = localStorage.getItem('admin_videos_columns');
+                             if (saved) {
+                                 this.columns = { ...this.columns, ...JSON.parse(saved) };
+                             }
+                             this.$watch('columns', value => {
+                                 localStorage.setItem('admin_videos_columns', JSON.stringify(value));
+                                 this.applyColumnVisibility();
+                             });
+                             this.$nextTick(() => this.applyColumnVisibility());
+                         },
+                         applyColumnVisibility() {
+                             Object.keys(this.columns).forEach(column => {
+                                 const isVisible = this.columns[column];
+                                 document.querySelectorAll(`[data-column='${column}']`).forEach(el => {
+                                     el.style.display = isVisible ? '' : 'none';
+                                 });
+                             });
+                         }
+                     }">
+                    <button @click="open = !open" 
+                            type="button"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                        </svg>
+                        Колонки
+                    </button>
+                    
+                    <div x-show="open" 
+                         @click.away="open = false"
+                         x-transition
+                         x-cloak
+                         class="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                        <div class="py-2 px-3">
+                            <div class="text-xs font-semibold text-gray-500 uppercase mb-2">Показать колонки</div>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.poster" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Постер</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.category" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Категория</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.filesize" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Размер/Качество</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.processing" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Обработка</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.impressions" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Показы</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.views" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Просмотры</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.ctr" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">CTR</span>
+                            </label>
+                            <label class="flex items-center py-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                <input type="checkbox" x-model="columns.date" class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-700">Дата</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                {# Кнопки экспорта #}
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" 
+                            type="button"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Экспорт
+                    </button>
+                    
+                    <div x-show="open" 
+                         @click.away="open = false"
+                         x-transition
+                         x-cloak
+                         class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                        <div class="py-1">
+                            <a href="{{ path('admin_videos_export', {format: 'csv'}) }}?{{ app.request.queryString }}" 
+                               class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Экспорт в CSV
+                            </a>
+                            <a href="{{ path('admin_videos_export', {format: 'xlsx'}) }}?{{ app.request.queryString }}" 
+                               class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Экспорт в Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="{{ path('admin_videos_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                Добавить видео
+            </a>
+        </div>
+        
+        {# Фильтры #}
+        <div x-data="{
+                 filters: {
+                     search: '{{ filters.search ?? '' }}',
+                     status: '{{ filters.status ?? '' }}',
+                     category: '{{ filters.categoryId ?? '' }}',
+                     author: '{{ filters.authorId ?? '' }}',
+                     date_from: '{{ filters.dateFrom ?? '' }}',
+                     date_to: '{{ filters.dateTo ?? '' }}',
+                     sort: '{{ currentSort ?? 'date_desc' }}',
+                     per_page: '{{ perPage }}'
+                 },
+                 searchTimeout: null,
+                 applyFilters() {
+                     const params = new URLSearchParams();
+                     Object.keys(this.filters).forEach(key => {
+                         if (this.filters[key]) {
+                             params.set(key, this.filters[key]);
+                         }
+                     });
+                     window.location.href = '{{ path('admin_videos') }}?' + params.toString();
+                 },
+                 applyFiltersDebounced() {
+                     clearTimeout(this.searchTimeout);
+                     this.searchTimeout = setTimeout(() => this.applyFilters(), 500);
+                 },
+                 resetFilters() {
+                     window.location.href = '{{ path('admin_videos') }}';
+                 }
+             }" 
+             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {# Поиск #}
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Поиск</label>
+                <input type="text" 
+                       x-model="filters.search"
+                       @input="applyFiltersDebounced()"
+                       placeholder="Название или описание..."
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+            </div>
+            
+            {# Статус #}
+            <div>
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+                <select x-model="filters.status"
+                        @change="applyFilters()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <option value="">Все статусы</option>
+                    <option value="published">Опубликовано</option>
+                    <option value="draft">Черновик</option>
+                    <option value="processing">Обработка</option>
+                    <option value="rejected">Отклонено</option>
+                </select>
+            </div>
+            
+            {# Категория #}
+            <div>
+                <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-1">Категория</label>
+                <select x-model="filters.category"
+                        @change="applyFilters()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <option value="">Все категории</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {# Автор #}
+            <div>
+                <label for="author-filter" class="block text-sm font-medium text-gray-700 mb-1">Автор</label>
+                <select x-model="filters.author"
+                        @change="applyFilters()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <option value="">Все авторы</option>
+                    {% for author in authors %}
+                        <option value="{{ author.id }}">{{ author.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {# Дата от #}
+            <div>
+                <label for="date-from" class="block text-sm font-medium text-gray-700 mb-1">Дата от</label>
+                <input type="date" 
+                       x-model="filters.date_from"
+                       @change="applyFilters()"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+            </div>
+            
+            {# Дата до #}
+            <div>
+                <label for="date-to" class="block text-sm font-medium text-gray-700 mb-1">Дата до</label>
+                <input type="date" 
+                       x-model="filters.date_to"
+                       @change="applyFilters()"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+            </div>
+            
+            {# Сортировка #}
+            <div>
+                <label for="sort-filter" class="block text-sm font-medium text-gray-700 mb-1">Сортировка</label>
+                <select x-model="filters.sort"
+                        @change="applyFilters()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <option value="date_desc">По дате ↓</option>
+                    <option value="date_asc">По дате ↑</option>
+                    <option value="views_desc">По просмотрам ↓</option>
+                    <option value="views_asc">По просмотрам ↑</option>
+                    <option value="impressions_desc">По показам ↓</option>
+                    <option value="impressions_asc">По показам ↑</option>
+                    <option value="ctr_desc">По CTR ↓</option>
+                    <option value="ctr_asc">По CTR ↑</option>
+                </select>
+            </div>
+            
+            {# Кнопка сброса #}
+            <div class="flex items-end">
+                <button @click="resetFilters()" 
+                        type="button"
+                        class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    Сбросить фильтры
+                </button>
+            </div>
+        </div>
     </div>
-    <a href="{{ path('admin_videos_new') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-        Добавить видео
-    </a>
-</div>
 
-<div id="videos-table" class="bg-white rounded-md shadow overflow-hidden">
-    {% include 'admin/videos/_table.html.twig' %}
+    <div id="videos-table" class="overflow-x-auto">
+        {% include 'admin/videos/_table.html.twig' %}
+    </div>
 </div>
 
 {% if pages > 1 %}
 <div class="mt-6 flex justify-center">
     <nav class="flex space-x-2">
         {% for p in 1..pages %}
-            <a href="{{ path('admin_videos', {page: p, sort: currentSort, status: currentStatus}) }}" 
+            <a href="{{ path('admin_videos', {page: p, per_page: perPage, sort: currentSort, status: filters.status, category: filters.categoryId, author: filters.authorId, date_from: filters.dateFrom, date_to: filters.dateTo, search: filters.search}) }}" 
                class="px-4 py-2 rounded {{ p == page ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
                 {{ p }}
             </a>
@@ -60,4 +300,18 @@
     </nav>
 </div>
 {% endif %}
+
+<script>
+/**
+ * Обновляет параметр в URL
+ */
+function updateUrlParameter(url, param, value) {
+    const urlObj = new URL(url);
+    urlObj.searchParams.set(param, value);
+    // Сбрасываем страницу на первую при изменении количества записей
+    urlObj.searchParams.set('page', '1');
+    return urlObj.toString();
+}
+</script>
+
 {% endblock %}

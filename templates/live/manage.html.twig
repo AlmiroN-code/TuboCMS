@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'live.manage_stream.title'|trans({'%name%': stream.title}) }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8"
+     x-data="{
+         streamKeyVisible: false,
+         async handleStreamAction(action, streamId) {
+             const messages = {
+                 start: '{{ 'live.manage_stream.start_confirm'|trans }}',
+                 end: '{{ 'live.manage_stream.end_confirm'|trans }}',
+                 regenerate: '{{ 'live.manage_stream.regenerate_confirm'|trans }}'
+             };
+             
+             if (!confirm(messages[action])) return;
+             
+             try {
+                 const response = await fetch(`/api/live/${action}/${streamId}`, {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 });
+                 const data = await response.json();
+                 if (response.ok && data.success) {
+                     location.reload();
+                 } else {
+                     alert(data.message || `Ошибка при ${action === 'start' ? 'запуске' : action === 'end' ? 'завершении' : 'регенерации ключа'} стрима`);
+                 }
+             } catch (error) {
+                 console.error('Error:', error);
+                 alert(`Ошибка при ${action === 'start' ? 'запуске' : action === 'end' ? 'завершении' : 'регенерации ключа'} стрима`);
+             }
+         },
+         copyToClipboard(text) {
+             navigator.clipboard.writeText(text);
+         }
+     }">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold mb-2">{{ stream.title }}</h1>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            {% if stream.status == 'live' %}bg-red-100 text-red-800
+                            {% elseif stream.status == 'scheduled' %}bg-blue-100 text-blue-800
+                            {% elseif stream.status == 'ended' %}bg-gray-100 text-gray-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if stream.status == 'live' %}
+                                <span class="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
+                                {{ 'live.status.live'|trans }}
+                            {% elseif stream.status == 'scheduled' %}
+                                {{ 'live.status.scheduled'|trans }}
+                            {% elseif stream.status == 'ended' %}
+                                {{ 'live.status.ended'|trans }}
+                            {% else %}
+                                {{ stream.status }}
+                            {% endif %}
+                        </span>
+                        <span>👁 {{ stream.viewersCount }} {{ 'live.info.viewers'|trans }}</span>
+                        <span>📊 {{ 'live.manage_stream.viewers_peak'|trans }}: {{ stream.peakViewersCount }}</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{{ path('live_edit', {id: stream.id}) }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+                        {{ 'live.edit'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            {% if stream.status == 'scheduled' %}
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h3 class="font-medium text-blue-900 mb-2">{{ 'live.manage_stream.ready_to_start'|trans }}</h3>
+                    <p class="text-sm text-blue-700 mb-3">{{ 'live.manage_stream.ready_desc'|trans }}</p>
+                    <button @click="handleStreamAction('start', {{ stream.id }})" 
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0110 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {{ 'live.manage_stream.start_stream'|trans }}
+                    </button>
+                </div>
+            {% endif %}
+
+            {% if stream.status == 'live' %}
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium text-red-900 mb-1">{{ 'live.manage_stream.stream_active'|trans }}</h3>
+                            <p class="text-sm text-red-700">{{ 'live.manage_stream.stream_duration'|trans({'%duration%': stream.duration // 60}) }}</p>
+                        </div>
+                        <button @click="handleStreamAction('end', {{ stream.id }})" 
+                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                            {{ 'live.manage_stream.end_stream'|trans }}
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="border-t pt-6">
+                <h3 class="font-medium text-gray-900 mb-4">{{ 'live.manage_stream.settings'|trans }}</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'live.manage_stream.rtmp_url'|trans }}</label>
+                        <div class="flex gap-2">
+                            <input type="text" readonly value="rtmp://{{ app.request.host }}/live" class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
+                            <button @click="copyToClipboard('rtmp://{{ app.request.host }}/live')" 
+                                    class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ 'live.manage_stream.copy'|trans }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'live.manage_stream.stream_key'|trans }}</label>
+                        <div class="flex gap-2">
+                            <input :type="streamKeyVisible ? 'text' : 'password'" 
+                                   readonly 
+                                   value="{{ stream.streamKey }}" 
+                                   id="streamKey" 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono">
+                            <button @click="streamKeyVisible = !streamKeyVisible" 
+                                    class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ 'live.manage_stream.show'|trans }}
+                            </button>
+                            <button @click="copyToClipboard('{{ stream.streamKey }}')" 
+                                    class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                {{ 'live.manage_stream.copy'|trans }}
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">{{ 'live.manage_stream.stream_key_help'|trans }}</p>
+                    </div>
+
+                    <div>
+                        <button @click="handleStreamAction('regenerate', {{ stream.id }})" 
+                                class="text-sm text-red-600 hover:text-red-700">
+                            {{ 'live.manage_stream.regenerate_key'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t pt-6 mt-6">
+                <h3 class="font-medium text-gray-900 mb-4">{{ 'live.manage_stream.viewer_link'|trans }}</h3>
+                <div class="flex gap-2">
+                    <input type="text" readonly value="{{ url('live_show', {slug: stream.slug}) }}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
+                    <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value)" class="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        {{ 'live.manage_stream.copy'|trans }}
+                    </button>
+                    <a href="{{ path('live_show', {slug: stream.slug}) }}" target="_blank" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        {{ 'live.manage_stream.open'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="font-medium text-gray-900 mb-4">{{ 'live.manage_stream.statistics'|trans }}</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ stream.viewersCount }}</div>
+                    <div class="text-sm text-gray-600">{{ 'live.manage_stream.viewers_now'|trans }}</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ stream.peakViewersCount }}</div>
+                    <div class="text-sm text-gray-600">{{ 'live.manage_stream.viewers_peak'|trans }}</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ stream.totalViews }}</div>
+                    <div class="text-sm text-gray-600">{{ 'live.info.total_views'|trans }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

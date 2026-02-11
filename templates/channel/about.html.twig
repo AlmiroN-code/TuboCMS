@@ -14,8 +14,8 @@
             <div class="flex items-end space-x-6">
                 <!-- Аватар -->
                 <div class="flex-shrink-0">
-                    {% if channel.avatarUrl %}
-                        <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                    {% if channel_avatar(channel.avatar) %}
+                        <img src="{{ channel_avatar(channel.avatar) }}" alt="{{ channel.name }}" 
                              class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg">
                     {% else %}
                         <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">

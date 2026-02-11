@@ -28,7 +28,14 @@ class AdminModelController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 30;
+        $perPage = $request->query->getInt('per_page', 30);
+        
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 30;
+        }
+        
+        $limit = $perPage;
         
         $qb = $this->modelRepository->createQueryBuilder('m')
             ->orderBy('m.videosCount', 'DESC')
@@ -41,6 +48,7 @@ class AdminModelController extends AbstractController
         return $this->render('admin/models/index.html.twig', [
             'models' => $models,
             'page' => $page,
+            'perPage' => $perPage,
             'total' => $total,
             'pages' => ceil($total / $limit),
         ]);
@@ -77,6 +85,94 @@ class AdminModelController extends AbstractController
         $this->em->flush();
         
         $this->addFlash('success', 'Модель удалена');
+        return $this->redirectToRoute('admin_models');
+    }
+
+    #[Route('/bulk', name: 'admin_models_bulk', methods: ['POST'])]
+    public function bulk(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('bulk_models', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Недействительный токен безопасности');
+            return $this->redirectToRoute('admin_models');
+        }
+
+        $modelIds = $request->request->all('model_ids');
+        $action = $request->request->get('bulk_action');
+
+        if (empty($modelIds)) {
+            $this->addFlash('error', 'Не выбрано ни одной модели');
+            return $this->redirectToRoute('admin_models');
+        }
+
+        if (empty($action)) {
+            $this->addFlash('error', 'Не выбрано действие');
+            return $this->redirectToRoute('admin_models');
+        }
+
+        $models = $this->modelRepository->findBy(['id' => $modelIds]);
+        $count = count($models);
+
+        switch ($action) {
+            case 'verify':
+                foreach ($models as $model) {
+                    $model->setVerified(true);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Верифицировано моделей: {$count}");
+                break;
+
+            case 'unverify':
+                foreach ($models as $model) {
+                    $model->setVerified(false);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Снята верификация у моделей: {$count}");
+                break;
+
+            case 'premium':
+                foreach ($models as $model) {
+                    $model->setPremium(true);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Выдан премиум моделям: {$count}");
+                break;
+
+            case 'remove_premium':
+                foreach ($models as $model) {
+                    $model->setPremium(false);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Снят премиум у моделей: {$count}");
+                break;
+
+            case 'activate':
+                foreach ($models as $model) {
+                    $model->setActive(true);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Активировано моделей: {$count}");
+                break;
+
+            case 'deactivate':
+                foreach ($models as $model) {
+                    $model->setActive(false);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Деактивировано моделей: {$count}");
+                break;
+
+            case 'delete':
+                foreach ($models as $model) {
+                    $this->em->remove($model);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Удалено моделей: {$count}");
+                break;
+
+            default:
+                $this->addFlash('error', 'Неизвестное действие');
+        }
+
         return $this->redirectToRoute('admin_models');
     }
 

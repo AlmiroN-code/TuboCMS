@@ -11,8 +11,14 @@ import * as Turbo from '@hotwired/turbo';
 // Import HTMX for partial page updates
 import htmx from 'htmx.org';
 
+// Import Alpine.js
+import Alpine from 'alpinejs';
+
 // Import Tailwind CSS
 import './styles/app.css';
+
+// Import admin dark theme
+import './styles/admin-dark-theme.css';
 
 // Import video preview functionality
 import './video-preview.js';
@@ -22,6 +28,9 @@ import './js/lazy-loading.js';
 
 // Import theme switcher
 import './js/theme-switcher.js';
+
+// Import toast notifications
+import './js/toast-notifications.js';
 
 // Import watch later functionality
 import './watch-later.js';
@@ -34,6 +43,13 @@ import './js/interactions.js';
 
 // Make htmx globally available
 window.htmx = htmx;
+
+// Make Alpine globally available
+window.Alpine = Alpine;
+
+// Start Alpine immediately
+Alpine.start();
+console.log('Alpine.js initialized');
 
 // Initialize Turbo
 console.log('Turbo initialized');

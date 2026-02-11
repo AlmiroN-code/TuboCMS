@@ -64,6 +64,46 @@ class AdminTagController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
+    #[Route('/bulk', name: 'admin_tags_bulk', methods: ['POST'])]
+    public function bulk(Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('bulk_tags', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Недействительный токен безопасности');
+            return $this->redirectToRoute('admin_tags');
+        }
+
+        $tagIds = $request->request->all('tag_ids');
+        $action = $request->request->get('bulk_action');
+
+        if (empty($tagIds)) {
+            $this->addFlash('error', 'Не выбрано ни одного тега');
+            return $this->redirectToRoute('admin_tags');
+        }
+
+        if (empty($action)) {
+            $this->addFlash('error', 'Не выбрано действие');
+            return $this->redirectToRoute('admin_tags');
+        }
+
+        $tags = $this->tagRepository->findBy(['id' => $tagIds]);
+        $count = count($tags);
+
+        switch ($action) {
+            case 'delete':
+                foreach ($tags as $tag) {
+                    $this->em->remove($tag);
+                }
+                $this->em->flush();
+                $this->addFlash('success', "Удалено тегов: {$count}");
+                break;
+
+            default:
+                $this->addFlash('error', 'Неизвестное действие');
+        }
+
+        return $this->redirectToRoute('admin_tags');
+    }
+
     #[Route('/create-ajax', name: 'admin_tags_create_ajax', methods: ['POST'])]
     public function createAjax(Request $request): Response
     {

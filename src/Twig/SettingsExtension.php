@@ -24,6 +24,7 @@ class SettingsExtension extends AbstractExtension
             new TwigFunction('google_analytics_id', [$this, 'getGoogleAnalyticsId']),
             new TwigFunction('yandex_metrika_id', [$this, 'getYandexMetrikaId']),
             new TwigFunction('facebook_pixel_id', [$this, 'getFacebookPixelId']),
+            new TwigFunction('vapid_public_key', [$this, 'getVapidPublicKey']),
         ];
     }
 
@@ -50,5 +51,10 @@ class SettingsExtension extends AbstractExtension
     public function getFacebookPixelId(): ?string
     {
         return $this->settingsService->get('facebook_pixel_id');
+    }
+
+    public function getVapidPublicKey(): ?string
+    {
+        return $this->settingsService->get('vapid_public_key', '');
     }
 }

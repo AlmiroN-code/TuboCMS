@@ -20,8 +20,8 @@
             <div class="flex items-end space-x-6">
                 <!-- Аватар -->
                 <div class="flex-shrink-0">
-                    {% if channel.avatarUrl %}
-                        <img src="{{ channel.avatarUrl }}" alt="{{ channel.name }}" 
+                    {% if channel_avatar(channel.avatar) %}
+                        <img src="{{ channel_avatar(channel.avatar) }}" alt="{{ channel.name }}" 
                              class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg">
                     {% else %}
                         <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
@@ -35,10 +35,10 @@
                     <h1 class="text-2xl md:text-4xl font-bold mb-2">
                         {{ channel.name }}
                         {% if channel.isVerified %}
-                            <i class="fas fa-check-circle text-blue-400 ml-2" title="Верифицирован"></i>
+                            <i class="fas fa-check-circle text-blue-400 ml-2" title="{{ 'channel.verified_badge'|trans }}"></i>
                         {% endif %}
                         {% if channel.isPremium %}
-                            <i class="fas fa-crown text-yellow-400 ml-2" title="Premium канал"></i>
+                            <i class="fas fa-crown text-yellow-400 ml-2" title="{{ 'channel.premium_badge'|trans }}"></i>
                         {% endif %}
                     </h1>
                     
@@ -46,13 +46,13 @@
                         <span class="px-3 py-1 rounded-full 
                                    {{ channel.type == 'personal' ? 'bg-blue-500' : 
                                       (channel.type == 'studio' ? 'bg-purple-500' : 'bg-green-500') }}">
-                            {% if channel.type == 'personal' %}Личный канал
-                            {% elseif channel.type == 'studio' %}Студия
-                            {% else %}Компания{% endif %}
+                            {% if channel.type == 'personal' %}{{ 'channel.type_personal'|trans }}
+                            {% elseif channel.type == 'studio' %}{{ 'channel.type_studio'|trans }}
+                            {% else %}{{ 'channel.type_company'|trans }}{% endif %}
                         </span>
-                        <span>{{ channel.subscribersCount|number_format }} подписчиков</span>
-                        <span>{{ channel.videosCount|number_format }} видео</span>
-                        <span>{{ channel.totalViews|number_format }} просмотров</span>
+                        <span>{{ 'channel.subscribers_count'|trans({'%count%': channel.subscribersCount|number_format}) }}</span>
+                        <span>{{ 'channel.videos_count_text'|trans({'%count%': channel.videosCount|number_format}) }}</span>
+                        <span>{{ 'channel.views_count_text'|trans({'%count%': channel.totalViews|number_format}) }}</span>
                     </div>
                 </div>
 
@@ -63,7 +63,7 @@
                     {% if app.user == channel.owner %}
                         <a href="{{ path('channel_videos_manage', {slug: channel.slug}) }}" 
                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                            <i class="fas fa-cog mr-2"></i>Управление видео
+                            <i class="fas fa-cog mr-2"></i>{{ 'channel.manage_videos'|trans }}
                         </a>
                     {% endif %}
                     
@@ -71,12 +71,12 @@
                     {% if is_subscribed %}
                         <button onclick="unsubscribeFromChannel('{{ channel.slug }}')" 
                                 class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                            <i class="fas fa-check mr-2"></i>Подписан
+                            <i class="fas fa-check mr-2"></i>{{ 'channel.subscribed'|trans }}
                         </button>
                     {% else %}
                         <button onclick="subscribeToChannel('{{ channel.slug }}')" 
                                 class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                            <i class="fas fa-plus mr-2"></i>Подписаться
+                            <i class="fas fa-plus mr-2"></i>{{ 'channel.subscribe'|trans }}
                         </button>
                     {% endif %}
                 </div>
@@ -89,11 +89,11 @@
     <div class="flex space-x-6 mb-8 border-b border-gray-200">
         <a href="{{ path('channel_show', {slug: channel.slug}) }}" 
            class="pb-4 border-b-2 border-blue-600 text-blue-600 font-semibold">
-            Видео
+            {{ 'channel.videos_tab'|trans }}
         </a>
         <a href="{{ path('channel_about', {slug: channel.slug}) }}" 
            class="pb-4 border-b-2 border-transparent text-gray-600 hover:text-gray-900 transition-colors">
-            О канале
+            {{ 'channel.about_tab'|trans }}
         </a>
     </div>
 
@@ -106,7 +106,7 @@
 
     <!-- Видео канала -->
     <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Видео ({{ total_videos }})</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ 'channel.videos_list'|trans({'%count%': total_videos}) }}</h2>
         
         {% if videos %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -122,7 +122,7 @@
                 {% if current_page > 1 %}
                     <a href="{{ path('channel_show', {slug: channel.slug, page: current_page - 1}) }}" 
                        class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                        Предыдущая
+                        {{ 'pagination.previous'|trans }}
                     </a>
                 {% endif %}
 
@@ -142,7 +142,7 @@
                 {% if current_page < total_pages %}
                     <a href="{{ path('channel_show', {slug: channel.slug, page: current_page + 1}) }}" 
                        class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                        Следующая
+                        {{ 'pagination.next'|trans }}
                     </a>
                 {% endif %}
             </nav>
@@ -151,8 +151,8 @@
         {% else %}
         <div class="text-center py-12">
             <i class="fas fa-video text-gray-400 text-6xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-600 mb-2">Пока нет видео</h3>
-            <p class="text-gray-500">На этом канале еще не опубликовано ни одного видео</p>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">{{ 'channel.no_videos_yet'|trans }}</h3>
+            <p class="text-gray-500">{{ 'channel.no_videos_published'|trans }}</p>
         </div>
         {% endif %}
     </div>

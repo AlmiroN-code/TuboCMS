@@ -4,11 +4,7 @@
             {# Progress bar for hover preview loading #}
             <div class="preview-progress-bar absolute bottom-0 left-0 w-full h-0.5 bg-black/20 z-20 opacity-0 transition-opacity"><div class="progress-fill h-full bg-orange-500 transition-all duration-300 ease-out" style="width: 0%"></div></div>
             
-            {% if video.poster %}
-                {{ lazy_img('/media/' ~ video.poster, video.title, 'poster-image w-full h-full object-cover') }}
-            {% else %}
-                <div class="poster-placeholder absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500 to-orange-500 text-white font-bold">{{ ux_icon('video-camera', {class: 'w-16 h-16'}) }}</div>
-            {% endif %}
+             {{ lazy_img(video_poster(video.poster), video.title, 'poster-image w-full h-full object-cover') }}
             
             {% if video.preview %}
                 <video class="preview-video" muted loop playsinline preload="none" data-lazy-video="/media/{{ video.preview }}"></video>
@@ -39,6 +35,13 @@
             <div class="video-meta">
                 <span class="flex items-center gap-1">{{ ux_icon('flowbite:eye-outline', {class: 'w-4 h-4'}) }}{{ video.viewsCount|locale_number }}</span>
                 <span class="flex items-center gap-1">{{ ux_icon('flowbite:calendar-month-outline', {class: 'w-4 h-4'}) }}{{ video.createdAt|time_ago }}</span>
+                {% set rating = rating_info(video.likesCount, video.dislikesCount) %}
+                {% if rating.total > 0 %}
+                <span class="flex items-center gap-1" title="{{ video.likesCount }} лайков / {{ video.dislikesCount }} дизлайков">
+                    <span class="text-base">{{ rating.emoji }}</span>
+                    <span class="font-medium">{{ rating.percent }}%</span>
+                </span>
+                {% endif %}
             </div>
             {% if video.performers|length > 0 %}
             <div class="video-performers mt-1 text-xs text-gray-500 truncate">

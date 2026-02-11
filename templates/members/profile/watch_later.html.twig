@@ -1,14 +1,14 @@
 {% extends 'members/profile/base.html.twig' %}
 
-{% block page_title %}Смотреть позже{% endblock %}
+{% block page_title %}{{ 'profile.tabs.watch_later'|trans }}{% endblock %}
 
 {% block tab_content %}
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-gray-900">
-            Смотреть позже
-            <span class="text-sm font-normal text-gray-500">({{ total }})</span>
+            {{ 'profile.watch_later.watch_later'|trans }}
+            <span class="text-sm font-normal text-gray-500">{{ 'profile.watch_later.total'|trans({'%count%': total}) }}</span>
         </h2>
     </div>
 
@@ -27,7 +27,7 @@
                     {% if current_page > 1 %}
                         <a href="{{ path('user_profile_watch_later', {'username': user.username, 'page': current_page - 1}) }}" 
                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Предыдущая
+                            {{ 'pagination.previous'|trans }}
                         </a>
                     {% endif %}
 
@@ -47,7 +47,7 @@
                     {% if current_page < total_pages %}
                         <a href="{{ path('user_profile_watch_later', {'username': user.username, 'page': current_page + 1}) }}" 
                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Следующая
+                            {{ 'pagination.next'|trans }}
                         </a>
                     {% endif %}
                 </nav>
@@ -58,8 +58,8 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Список пуст</h3>
-            <p class="mt-1 text-sm text-gray-500">Вы еще не добавили ни одного видео для просмотра позже.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ 'profile.watch_later.list_empty'|trans }}</h3>
+            <p class="mt-1 text-sm text-gray-500">{{ 'profile.watch_later.list_empty_description'|trans }}</p>
         </div>
     {% endif %}
 </div>

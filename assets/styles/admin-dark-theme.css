@@ -1,0 +1,302 @@
+/* Темная тема только для админки */
+/* Применяется только когда body имеет класс admin-panel */
+
+/* Основные цвета */
+body.admin-panel.dark {
+    background-color: #111827;
+}
+
+/* Sidebar */
+body.admin-panel.dark aside {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+body.admin-panel.dark aside .bg-gray-700 {
+    background-color: #111827;
+}
+
+/* Header */
+body.admin-panel.dark header {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+/* Карточки и контейнеры */
+body.admin-panel.dark .bg-white {
+    background-color: #1f2937;
+}
+
+body.admin-panel.dark .bg-gray-50 {
+    background-color: #111827;
+}
+
+body.admin-panel.dark .bg-gray-100 {
+    background-color: #1f2937;
+}
+
+/* Текст */
+body.admin-panel.dark .text-gray-900 {
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark .text-gray-800 {
+    color: #e5e7eb;
+}
+
+body.admin-panel.dark .text-gray-700 {
+    color: #d1d5db;
+}
+
+body.admin-panel.dark .text-gray-600 {
+    color: #9ca3af;
+}
+
+body.admin-panel.dark .text-gray-500 {
+    color: #6b7280;
+}
+
+/* Границы */
+body.admin-panel.dark .border-gray-200 {
+    border-color: #374151;
+}
+
+body.admin-panel.dark .border-gray-300 {
+    border-color: #4b5563;
+}
+
+body.admin-panel.dark .divide-gray-200 > * + * {
+    border-color: #374151;
+}
+
+/* Формы */
+body.admin-panel.dark input[type="text"],
+body.admin-panel.dark input[type="email"],
+body.admin-panel.dark input[type="password"],
+body.admin-panel.dark input[type="number"],
+body.admin-panel.dark input[type="search"],
+body.admin-panel.dark input[type="url"],
+body.admin-panel.dark input[type="tel"],
+body.admin-panel.dark textarea,
+body.admin-panel.dark select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark input::placeholder,
+body.admin-panel.dark textarea::placeholder {
+    color: #6b7280;
+}
+
+body.admin-panel.dark input:focus,
+body.admin-panel.dark textarea:focus,
+body.admin-panel.dark select:focus {
+    background-color: #374151;
+    border-color: #3b82f6;
+}
+
+/* Таблицы */
+body.admin-panel.dark table {
+    background-color: #1f2937;
+}
+
+body.admin-panel.dark table thead {
+    background-color: #111827;
+}
+
+body.admin-panel.dark table th {
+    background-color: #111827;
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark table td {
+    border-color: #374151;
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark table tbody tr:hover {
+    background-color: #374151;
+}
+
+/* Тени */
+body.admin-panel.dark .shadow,
+body.admin-panel.dark .shadow-sm,
+body.admin-panel.dark .shadow-md,
+body.admin-panel.dark .shadow-lg {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+}
+
+/* Hover эффекты */
+body.admin-panel.dark .hover\:bg-gray-50:hover {
+    background-color: #374151;
+}
+
+body.admin-panel.dark .hover\:bg-gray-100:hover {
+    background-color: #374151;
+}
+
+/* Бейджи статусов */
+body.admin-panel.dark .bg-green-100 {
+    background-color: #064e3b;
+}
+
+body.admin-panel.dark .text-green-800 {
+    color: #86efac;
+}
+
+body.admin-panel.dark .bg-blue-100 {
+    background-color: #1e3a8a;
+}
+
+body.admin-panel.dark .text-blue-800 {
+    color: #93c5fd;
+}
+
+body.admin-panel.dark .bg-yellow-100 {
+    background-color: #713f12;
+}
+
+body.admin-panel.dark .text-yellow-800 {
+    color: #fde047;
+}
+
+body.admin-panel.dark .bg-red-100 {
+    background-color: #7f1d1d;
+}
+
+body.admin-panel.dark .text-red-800 {
+    color: #fca5a5;
+}
+
+body.admin-panel.dark .bg-purple-100 {
+    background-color: #581c87;
+}
+
+body.admin-panel.dark .text-purple-800 {
+    color: #d8b4fe;
+}
+
+body.admin-panel.dark .bg-pink-100 {
+    background-color: #831843;
+}
+
+body.admin-panel.dark .text-pink-800 {
+    color: #f9a8d4;
+}
+
+body.admin-panel.dark .bg-gray-800 {
+    background-color: #1f2937;
+}
+
+/* Кнопки */
+body.admin-panel.dark .bg-blue-600 {
+    background-color: #3b82f6;
+}
+
+body.admin-panel.dark .bg-blue-600:hover {
+    background-color: #2563eb;
+}
+
+body.admin-panel.dark .bg-red-600 {
+    background-color: #dc2626;
+}
+
+body.admin-panel.dark .bg-red-600:hover {
+    background-color: #b91c1c;
+}
+
+/* Файловые поля */
+body.admin-panel.dark input[type="file"] {
+    background-color: #1f2937;
+    color: #f3f4f6;
+    border-color: #4b5563;
+}
+
+body.admin-panel.dark input[type="file"]:hover {
+    border-color: #3b82f6;
+    background-color: #374151;
+}
+
+/* Чекбоксы и радиокнопки */
+body.admin-panel.dark input[type="checkbox"],
+body.admin-panel.dark input[type="radio"] {
+    background-color: #374151;
+    border-color: #4b5563;
+}
+
+/* Множественный выбор */
+body.admin-panel.dark select[multiple] {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark select[multiple] option {
+    background-color: #1f2937;
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark select[multiple] option:checked {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* Лейблы */
+body.admin-panel.dark label {
+    color: #f3f4f6;
+}
+
+/* Информационные блоки */
+body.admin-panel.dark .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+body.admin-panel.dark .border-blue-200 {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+body.admin-panel.dark .text-blue-900 {
+    color: #f3f4f6;
+}
+
+body.admin-panel.dark .bg-green-50 {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+body.admin-panel.dark .border-green-200 {
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+body.admin-panel.dark .text-green-700 {
+    color: #4ade80;
+}
+
+body.admin-panel.dark .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+body.admin-panel.dark .border-red-200 {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+body.admin-panel.dark .text-red-700 {
+    color: #f87171;
+}
+
+/* Активные состояния для sidebar */
+body.admin-panel.dark .bg-primary-50 {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+body.admin-panel.dark .text-primary-600 {
+    color: #60a5fa;
+}
+
+body.admin-panel.dark .hover\:text-primary-600:hover {
+    color: #60a5fa;
+}
+
+body.admin-panel.dark .hover\:bg-primary-50:hover {
+    background-color: rgba(59, 130, 246, 0.2);
+}

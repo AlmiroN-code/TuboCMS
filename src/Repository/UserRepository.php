@@ -69,4 +69,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             'totalPages' => (int) ceil($total / $limit),
         ];
     }
+
+    /**
+     * Подсчет пользователей за период
+     */
+    public function countByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.createdAt >= :startDate')
+            ->andWhere('u.createdAt < :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

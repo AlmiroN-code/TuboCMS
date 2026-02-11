@@ -1,14 +1,14 @@
 {% extends 'members/profile/base.html.twig' %}
 
-{% block page_title %}Видео{% endblock %}
+{% block page_title %}{{ 'profile.tabs.videos'|trans }}{% endblock %}
 
 {% block tab_content %}
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-gray-900">
-            Видео пользователя {{ user.username }}
-            <span class="text-sm font-normal text-gray-500">({{ total_videos }})</span>
+            {{ 'profile.videos.user_videos'|trans({'%username%': user.username}) }}
+            <span class="text-sm font-normal text-gray-500">{{ 'profile.videos.total_videos'|trans({'%count%': total_videos}) }}</span>
         </h2>
     </div>
 
@@ -27,7 +27,7 @@
                     {% if current_page > 1 %}
                         <a href="{{ path('user_profile_videos', {'username': user.username, 'page': current_page - 1}) }}" 
                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Предыдущая
+                            {{ 'pagination.previous'|trans }}
                         </a>
                     {% endif %}
 
@@ -47,7 +47,7 @@
                     {% if current_page < total_pages %}
                         <a href="{{ path('user_profile_videos', {'username': user.username, 'page': current_page + 1}) }}" 
                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Следующая
+                            {{ 'pagination.next'|trans }}
                         </a>
                     {% endif %}
                 </nav>
@@ -58,8 +58,8 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Нет видео</h3>
-            <p class="mt-1 text-sm text-gray-500">У этого пользователя пока нет загруженных видео.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ 'profile.videos.no_videos'|trans }}</h3>
+            <p class="mt-1 text-sm text-gray-500">{{ 'profile.videos.no_videos_description'|trans }}</p>
         </div>
     {% endif %}
 </div>

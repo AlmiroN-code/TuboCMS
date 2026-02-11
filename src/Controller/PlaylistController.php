@@ -33,6 +33,80 @@ class PlaylistController extends AbstractController
         return $this->redirectToRoute('user_profile_playlists', ['username' => $this->getUser()->getUsername()]);
     }
 
+    #[Route('/api/playlists/my', name: 'api_playlists_my', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function apiMyPlaylists(): JsonResponse
+    {
+        $user = $this->getUser();
+        $channels = $this->channelRepository->findByOwner($user);
+
+        $allPlaylists = [];
+        foreach ($channels as $channel) {
+            $channelPlaylists = $this->playlistService->getChannelPlaylists($channel, $user);
+            foreach ($channelPlaylists as $playlist) {
+                $allPlaylists[] = [
+                    'id' => $playlist->getId(),
+                    'title' => $playlist->getTitle(),
+                    'slug' => $playlist->getSlug(),
+                    'videosCount' => $playlist->getVideosCount(),
+                    'visibility' => $playlist->getVisibility(),
+                    'isCollaborative' => $playlist->isCollaborative(),
+                ];
+            }
+        }
+
+        return new JsonResponse($allPlaylists);
+    }
+
+    #[Route('/api/playlists/create', name: 'api_playlists_create', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function apiCreatePlaylist(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        $title = $data['title'] ?? null;
+        $visibility = $data['visibility'] ?? ChannelPlaylist::VISIBILITY_PUBLIC;
+        $videoId = $data['videoId'] ?? null;
+        
+        if (!$title) {
+            return new JsonResponse(['error' => 'Название плейлиста обязательно'], 400);
+        }
+        
+        $user = $this->getUser();
+        $channels = $this->channelRepository->findByOwner($user);
+        
+        if (empty($channels)) {
+            return new JsonResponse(['error' => 'У вас нет каналов. Создайте канал сначала.'], 400);
+        }
+        
+        // Используем первый канал пользователя
+        $channel = $channels[0];
+        
+        try {
+            $playlist = $this->playlistService->createPlaylist($channel, $title, null, $visibility);
+            
+            // Если указано видео, добавляем его в плейлист
+            if ($videoId) {
+                $video = $this->videoRepository->find($videoId);
+                if ($video) {
+                    $this->playlistService->addVideoToPlaylist($playlist, $video, $user);
+                }
+            }
+            
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Плейлист успешно создан',
+                'playlist' => [
+                    'id' => $playlist->getId(),
+                    'title' => $playlist->getTitle(),
+                    'slug' => $playlist->getSlug(),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
+
     #[Route('/playlist/{slug}', name: 'playlist_show')]
     public function show(string $slug, Request $request): Response
     {
@@ -58,13 +132,34 @@ class PlaylistController extends AbstractController
         // Увеличиваем счетчик просмотров
         $this->playlistService->incrementPlaylistViews($playlist);
 
+        $isOwner = $this->getUser() && $this->getUser() === $playlist->getChannel()->getOwner();
+
         return $this->render('playlist/show.html.twig', [
             'playlist' => $playlist,
             'playlist_videos' => $playlistVideos,
             'current_page' => $page,
             'total_pages' => $totalPages,
             'total_videos' => $totalVideos,
+            'isOwner' => $isOwner,
         ]);
+    }
+
+    #[Route('/playlist/share/{token}', name: 'playlist_share')]
+    public function showByToken(string $token): Response
+    {
+        $playlist = $this->playlistRepository->findOneBy(['shareToken' => $token]);
+        
+        if (!$playlist) {
+            throw $this->createNotFoundException('Плейлист не найден');
+        }
+
+        // Для unlisted плейлистов токен даёт доступ
+        if ($playlist->getVisibility() !== ChannelPlaylist::VISIBILITY_UNLISTED) {
+            throw $this->createAccessDeniedException('Неверная ссылка');
+        }
+
+        // Перенаправляем на обычную страницу плейлиста
+        return $this->redirectToRoute('playlist_show', ['slug' => $playlist->getSlug()]);
     }
 
     #[Route('/channel/{channelSlug}/playlists', name: 'channel_playlists')]
@@ -212,21 +307,20 @@ class PlaylistController extends AbstractController
         ]);
     }
 
-    #[Route('/playlist/{slug}/add-video', name: 'playlist_add_video', methods: ['POST'])]
+    #[Route('/playlists/{playlistId}/videos/{videoId}', name: 'api_playlist_add_video', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function addVideo(string $slug, Request $request): JsonResponse
+    public function apiAddVideo(int $playlistId, int $videoId): JsonResponse
     {
-        $playlist = $this->playlistRepository->findBySlug($slug, $this->getUser());
+        $playlist = $this->playlistRepository->find($playlistId);
         
         if (!$playlist) {
             return new JsonResponse(['error' => 'Плейлист не найден'], 404);
         }
 
-        if (!$this->playlistService->canUserManagePlaylist($playlist, $this->getUser())) {
-            return new JsonResponse(['error' => 'У вас нет прав для управления этим плейлистом'], 403);
+        if (!$this->playlistService->canUserAddToPlaylist($playlist, $this->getUser())) {
+            return new JsonResponse(['error' => 'У вас нет прав для добавления видео в этот плейлист'], 403);
         }
 
-        $videoId = $request->request->getInt('video_id');
         $video = $this->videoRepository->find($videoId);
 
         if (!$video) {
@@ -241,6 +335,15 @@ class PlaylistController extends AbstractController
                 'message' => 'Видео добавлено в плейлист',
                 'videosCount' => $playlist->getVideosCount()
             ]);
+        } catch (\InvalidArgumentException $e) {
+            // Обрабатываем ошибку дубликата отдельно
+            if (str_contains($e->getMessage(), 'уже добавлено')) {
+                return new JsonResponse([
+                    'error' => $e->getMessage(),
+                    'isDuplicate' => true
+                ], 400);
+            }
+            return new JsonResponse(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }

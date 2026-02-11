@@ -7,7 +7,8 @@ export default class extends Controller {
         'currentTime', 'duration', 'volume', 'volumeSlider', 'volumeIcon',
         'qualityBtn', 'qualityMenu', 'qualityList', 'currentQuality',
         'speedBtn', 'speedMenu', 'fullscreenBtn', 'pipBtn', 'settingsBtn',
-        'settingsMenu', 'loader', 'bigPlayBtn', 'tooltip'
+        'settingsMenu', 'loader', 'bigPlayBtn', 'tooltip', 'chaptersList',
+        'chapterItem'
     ];
 
     static values = {
@@ -30,10 +31,13 @@ export default class extends Controller {
         this.hideControlsTimeout = null;
         this.lastRecordedTime = 0;
         this.recordInterval = 30;
+        this.chapters = [];
+        this.currentChapterIndex = -1;
 
         this.initPlayer();
         this.bindEvents();
         this.loadSavedPreferences();
+        this.loadChapters();
         
         console.log('[VideoPlayer] Initialization complete');
     }
@@ -51,6 +55,10 @@ export default class extends Controller {
         // Update duration when metadata loaded
         this.videoTarget.addEventListener('loadedmetadata', () => {
             this.durationTarget.textContent = this.formatTime(this.videoTarget.duration);
+            // Render chapter markers after duration is known
+            if (this.chapters.length > 0) {
+                this.renderChapterMarkers();
+            }
         });
     }
 
@@ -146,6 +154,9 @@ export default class extends Controller {
         
         const percent = (current / duration) * 100;
         this.progressBarTarget.style.width = `${percent}%`;
+
+        // Update current chapter
+        this.updateCurrentChapter();
 
         // Record watch history
         const currentSec = Math.floor(current);
@@ -474,6 +485,96 @@ export default class extends Controller {
         return `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
         </svg>`;
+    }
+
+    // Chapters
+    async loadChapters() {
+        if (!this.videoIdValue) return;
+        
+        try {
+            const response = await fetch(`/api/video/${this.videoIdValue}/chapters`);
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            this.chapters = data.chapters || [];
+            
+            if (this.chapters.length > 0) {
+                this.renderChapterMarkers();
+                this.updateCurrentChapter();
+            }
+        } catch (error) {
+            console.error('[VideoPlayer] Error loading chapters:', error);
+        }
+    }
+
+    renderChapterMarkers() {
+        if (!this.chapters.length || !this.videoTarget.duration) return;
+        
+        // Удаляем старые маркеры
+        this.progressTarget.querySelectorAll('.chapter-marker').forEach(el => el.remove());
+        
+        // Добавляем новые маркеры
+        this.chapters.forEach(chapter => {
+            const percent = (chapter.timestamp / this.videoTarget.duration) * 100;
+            const marker = document.createElement('div');
+            marker.className = 'chapter-marker absolute h-full w-0.5 bg-white/60 hover:bg-white transition-colors cursor-pointer';
+            marker.style.left = `${percent}%`;
+            marker.title = chapter.title;
+            marker.dataset.timestamp = chapter.timestamp;
+            marker.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.seekToChapter(chapter.timestamp);
+            });
+            this.progressTarget.appendChild(marker);
+        });
+    }
+
+    seekToChapter(timestamp) {
+        this.videoTarget.currentTime = timestamp;
+        if (this.videoTarget.paused) {
+            this.videoTarget.play();
+        }
+    }
+
+    updateCurrentChapter() {
+        if (!this.chapters.length) return;
+        
+        const currentTime = this.videoTarget.currentTime;
+        let newChapterIndex = -1;
+        
+        // Находим текущую главу
+        for (let i = this.chapters.length - 1; i >= 0; i--) {
+            if (currentTime >= this.chapters[i].timestamp) {
+                newChapterIndex = i;
+                break;
+            }
+        }
+        
+        // Обновляем UI только если глава изменилась
+        if (newChapterIndex !== this.currentChapterIndex) {
+            this.currentChapterIndex = newChapterIndex;
+            this.highlightCurrentChapter();
+        }
+    }
+
+    highlightCurrentChapter() {
+        if (!this.hasChaptersListTarget) return;
+        
+        // Убираем выделение со всех глав
+        this.chapterItemTargets.forEach((item, index) => {
+            if (index === this.currentChapterIndex) {
+                item.classList.add('bg-orange-50', 'dark:bg-orange-900/20', 'border-orange-500');
+                item.classList.remove('border-gray-200', 'dark:border-gray-700');
+            } else {
+                item.classList.remove('bg-orange-50', 'dark:bg-orange-900/20', 'border-orange-500');
+                item.classList.add('border-gray-200', 'dark:border-gray-700');
+            }
+        });
+    }
+
+    jumpToChapter(e) {
+        const timestamp = parseInt(e.currentTarget.dataset.timestamp);
+        this.seekToChapter(timestamp);
     }
 
     disconnect() {

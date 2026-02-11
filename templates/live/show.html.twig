@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ stream.title }} - {{ 'live.title'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {# Видео плеер #}
+            <div class="lg:col-span-2">
+                <div class="bg-black rounded-lg overflow-hidden aspect-video relative">
+                    {% if stream.isLive %}
+                        {# HLS плеер для live стрима #}
+                        <video id="livePlayer" class="w-full h-full" controls autoplay>
+                            <source src="/hls/{{ stream.streamKey }}/index.m3u8" type="application/x-mpegURL">
+                        </video>
+                        
+                        <div class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                            <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                            LIVE
+                        </div>
+                        
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm">
+                            <span id="viewerCount">{{ stream.viewersCount }}</span> {{ 'live.info.viewers'|trans }}
+                        </div>
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <svg class="w-24 h-24 mx-auto mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                <h3 class="text-xl font-medium mb-2">{{ 'live.viewer.not_active'|trans }}</h3>
+                                {% if stream.status == 'scheduled' and stream.scheduledAt %}
+                                    <p class="text-gray-400">{{ 'live.viewer.scheduled_start'|trans({'%date%': stream.scheduledAt|date('d.m.Y H:i')}) }}</p>
+                                {% elseif stream.status == 'ended' %}
+                                    <p class="text-gray-400">{{ 'live.viewer.ended'|trans }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Информация о стриме #}
+                <div class="bg-white rounded-lg shadow-md p-6 mt-4">
+                    <h1 class="text-2xl font-bold mb-3">{{ stream.title }}</h1>
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <a href="{{ path('user_profile_overview', {username: stream.streamer.username}) }}" class="flex items-center gap-2 hover:opacity-80">
+                                {{ lazy_img(user_avatar(stream.streamer.avatar), stream.streamer.username, 'w-10 h-10 rounded-full object-cover', 40, 40, true) }}
+                                <div>
+                                    <div class="font-medium flex items-center gap-1">
+                                        {{ stream.streamer.username }}
+                                        {% if stream.streamer.isVerified %}
+                                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ stream.streamer.subscribersCount }} подписчиков</div>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        {% if app.user and app.user != stream.streamer %}
+                            <button class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                                {{ 'live.viewer.subscribe'|trans }}
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    {% if stream.description %}
+                        <div class="text-gray-700 whitespace-pre-line">
+                            {{ stream.description }}
+                        </div>
+                    {% endif %}
+
+                    <div class="flex items-center gap-4 mt-4 text-sm text-gray-600">
+                        {% if stream.startedAt %}
+                            <span>{{ 'live.info.started_at'|trans }}: {{ stream.startedAt|date('d.m.Y H:i') }}</span>
+                        {% endif %}
+                        <span>{{ stream.totalViews }} {{ 'live.info.total_views'|trans }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {# Чат #}
+            <div class="lg:col-span-1">
+                {% include 'chat/widget.html.twig' with {'roomId': 'live-' ~ stream.id} %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if stream.isLive %}
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        // HLS.js для воспроизведения live стрима
+        const video = document.getElementById('livePlayer');
+        const videoSrc = '/hls/{{ stream.streamKey }}/index.m3u8';
+        
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+        }
+
+        // Обновление счетчика зрителей
+        let viewerInterval;
+        
+        async function updateViewerCount() {
+            try {
+                const response = await fetch('/api/live/status/{{ stream.id }}');
+                const data = await response.json();
+                document.getElementById('viewerCount').textContent = data.viewersCount;
+                
+                if (!data.isLive) {
+                    clearInterval(viewerInterval);
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error updating viewer count:', error);
+            }
+        }
+
+        // Уведомляем сервер о присоединении зрителя
+        fetch('/api/live/viewer/join/{{ stream.id }}', {method: 'POST'});
+        
+        // Обновляем счетчик каждые 10 секунд
+        viewerInterval = setInterval(updateViewerCount, 10000);
+
+        // Уведомляем сервер об уходе зрителя
+        window.addEventListener('beforeunload', () => {
+            navigator.sendBeacon('/api/live/viewer/leave/{{ stream.id }}');
+        });
+    </script>
+    {% endif %}
+{% endblock %}

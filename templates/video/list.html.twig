@@ -69,33 +69,34 @@
             </div>
 
             {% if videos|length > 0 %}
-                <div id="video-grid" class="video-grid">
+                <div id="video-grid" 
+                     class="video-grid"
+                     data-controller="infinite-scroll"
+                     data-infinite-scroll-url-value="{{ path('app_videos_load_more', {sort: sort|default('newest')}) }}"
+                     data-infinite-scroll-page-value="{{ page }}"
+                     data-infinite-scroll-sort-value="{{ sort|default('newest') }}"
+                     data-infinite-scroll-has-more-value="{{ page < total_pages ? 'true' : 'false' }}"
+                     data-infinite-scroll-target="container">
                     {% for video in videos %}
                         {% include 'video/_card.html.twig' with {'video': video} %}
                         
-                        {# Реклама между видео каждые 6 элементов #}
-                        {% if loop.index is divisible by(6) %}
-                            <div class="col-span-full my-4">
+                        {# Реклама между видео каждые 3 элементов #}
+                        {% if loop.index is divisible by(3) %}
                                 {{ show_ad('between_videos', {'page': 'videos', 'category_id': category.id|default(null)}) }}
-                            </div>
                         {% endif %}
                     {% endfor %}
                     
-                    {# Load More Button #}
+                    {# Infinite Scroll Sentinel & Loader #}
                     {% if page < total_pages %}
-                    <div id="load-more-container" class="col-span-full flex justify-center mt-4">
-                        <button 
-                            hx-get="{{ path('app_videos_load_more', {sort: sort|default('newest'), page: page + 1}) }}"
-                            hx-target="#video-grid"
-                            hx-swap="beforeend"
-                            hx-on::after-request="this.parentElement.remove()"
-                            class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition flex items-center gap-2">
-                            <span>{{ 'video.load_more'|trans }}</span>
-                            <svg class="w-5 h-5 htmx-indicator animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                    <div data-infinite-scroll-target="sentinel" class="col-span-full h-1"></div>
+                    <div data-infinite-scroll-target="loader" class="col-span-full flex justify-center py-8 hidden">
+                        <div class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                            <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                        </button>
+                            <span>{{ 'video.loading'|trans }}</span>
+                        </div>
                     </div>
                     {% endif %}
                 </div>

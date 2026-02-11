@@ -109,6 +109,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(length: 45, nullable: true)]
+    private ?string $lastIpAddress = null;
+
+    #[ORM\Column(length: 2, nullable: true)]
+    private ?string $countryCode = null;
+
+    #[ORM\Column]
+    private ?bool $countryManuallySet = false;
+
     #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'createdBy')]
     private Collection $videos;
 
@@ -125,6 +134,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinTable(name: 'user_role')]
     private ?Collection $userRoles = null;
 
+    #[ORM\OneToMany(targetEntity: LiveStream::class, mappedBy: 'streamer')]
+    private Collection $liveStreams;
+
     public function __construct()
     {
         $this->videos = new ArrayCollection();
@@ -132,6 +144,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->subscriptions = new ArrayCollection();
         $this->subscribers = new ArrayCollection();
         $this->userRoles = new ArrayCollection();
+        $this->liveStreams = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -553,8 +566,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->processingPriority;
     }
 
+    /**
+     * @return Collection<int, LiveStream>
+     */
+    public function getLiveStreams(): Collection
+    {
+        return $this->liveStreams;
+    }
+
     public function __toString(): string
     {
         return $this->username ?? '';
+    }
+
+    public function getLastIpAddress(): ?string
+    {
+        return $this->lastIpAddress;
+    }
+
+    public function setLastIpAddress(?string $lastIpAddress): static
+    {
+        $this->lastIpAddress = $lastIpAddress;
+        return $this;
+    }
+
+    public function getCountryCode(): ?string
+    {
+        return $this->countryCode;
+    }
+
+    public function setCountryCode(?string $countryCode): static
+    {
+        $this->countryCode = $countryCode;
+        return $this;
+    }
+
+    public function isCountryManuallySet(): bool
+    {
+        return $this->countryManuallySet ?? false;
+    }
+
+    public function setCountryManuallySet(bool $countryManuallySet): static
+    {
+        $this->countryManuallySet = $countryManuallySet;
+        return $this;
     }
 }

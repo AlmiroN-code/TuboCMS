@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
 use Psr\Log\LoggerInterface;
 
@@ -200,6 +201,7 @@ class VideoController extends AbstractController
     public function search(
         Request $request,
         VideoRepository $videoRepository,
+        #[Autowire(service: 'limiter.search')]
         RateLimiterFactory $searchLimiter,
         LoggerInterface $logger
     ): Response
@@ -255,7 +257,7 @@ class VideoController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}', name: 'video_detail', requirements: ['slug' => '^(?!upload$).+'])]
+    #[Route('/{slug}', name: 'video_detail', requirements: ['slug' => '^(?!upload|my-videos).*$'], priority: -1)]
     public function detail(
         string $slug,
         VideoRepository $videoRepository,
@@ -263,7 +265,8 @@ class VideoController extends AbstractController
         StorageManager $storageManager,
         RecommendationService $recommendationService,
         SeeAlsoService $seeAlsoService,
-        CacheInterface $cache
+        CacheInterface $cache,
+        \App\Service\VideoViewTracker $videoViewTracker
     ): Response
     {
         // Оптимизированный запрос с JOIN для загрузки связанных данных
@@ -273,8 +276,8 @@ class VideoController extends AbstractController
             throw $this->createNotFoundException('Video not found');
         }
 
-        // Increment views (асинхронно, чтобы не блокировать ответ)
-        $video->incrementViews();
+        // Записываем просмотр с геолокацией
+        $videoViewTracker->trackView($video, $this->getUser());
         $em->flush();
 
         // Кешируем связанные видео
@@ -339,6 +342,7 @@ class VideoController extends AbstractController
             'user_playlists' => $userPlaylists,
             'video_file_urls' => $videoFileUrls,
             'see_also' => $seeAlso,
+            'chapters' => $video->getChapters(),
         ]);
 
         // Кешируем ответ на 5 минут для анонимных пользователей
@@ -440,7 +444,7 @@ class VideoController extends AbstractController
         return $urls;
     }
 
-    #[Route('/{slug}/embed', name: 'video_embed', requirements: ['slug' => '^(?!upload$).+'])]
+    #[Route('/{slug}/embed', name: 'video_embed', requirements: ['slug' => '^(?!upload|my-videos).*$'])]
     public function embed(
         string $slug,
         VideoRepository $videoRepository
@@ -456,7 +460,7 @@ class VideoController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}/oembed', name: 'video_oembed', requirements: ['slug' => '^(?!upload$).+'])]
+    #[Route('/{slug}/oembed', name: 'video_oembed', requirements: ['slug' => '^(?!upload|my-videos).*$'])]
     public function oEmbed(
         string $slug,
         VideoRepository $videoRepository,

@@ -2,7 +2,7 @@
 
 {% set breadcrumbs = [
     {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
-    {'label': 'playlist.my_playlists'|trans, 'url': path('app_playlist_index')},
+    {'label': 'playlist.my_playlists'|trans, 'url': path('my_playlists')},
     {'label': 'playlist.create'|trans, 'url': ''}
 ] %}
 
@@ -35,7 +35,7 @@
             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md">
                 {{ 'playlist.create'|trans }}
             </button>
-            <a href="{{ path('app_playlist_index') }}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-md">
+            <a href="{{ path('my_playlists') }}" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-md">
                 {{ 'common.cancel'|trans }}
             </a>
         </div>

@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'live.create'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6">{{ 'live.form.title'|trans }}</h1>
+
+        {{ form_start(form) }}
+            <div class="space-y-4">
+                <div>
+                    {{ form_label(form.title, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                    {{ form_widget(form.title) }}
+                    {{ form_errors(form.title) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                    {{ form_widget(form.description) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.channel, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                    {{ form_widget(form.channel) }}
+                    {{ form_errors(form.channel) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.scheduledAt, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                    {{ form_widget(form.scheduledAt) }}
+                    {{ form_errors(form.scheduledAt) }}
+                    <p class="text-sm text-gray-500 mt-1">{{ 'live.info.scheduled_at_help'|trans }}</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                    {{ 'live.form.submit_create'|trans }}
+                </button>
+                <a href="{{ path('live_index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    {{ 'live.form.cancel'|trans }}
+                </a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

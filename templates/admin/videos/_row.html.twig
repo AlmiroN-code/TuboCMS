@@ -5,11 +5,7 @@
     </td>
     <td class="px-4 py-4 whitespace-nowrap text-sm">{{ video.id }}</td>
     <td class="px-4 py-4 whitespace-nowrap">
-        {% if video.poster %}
-            <img src="/media/{{ video.poster }}" alt="" class="w-20 h-12 object-cover rounded">
-        {% else %}
-            <div class="w-20 h-12 bg-gray-200 rounded"></div>
-        {% endif %}
+        <img src="{{ video_poster(video.poster) }}" alt="" class="w-20 h-12 object-cover rounded">
     </td>
     <td class="px-4 py-4">
         <div class="text-sm font-medium text-gray-900">

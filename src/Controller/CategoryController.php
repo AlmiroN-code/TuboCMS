@@ -66,4 +66,34 @@ class CategoryController extends AbstractController
             'see_also' => $seeAlso,
         ]);
     }
+
+    #[Route('/{slug}/load-more', name: 'app_category_load_more', methods: ['GET'])]
+    public function loadMore(
+        string $slug,
+        Request $request,
+        CategoryRepository $categoryRepository,
+        VideoRepository $videoRepository
+    ): Response
+    {
+        $category = $categoryRepository->findOneBy(['slug' => $slug]);
+
+        if (!$category) {
+            throw $this->createNotFoundException('Категория не найдена');
+        }
+
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = $this->settingsService->getVideosPerPage();
+        $offset = ($page - 1) * $limit;
+
+        $videos = $videoRepository->findByCategory($category->getId(), $limit, $offset);
+        $totalVideos = $videoRepository->countByCategory($category->getId());
+        $hasMore = ($page * $limit) < $totalVideos;
+
+        return $this->render('video/_grid_items.html.twig', [
+            'videos' => $videos,
+            'page' => $page,
+            'sort' => 'newest',
+            'has_more' => $hasMore,
+        ]);
+    }
 }

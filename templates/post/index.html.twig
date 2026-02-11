@@ -5,7 +5,19 @@
     {'label': 'Посты', 'url': ''}
 ] %}
 
-{% block title %}Все посты{% endblock %}
+{% block title %}{{ seo_title|default('Все посты') }}{% endblock %}
+
+{% block meta_description %}
+    {% if seo_description %}
+        <meta name="description" content="{{ seo_description }}">
+    {% endif %}
+{% endblock %}
+
+{% block meta_keywords %}
+    {% if seo_keywords %}
+        <meta name="keywords" content="{{ seo_keywords }}">
+    {% endif %}
+{% endblock %}
 
 {% block body %}
 <div class="flex gap-2">

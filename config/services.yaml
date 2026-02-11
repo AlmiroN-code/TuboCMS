@@ -48,6 +48,10 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
     
+    App\Service\GeoIpService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
     App\Service\CategoryPosterService:
         arguments:
             $projectDir: '%kernel.project_dir%'
@@ -59,14 +63,10 @@ services:
             $categoriesDirectory: '%categories_directory%'
             $siteDirectory: '%site_directory%'
     
-    # Rate limiter factories - алиасы для autowiring
-    Symfony\Component\RateLimiter\RateLimiterFactory $loginAttemptsLimiter: '@limiter.login_attempts'
-    Symfony\Component\RateLimiter\RateLimiterFactory $registrationLimiter: '@limiter.registration'
-    Symfony\Component\RateLimiter\RateLimiterFactory $videoUploadLimiter: '@limiter.video_upload'
-    Symfony\Component\RateLimiter\RateLimiterFactory $searchLimiter: '@limiter.search'
-    Symfony\Component\RateLimiter\RateLimiterFactory $commentPostLimiter: '@limiter.comment_post'
-    Symfony\Component\RateLimiter\RateLimiterFactory $adminActionsLimiter: '@limiter.admin_actions'
-    Symfony\Component\RateLimiter\RateLimiterFactory $mediaDownloadLimiter: '@limiter.media_download'
+    # Placeholder Extension
+    App\Twig\PlaceholderExtension:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
     
     # File system service
     Symfony\Component\Filesystem\Filesystem: ~
@@ -97,6 +97,11 @@ services:
         arguments:
             $defaultLocale: '%kernel.default_locale%'
             $supportedLocales: '%kernel.enabled_locales%'
+    
+    # Security Headers Subscriber
+    App\EventSubscriber\SecurityHeadersSubscriber:
+        arguments:
+            $environment: '%kernel.environment%'
     
     # Locale Controller for language switching
     # Requirements: 2.3, 5.1
@@ -143,6 +148,23 @@ services:
     App\Service\VideoProcessingService:
         arguments:
             $contentProtectionService: '@App\Service\ContentProtectionService'
+    
+    # Push Notification Service
+    App\Service\PushNotificationService:
+        arguments:
+            $vapidPublicKey: '%env(VAPID_PUBLIC_KEY)%'
+            $vapidPrivateKey: '%env(VAPID_PRIVATE_KEY)%'
+            $vapidSubject: '%env(VAPID_SUBJECT)%'
+    
+    # Predis client for Redis
+    Predis\Client:
+        arguments:
+            - 'tcp://127.0.0.1:6379'
+
+    # Redis session handler using Predis
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@Predis\Client'
 
 # Импорт конфигурации оптимизации
 imports:

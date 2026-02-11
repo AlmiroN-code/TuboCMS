@@ -27,11 +27,26 @@ class AdminController extends AbstractController
         // Получаем статистику хранилищ с информацией о квотах
         $storageStats = $this->getStorageStatsWithQuotas();
         
+        $stats = $this->statsService->getDashboardStats();
+        
         return $this->render('admin/dashboard.html.twig', [
-            'stats' => $this->statsService->getDashboardStats(),
+            'stats' => $stats,
             'recent_videos' => $this->videoRepository->findBy([], ['createdAt' => 'DESC'], 5),
             'storage_stats' => $storageStats,
+            'recent_errors' => $stats['recent_errors'] ?? [],
+            'recent_activity' => $this->statsService->getRecentUserActivity(),
         ]);
+    }
+
+    #[Route('/test-notifications', name: 'admin_test_notifications')]
+    public function testNotifications(): Response
+    {
+        $this->addFlash('success', 'Тестовое успешное уведомление!');
+        $this->addFlash('error', 'Тестовое уведомление об ошибке!');
+        $this->addFlash('warning', 'Тестовое предупреждение!');
+        $this->addFlash('info', 'Тестовое информационное сообщение!');
+        
+        return $this->redirectToRoute('admin_dashboard');
     }
 
     /**

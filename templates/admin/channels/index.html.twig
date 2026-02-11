@@ -1,14 +1,13 @@
 {% extends 'admin/base.html.twig' %}
+{% import 'admin/_pagination_selector.html.twig' as pagination %}
 
 {% block title %}Управление каналами{% endblock %}
 
 {% block page_title %}
-    <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold text-gray-900">Управление каналами</h1>
-        <a href="{{ path('admin_channels_create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-            <i class="fas fa-plus mr-2"></i>Создать канал
-        </a>
-    </div>
+<svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+</svg>
+Управление каналами
 {% endblock %}
 
 {% block content %}
@@ -16,6 +15,8 @@
     <div class="px-6 py-4 border-b border-gray-200">
         <form method="GET" class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
+                {{ pagination.perPageSelector(perPage, total_channels) }}
+                
                 <div class="flex items-center space-x-2">
                     <label for="status" class="text-sm font-medium text-gray-700">Статус:</label>
                     <select id="status" name="status" 
@@ -41,6 +42,9 @@
                     <i class="fas fa-times mr-2"></i>Сбросить
                 </a>
             </div>
+            <a href="{{ path('admin_channels_create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                <i class="fas fa-plus mr-2"></i>Создать канал
+            </a>
         </form>
     </div>
 
@@ -62,8 +66,8 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10">
-                                {% if channel.avatarUrl %}
-                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ channel.avatarUrl }}" alt="{{ channel.name }}">
+                                {% if channel_avatar(channel.avatar) %}
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ channel_avatar(channel.avatar) }}" alt="{{ channel.name }}">
                                 {% else %}
                                     <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                                         <i class="fas fa-tv text-gray-600"></i>
@@ -160,13 +164,13 @@
         <div class="flex items-center justify-between">
             <div class="flex-1 flex justify-between sm:hidden">
                 {% if current_page > 1 %}
-                    <a href="{{ path('admin_channels_index', {page: current_page - 1}) }}" 
+                    <a href="{{ path('admin_channels_index', {page: current_page - 1, per_page: perPage}) }}" 
                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         Предыдущая
                     </a>
                 {% endif %}
                 {% if current_page < total_pages %}
-                    <a href="{{ path('admin_channels_index', {page: current_page + 1}) }}" 
+                    <a href="{{ path('admin_channels_index', {page: current_page + 1, per_page: perPage}) }}" 
                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         Следующая
                     </a>
@@ -188,7 +192,7 @@
                                     {{ page }}
                                 </span>
                             {% else %}
-                                <a href="{{ path('admin_channels_index', {page: page}) }}" 
+                                <a href="{{ path('admin_channels_index', {page: page, per_page: perPage}) }}" 
                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                     {{ page }}
                                 </a>
@@ -201,4 +205,6 @@
     </div>
     {% endif %}
 </div>
+
+{{ pagination.updateUrlScript() }}
 {% endblock %}

@@ -43,6 +43,15 @@
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+    
+    {# PWA Manifest #}
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ site_name() }}">
+    <link rel="apple-touch-icon" href="/media/site/icon-192.png">
+    
     {{ encore_entry_script_tags('app') }}
     {# Structured Data (JSON-LD) #}
     {% block structured_data %}{% endblock %}
@@ -101,7 +110,34 @@
         <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ facebook_pixel_id() }}&ev=PageView&noscript=1" /></noscript>
     {% endif %}
 </head>
-<body class="bg-gray-100 text-gray-600" {% if app.user %}data-watch-later-ids="{{ watch_later_video_ids()|json_encode|e('html_attr') }}"{% endif %}>
+<body class="bg-gray-100 text-gray-600" 
+      {% if app.user %}data-watch-later-ids="{{ watch_later_video_ids()|json_encode|e('html_attr') }}"{% endif %}
+      data-controller="pwa"
+      data-pwa-vapid-public-key-value="{{ vapid_public_key() }}">
+    
+    {# PWA Install Banner #}
+    <div data-pwa-target="installBtn" class="hidden fixed bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-50 max-w-sm">
+        <div class="flex items-start gap-3">
+            <div class="flex-1">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Установить приложение</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Установите {{ site_name() }} для быстрого доступа</p>
+                <div class="flex gap-2">
+                    <button data-action="click->pwa#installApp" class="px-4 py-2 bg-orange-600 text-white rounded-md text-sm hover:bg-orange-700">
+                        Установить
+                    </button>
+                    <button onclick="this.closest('[data-pwa-target=installBtn]').classList.add('hidden')" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-gray-600">
+                        Позже
+                    </button>
+                </div>
+            </div>
+            <button onclick="this.closest('[data-pwa-target=installBtn]').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
     {% include 'partials/_header.html.twig' ignore missing %}
     <main class="min-h-screen">{% block body %}{% endblock %}</main>
     {% include 'partials/_footer.html.twig' ignore missing %}

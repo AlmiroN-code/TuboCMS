@@ -58,8 +58,8 @@
                             </label>
                             <div class="mt-1 flex items-center space-x-4">
                                 <div class="flex-shrink-0">
-                                    {% if channel.avatarUrl %}
-                                        <img id="avatar_preview" src="{{ channel.avatarUrl }}" alt="Аватар" 
+                                    {% if channel_avatar(channel.avatar) %}
+                                        <img id="avatar_preview" src="{{ channel_avatar(channel.avatar) }}" alt="Аватар" 
                                              class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
                                     {% else %}
                                         <div id="avatar_preview" class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center border-2 border-gray-300">

@@ -1,10 +1,64 @@
-<div class="bg-gray-100 dark:bg-gray-800 rounded-md p-4" id="comment-{{ comment.id }}">
+<div class="bg-gray-100 dark:bg-gray-800 rounded-md p-4" 
+     id="comment-{{ comment.id }}"
+     x-data="{
+         showReplyForm: false,
+         async deleteComment() {
+             if (!confirm('Delete comment?')) return;
+             
+             try {
+                 const response = await fetch('{{ path('comment_delete', {'id': comment.id}) }}', {
+                     method: 'DELETE',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 });
+                 
+                 if (response.ok) {
+                     document.getElementById('comment-{{ comment.id }}').remove();
+                     
+                     // Обновляем счетчик
+                     const countElement = document.querySelector('#comments-section h2');
+                     const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
+                     countElement.textContent = `Comments (${currentCount - 1})`;
+                 }
+             } catch (error) {
+                 console.error('Error:', error);
+                 alert('Ошибка при удалении комментария');
+             }
+         },
+         async submitReply(event) {
+             event.preventDefault();
+             const form = event.target;
+             const formData = new FormData(form);
+             
+             try {
+                 const response = await fetch('{{ path('comment_add') }}', {
+                     method: 'POST',
+                     body: formData
+                 });
+                 
+                 if (response.ok) {
+                     const html = await response.text();
+                     const repliesContainer = document.getElementById('replies-{{ comment.id }}');
+                     repliesContainer.insertAdjacentHTML('afterbegin', html);
+                     form.reset();
+                     this.showReplyForm = false;
+                     
+                     // Обновляем счетчик
+                     const countElement = document.querySelector('#comments-section h2');
+                     const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
+                     countElement.textContent = `Comments (${currentCount + 1})`;
+                 }
+             } catch (error) {
+                 console.error('Error:', error);
+                 alert('Ошибка при добавлении ответа');
+             }
+         }
+     }">
     <div class="flex items-start space-x-4">
         <div class="flex-shrink-0">
-            {% if comment.user.avatar %}
-                {{ lazy_img(asset('media/avatars/' ~ comment.user.avatar), comment.user.username ~ ' avatar', 'w-10 h-10 rounded-full object-cover', 40, 40, true) }}
-            {% else %}
-                <div class="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center">
+            {{ lazy_img(user_avatar(comment.user.avatar), comment.user.username ~ ' avatar', 'w-10 h-10 rounded-full object-cover', 40, 40, true) }}
                     <span class="text-lg font-semibold text-white">{{ comment.user.username|slice(0, 1)|upper }}</span>
                 </div>
             {% endif %}
@@ -16,13 +70,9 @@
                     <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">{{ comment.createdAt|time_ago }}</span>
                 </div>
                 {% if app.user and (comment.user == app.user or is_granted('ROLE_ADMIN')) %}
-                    <button 
-                        hx-delete="{{ path('comment_delete', {'id': comment.id}) }}"
-                        hx-target="#comment-{{ comment.id }}"
-                        hx-swap="outerHTML"
-                        hx-confirm="Delete comment?"
-                        class="text-red-500 hover:text-red-400 text-sm transition"
-                    >
+                    <button @click="deleteComment()"
+                            type="button"
+                            class="text-red-500 hover:text-red-400 text-sm transition">
                         Delete
                     </button>
                 {% endif %}
@@ -30,18 +80,16 @@
             <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ comment.content|format_mentions }}</p>
             
             {% if app.user and not comment.parent %}
-                <button 
-                    onclick="toggleReplyForm({{ comment.id }})"
-                    class="text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 text-sm mt-2 transition"
-                >
+                <button @click="showReplyForm = !showReplyForm"
+                        type="button"
+                        class="text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 text-sm mt-2 transition">
                     Reply
                 </button>
                 
-                <div id="reply-form-{{ comment.id }}" class="hidden mt-4">
-                    <form hx-post="{{ path('comment_add') }}" 
-                          hx-target="#replies-{{ comment.id }}" 
-                          hx-swap="afterbegin"
-                          hx-on::after-request="this.reset(); toggleReplyForm({{ comment.id }})">
+                <div x-show="showReplyForm" 
+                     x-transition
+                     class="mt-4">
+                    <form @submit="submitReply($event)">
                         <input type="hidden" name="video_id" value="{{ video.id }}">
                         <input type="hidden" name="parent_id" value="{{ comment.id }}">
                         <textarea 
@@ -54,7 +102,9 @@
                         <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm transition">
                             Submit
                         </button>
-                        <button type="button" onclick="toggleReplyForm({{ comment.id }})" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-md text-sm ml-2 transition">
+                        <button type="button" 
+                                @click="showReplyForm = false"
+                                class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-md text-sm ml-2 transition">
                             Cancel
                         </button>
                     </form>

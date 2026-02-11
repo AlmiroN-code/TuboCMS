@@ -54,7 +54,14 @@
             </div>
 
             {% if videos|length > 0 %}
-                <div class="video-grid">
+                <div id="video-grid" 
+                     class="video-grid"
+                     data-controller="infinite-scroll"
+                     data-infinite-scroll-url-value="{{ path('app_category_load_more', {slug: category.slug}) }}"
+                     data-infinite-scroll-page-value="{{ page }}"
+                     data-infinite-scroll-sort-value="newest"
+                     data-infinite-scroll-has-more-value="{{ page < total_pages ? 'true' : 'false' }}"
+                     data-infinite-scroll-target="container">
                     {% for video in videos %}
                         {% if loop.index % 12 == 6 %}
                             {# Рекламный блок между видео в категории #}
@@ -68,6 +75,20 @@
                         {% endif %}
                         {% include 'video/_card.html.twig' with {'video': video} %}
                     {% endfor %}
+                    
+                    {# Infinite Scroll Sentinel & Loader #}
+                    {% if page < total_pages %}
+                    <div data-infinite-scroll-target="sentinel" class="col-span-full h-1"></div>
+                    <div data-infinite-scroll-target="loader" class="col-span-full flex justify-center py-8 hidden">
+                        <div class="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                            <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>{{ 'video.loading'|trans }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="mt-8 flex justify-center gap-2">

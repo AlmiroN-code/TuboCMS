@@ -1,0 +1,39 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for subscription in subscriptions %}
+        {% set channel = subscription.channel %}
+        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-center gap-3 mb-3">
+                {% if channel.avatar %}
+                    {{ lazy_img(asset('media/channels/' ~ channel.avatar), channel.name, 'w-16 h-16 rounded-full object-cover', 64, 64, true) }}
+                {% else %}
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                        {{ channel.name|slice(0, 1)|upper }}
+                    </div>
+                {% endif %}
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 mb-1">{{ channel.name }}</h3>
+                    <p class="text-xs text-gray-500">{{ channel.subscribersCount|default(0) }} подписчиков</p>
+                    <p class="text-xs text-gray-400">Подписка с {{ subscription.subscribedAt|date('d.m.Y') }}</p>
+                </div>
+            </div>
+            
+            {% if channel.description %}
+                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ channel.description }}</p>
+            {% endif %}
+
+            <div class="flex gap-2">
+                <a href="{{ path('channel_show', {'slug': channel.slug}) }}" 
+                   class="flex-1 text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
+                    Просмотр канала
+                </a>
+                {% if app.user and app.user.id == user.id %}
+                    <button data-action="unsubscribe-channel" 
+                            data-channel-id="{{ channel.id }}"
+                            class="flex-1 px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition text-sm">
+                        Отписаться
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

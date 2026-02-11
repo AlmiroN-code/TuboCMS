@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\PushNotificationService;
+use App\Service\PushNotificationTemplateService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class MentionService
@@ -13,6 +15,8 @@ class MentionService
     public function __construct(
         private UserRepository $userRepository,
         private UrlGeneratorInterface $urlGenerator,
+        private PushNotificationService $pushService,
+        private PushNotificationTemplateService $pushTemplateService,
     ) {
     }
 

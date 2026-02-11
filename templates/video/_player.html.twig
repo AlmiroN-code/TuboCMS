@@ -23,7 +23,7 @@
 <div class="video-player-container relative bg-black rounded-md overflow-hidden group"
      data-controller="video-player"
      data-video-player-sources-value="{{ sources|json_encode|e('html_attr') }}"
-     data-video-player-poster-value="{{ video.poster ? '/media/' ~ video.poster : '' }}"
+     data-video-player-poster-value="{{ video_poster(video.poster) }}"
      data-video-player-video-id-value="{{ video.id }}"
      data-video-player-target="container"
      data-turbo="false">
@@ -31,7 +31,7 @@
     {# Video Element #}
     <video class="w-full aspect-video"
            data-video-player-target="video"
-           poster="{{ video.poster ? '/media/' ~ video.poster : '' }}"
+           poster="{{ video_poster(video.poster) }}"
            playsinline
            preload="metadata"
            data-action="click->video-player#togglePlay dblclick->video-player#toggleFullscreen">

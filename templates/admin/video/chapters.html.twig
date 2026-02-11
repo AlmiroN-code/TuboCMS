@@ -1,0 +1,218 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Главы видео - {{ video.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{{ path('admin_videos') }}" class="text-orange-600 hover:text-orange-700 mb-4 inline-flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Назад к видео
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900 mt-2">Главы видео</h1>
+        <p class="text-gray-600 mt-2">{{ video.title }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Форма добавления главы -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Добавить главу</h2>
+            <form id="add-chapter-form" class="space-y-4">
+                <div>
+                    <label for="timestamp" class="block text-sm font-medium text-gray-700 mb-1">
+                        Временная метка
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="number" id="hours" min="0" max="23" placeholder="ЧЧ" 
+                               class="w-20 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <span class="self-center">:</span>
+                        <input type="number" id="minutes" min="0" max="59" placeholder="ММ" 
+                               class="w-20 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <span class="self-center">:</span>
+                        <input type="number" id="seconds" min="0" max="59" placeholder="СС" 
+                               class="w-20 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Или введите секунды напрямую:</p>
+                    <input type="number" id="timestamp" name="timestamp" min="0" required
+                           class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                        Название главы *
+                    </label>
+                    <input type="text" id="title" name="title" required maxlength="255"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                        Описание
+                    </label>
+                    <textarea id="description" name="description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <button type="submit" 
+                        class="w-full inline-flex justify-center items-center px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Добавить главу
+                </button>
+            </form>
+        </div>
+
+        <!-- Список глав -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Главы видео (<span id="chapters-count">0</span>)</h2>
+            <div id="chapters-list" class="space-y-3">
+                <p class="text-gray-500 text-center py-8">Главы не добавлены</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const videoId = {{ video.id }};
+    const form = document.getElementById('add-chapter-form');
+    const chaptersList = document.getElementById('chapters-list');
+    const chaptersCount = document.getElementById('chapters-count');
+    const timestampInput = document.getElementById('timestamp');
+    const hoursInput = document.getElementById('hours');
+    const minutesInput = document.getElementById('minutes');
+    const secondsInput = document.getElementById('seconds');
+
+    // Синхронизация полей времени
+    function updateTimestamp() {
+        const hours = parseInt(hoursInput.value) || 0;
+        const minutes = parseInt(minutesInput.value) || 0;
+        const seconds = parseInt(secondsInput.value) || 0;
+        timestampInput.value = hours * 3600 + minutes * 60 + seconds;
+    }
+
+    function updateTimeFields() {
+        const total = parseInt(timestampInput.value) || 0;
+        hoursInput.value = Math.floor(total / 3600);
+        minutesInput.value = Math.floor((total % 3600) / 60);
+        secondsInput.value = total % 60;
+    }
+
+    hoursInput.addEventListener('input', updateTimestamp);
+    minutesInput.addEventListener('input', updateTimestamp);
+    secondsInput.addEventListener('input', updateTimestamp);
+    timestampInput.addEventListener('input', updateTimeFields);
+
+    // Загрузка глав
+    function loadChapters() {
+        fetch(`/api/video/${videoId}/chapters`)
+            .then(response => response.json())
+            .then(data => {
+                renderChapters(data.chapters);
+            })
+            .catch(error => {
+                console.error('Error loading chapters:', error);
+            });
+    }
+
+    // Отображение глав
+    function renderChapters(chapters) {
+        chaptersCount.textContent = chapters.length;
+        
+        if (chapters.length === 0) {
+            chaptersList.innerHTML = '<p class="text-gray-500 text-center py-8">Главы не добавлены</p>';
+            return;
+        }
+
+        chaptersList.innerHTML = chapters.map(chapter => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50" data-chapter-id="${chapter.id}">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded">
+                                ${chapter.formatted_timestamp}
+                            </span>
+                            <h3 class="font-medium text-gray-900">${escapeHtml(chapter.title)}</h3>
+                        </div>
+                        ${chapter.description ? `<p class="text-sm text-gray-600">${escapeHtml(chapter.description)}</p>` : ''}
+                    </div>
+                    <button onclick="deleteChapter(${chapter.id})" 
+                            class="ml-4 p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Добавление главы
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            timestamp: parseInt(timestampInput.value),
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value || null
+        };
+
+        fetch(`/api/video/${videoId}/chapters`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                form.reset();
+                timestampInput.value = 0;
+                updateTimeFields();
+                loadChapters();
+            } else {
+                alert('Ошибка при добавлении главы');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка');
+        });
+    });
+
+    // Удаление главы
+    window.deleteChapter = function(chapterId) {
+        if (!confirm('Удалить эту главу?')) return;
+
+        fetch(`/api/video/${videoId}/chapters/${chapterId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadChapters();
+            } else {
+                alert('Ошибка при удалении главы');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка');
+        });
+    };
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Загрузка при старте
+    loadChapters();
+})();
+</script>
+{% endblock %}

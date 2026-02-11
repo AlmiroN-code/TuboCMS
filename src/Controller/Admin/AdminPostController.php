@@ -31,7 +31,14 @@ class AdminPostController extends AbstractController
         PostRepository $postRepository
     ): Response {
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = $this->settingsService->getVideosPerPage();
+        $perPage = $request->query->getInt('per_page', $this->settingsService->getVideosPerPage());
+        
+        $allowedPerPage = [15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = $this->settingsService->getVideosPerPage();
+        }
+        
+        $limit = $perPage;
         $offset = ($page - 1) * $limit;
         $status = $request->query->get('status');
 
@@ -41,6 +48,8 @@ class AdminPostController extends AbstractController
         return $this->render('admin/posts/index.html.twig', [
             'posts' => $posts,
             'page' => $page,
+            'perPage' => $perPage,
+            'total' => $total,
             'total_pages' => ceil($total / $limit),
             'current_status' => $status,
         ]);

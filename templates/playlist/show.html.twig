@@ -2,7 +2,7 @@
 
 {% set breadcrumbs = [
     {'label': 'breadcrumb.home'|trans, 'url': path('app_home')},
-    {'label': 'playlist.my_playlists'|trans, 'url': path('app_playlist_index')},
+    {'label': 'playlist.my_playlists'|trans, 'url': path('my_playlists')},
     {'label': playlist.title, 'url': ''}
 ] %}
 
@@ -11,32 +11,59 @@
 {% block body %}
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-start mb-6">
-        <div>
+        <div class="flex-1">
             <h1 class="text-2xl font-bold text-white">{{ playlist.title }}</h1>
             {% if playlist.description %}
                 <div class="text-gray-400 mt-2 prose prose-sm max-w-none dark:prose-invert">{{ playlist.description|raw }}</div>
             {% endif %}
             <p class="text-sm text-gray-500 mt-2">
                 {{ playlist.videosCount }} {{ 'playlist.videos'|trans }} •
-                {% if playlist.isPublic %}{{ 'playlist.public'|trans }}{% else %}{{ 'playlist.private'|trans }}{% endif %}
+                {% if playlist.visibility == 'public' %}{{ 'playlist.public'|trans }}
+                {% elseif playlist.visibility == 'private' %}{{ 'playlist.private'|trans }}
+                {% elseif playlist.visibility == 'unlisted' %}{{ 'playlist.unlisted'|trans }}
+                {% elseif playlist.visibility == 'user_subscribers' %}{{ 'playlist.user_subscribers'|trans }}
+                {% elseif playlist.visibility == 'channel_subscribers' %}{{ 'playlist.channel_subscribers'|trans }}
+                {% endif %}
             </p>
+            
+            {% if isOwner and playlist.visibility == 'unlisted' and playlist.shareToken %}
+                <div class="mt-4 p-3 bg-gray-800 rounded-md">
+                    <p class="text-sm text-gray-400 mb-2">{{ 'playlist.share_link'|trans }}:</p>
+                    <div class="flex gap-2">
+                        <input type="text" 
+                               id="shareLink" 
+                               readonly 
+                               value="{{ url('playlist_share', {token: playlist.shareToken}) }}"
+                               class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm">
+                        <button onclick="copyShareLink()" 
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm">
+                            {{ 'playlist.copy_link'|trans }}
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
         </div>
         {% if isOwner %}
-            <div class="flex gap-2">
-                <a href="{{ path('app_playlist_edit', {id: playlist.id}) }}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+            <div class="flex gap-2 ml-4">
+                <button type="button" 
+                        onclick="openCollaboratorsModal()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    Соавторы
+                </button>
+                <a href="{{ path('playlist_edit', {slug: playlist.slug}) }}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
                     {{ 'common.edit'|trans }}
                 </a>
             </div>
         {% endif %}
     </div>
 
-    {% if playlist.videos is empty %}
+    {% if playlist_videos is empty %}
         <div class="text-center py-12">
             <p class="text-gray-400">{{ 'playlist.no_videos'|trans }}</p>
         </div>
     {% else %}
         <div class="space-y-4" id="playlist-videos">
-            {% for playlistVideo in playlist.videos %}
+            {% for playlistVideo in playlist_videos %}
                 {% set video = playlistVideo.video %}
                 <div class="flex gap-4 bg-gray-800 rounded-md p-4 hover:bg-gray-700 transition" data-video-id="{{ video.id }}">
                     <a href="{{ path('video_detail', {slug: video.slug}) }}" class="flex-shrink-0">
@@ -69,6 +96,235 @@
 </div>
 
 {% if isOwner %}
+{# Модальное окно управления соавторами #}
+<div id="collaboratorsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-white">Управление соавторами</h2>
+            <button onclick="closeCollaboratorsModal()" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        {# Переключатель режима совместного доступа #}
+        <div class="mb-6 p-4 bg-gray-700 rounded-md">
+            <label class="flex items-center justify-between cursor-pointer">
+                <span class="text-white font-medium">Совместный плейлист</span>
+                <input type="checkbox" 
+                       id="collaborativeToggle"
+                       {{ playlist.isCollaborative ? 'checked' : '' }}
+                       onchange="toggleCollaborative()"
+                       class="w-12 h-6 rounded-full appearance-none bg-gray-600 checked:bg-blue-600 relative cursor-pointer transition-colors">
+            </label>
+            <p class="text-sm text-gray-400 mt-2">Разрешить другим пользователям добавлять видео в этот плейлист</p>
+        </div>
+
+        <div id="collaboratorsSection" class="{{ playlist.isCollaborative ? '' : 'hidden' }}">
+            {# Форма добавления соавтора #}
+            <div class="mb-6">
+                <h3 class="text-white font-medium mb-3">Добавить соавтора</h3>
+                <div class="flex gap-2">
+                    <input type="text" 
+                           id="collaboratorUsername"
+                           placeholder="Имя пользователя"
+                           class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <select id="collaboratorPermission" class="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="add">Добавление</option>
+                        <option value="edit">Редактирование</option>
+                        <option value="manage">Управление</option>
+                    </select>
+                    <button onclick="addCollaborator()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                        Добавить
+                    </button>
+                </div>
+            </div>
+
+            {# Список соавторов #}
+            <div>
+                <h3 class="text-white font-medium mb-3">Текущие соавторы</h3>
+                <div id="collaboratorsList" class="space-y-2">
+                    <p class="text-gray-400 text-sm">Загрузка...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const playlistId = {{ playlist.id }};
+
+function openCollaboratorsModal() {
+    document.getElementById('collaboratorsModal').classList.remove('hidden');
+    if (document.getElementById('collaborativeToggle').checked) {
+        loadCollaborators();
+    }
+}
+
+function closeCollaboratorsModal() {
+    document.getElementById('collaboratorsModal').classList.add('hidden');
+}
+
+async function toggleCollaborative() {
+    const isCollaborative = document.getElementById('collaborativeToggle').checked;
+    
+    try {
+        const response = await fetch(`/api/playlist/${playlistId}/collaborators/toggle-collaborative`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) throw new Error('Ошибка при изменении режима');
+
+        const section = document.getElementById('collaboratorsSection');
+        if (isCollaborative) {
+            section.classList.remove('hidden');
+            loadCollaborators();
+        } else {
+            section.classList.add('hidden');
+        }
+    } catch (error) {
+        alert('Ошибка: ' + error.message);
+        document.getElementById('collaborativeToggle').checked = !isCollaborative;
+    }
+}
+
+async function loadCollaborators() {
+    try {
+        const response = await fetch(`/api/playlist/${playlistId}/collaborators`);
+        if (!response.ok) throw new Error('Ошибка загрузки соавторов');
+
+        const collaborators = await response.json();
+        const list = document.getElementById('collaboratorsList');
+
+        if (collaborators.length === 0) {
+            list.innerHTML = '<p class="text-gray-400 text-sm">Нет соавторов</p>';
+            return;
+        }
+
+        list.innerHTML = collaborators.map(c => `
+            <div class="flex items-center justify-between p-3 bg-gray-700 rounded-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
+                        ${c.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">${c.username}</p>
+                        <p class="text-sm text-gray-400">
+                            ${c.permission === 'add' ? 'Добавление' : c.permission === 'edit' ? 'Редактирование' : 'Управление'}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <select onchange="updatePermission(${c.userId}, this.value)" 
+                            class="px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-sm">
+                        <option value="add" ${c.permission === 'add' ? 'selected' : ''}>Добавление</option>
+                        <option value="edit" ${c.permission === 'edit' ? 'selected' : ''}>Редактирование</option>
+                        <option value="manage" ${c.permission === 'manage' ? 'selected' : ''}>Управление</option>
+                    </select>
+                    <button onclick="removeCollaborator(${c.userId})" 
+                            class="text-red-500 hover:text-red-400 px-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        document.getElementById('collaboratorsList').innerHTML = 
+            '<p class="text-red-400 text-sm">Ошибка загрузки соавторов</p>';
+    }
+}
+
+async function addCollaborator() {
+    const username = document.getElementById('collaboratorUsername').value.trim();
+    const permission = document.getElementById('collaboratorPermission').value;
+
+    if (!username) {
+        alert('Введите имя пользователя');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/playlist/${playlistId}/collaborators`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, permission })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Ошибка добавления соавтора');
+        }
+
+        document.getElementById('collaboratorUsername').value = '';
+        loadCollaborators();
+    } catch (error) {
+        alert('Ошибка: ' + error.message);
+    }
+}
+
+async function updatePermission(userId, permission) {
+    try {
+        const response = await fetch(`/api/playlist/${playlistId}/collaborators/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ permission })
+        });
+
+        if (!response.ok) throw new Error('Ошибка обновления прав');
+    } catch (error) {
+        alert('Ошибка: ' + error.message);
+        loadCollaborators();
+    }
+}
+
+async function removeCollaborator(userId) {
+    if (!confirm('Удалить соавтора?')) return;
+
+    try {
+        const response = await fetch(`/api/playlist/${playlistId}/collaborators/${userId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Ошибка удаления соавтора');
+
+        loadCollaborators();
+    } catch (error) {
+        alert('Ошибка: ' + error.message);
+    }
+}
+
+// Закрытие модального окна по клику вне его
+document.getElementById('collaboratorsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCollaboratorsModal();
+    }
+});
+
+// Копирование ссылки для sharing
+function copyShareLink() {
+    const input = document.getElementById('shareLink');
+    input.select();
+    document.execCommand('copy');
+    
+    // Показываем уведомление
+    if (typeof window.showSuccess === 'function') {
+        window.showSuccess('{{ 'playlist.link_copied'|trans }}');
+    } else {
+        alert('{{ 'playlist.link_copied'|trans }}');
+    }
+}
+</script>
+
 {# Функция removeFromPlaylist теперь глобальная в assets/js/interactions.js #}
 {% endif %}
 {% endblock %}
