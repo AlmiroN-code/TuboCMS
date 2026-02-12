@@ -25,6 +25,7 @@ nav:
     community: "Сообщество"
     posts: "Посты"
     popular: "Популярное"
+    popular_in: "Популярное в %country%"
     trending: "В тренде"
 
 # Authentication
@@ -433,6 +434,7 @@ profile:
 # Models section
 models:
     title: "Модели"
+    all_models: "Все модели"
     meta_description: "Просмотрите нашу коллекцию моделей и актёров"
     total_count: "%count% моделей"
     search: "Поиск"

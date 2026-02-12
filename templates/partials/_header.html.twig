@@ -123,34 +123,108 @@
 		<div class="wrap mx-auto border-t border-gray-200 dark:border-gray-200">
 			<div class="flex justify-between">
 				<div class="flex space-x-1">
-					<a href="{{ path('app_videos') }}" 
-						class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') == 'app_videos' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-						</svg>
-						{{ 'nav.videos'|trans }}
-					</a>
-					<a href="{{ path('app_categories') }}" 
-						class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') == 'app_categories' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
-						</svg>
-						{{ 'nav.categories'|trans }}
-					</a>
-					<a href="{{ path('app_models') }}" 
-						class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') starts with 'app_model' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-						</svg>
-						{{ 'nav.models'|trans }}
-					</a>
-					<a href="{{ path('channels_index') }}" 
-						class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') starts with 'channels' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-						</svg>
-						{{ 'nav.channels'|trans }}
-					</a>
+					{# Videos with Dropdown #}
+					<div class="relative group">
+						<a href="{{ path('app_videos') }}" 
+							class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') == 'app_videos' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+							</svg>
+							{{ 'nav.videos'|trans }}
+							<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+							</svg>
+						</a>
+						<div class="hidden group-hover:block absolute left-0 w-64 bg-white dark:bg-gray-800 rounded-md shadow py-2 z-50 mt-0">
+							{% set countryInfo = user_country_info() %}
+							{% if countryInfo %}
+							<a href="{{ path('app_videos_popular') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								<img src="{{ countryInfo.flag_url }}" alt="{{ countryInfo.code|upper }}" class="w-5 h-auto rounded-sm shadow">
+								<span>{{ 'nav.popular_in'|trans({'%country%': countryInfo.name}) }}</span>
+							</a>
+							{% else %}
+							<a href="{{ path('app_videos_popular') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ 'nav.popular'|trans }}
+							</a>
+							{% endif %}
+						</div>
+					</div>
+					
+					{# Categories with Dropdown #}
+					<div class="relative group">
+						<a href="{{ path('app_categories') }}" 
+							class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') == 'app_categories' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+							</svg>
+							{{ 'nav.categories'|trans }}
+							<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+							</svg>
+						</a>
+						<div class="hidden group-hover:block absolute left-0 w-56 bg-white dark:bg-gray-800 rounded-md shadow py-2 z-50 mt-0">
+							{% for category in popular_categories(10) %}
+							<a href="{{ path('app_category_show', {slug: category.slug}) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ category.name }}
+							</a>
+							{% endfor %}
+							<div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+							<a href="{{ path('app_categories') }}" class="block px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ 'category.all_categories'|trans }}
+							</a>
+						</div>
+					</div>
+					
+					{# Models with Dropdown #}
+					<div class="relative group">
+						<a href="{{ path('app_models') }}" 
+							class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') starts with 'app_model' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+							</svg>
+							{{ 'nav.models'|trans }}
+							<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+							</svg>
+						</a>
+						<div class="hidden group-hover:block absolute left-0 w-56 bg-white dark:bg-gray-800 rounded-md shadow py-2 z-50 mt-0">
+							{% for model in popular_models(10) %}
+							<a href="{{ path('app_model_show', {slug: model.slug}) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ model.displayName }}
+							</a>
+							{% endfor %}
+							<div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+							<a href="{{ path('app_models') }}" class="block px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ 'models.all_models'|trans }}
+							</a>
+						</div>
+					</div>
+					
+					{# Channels with Dropdown #}
+					<div class="relative group">
+						<a href="{{ path('channels_index') }}" 
+							class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') starts with 'channels' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+							</svg>
+							{{ 'nav.channels'|trans }}
+							<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+							</svg>
+						</a>
+						<div class="hidden group-hover:block absolute left-0 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50 mt-0">
+							{% for channel in popular_channels(10) %}
+							<a href="{{ path('channel_show', {slug: channel.slug}) }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ channel.name }}
+							</a>
+							{% endfor %}
+							<div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+							<a href="{{ path('channels_index') }}" class="block px-4 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+								{{ 'channel.all_channels'|trans }}
+							</a>
+						</div>
+					</div>
+					
 					<a href="{{ path('app_members') }}" 
 						class="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 {{ app.request.attributes.get('_route') starts with 'app_member' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:border-gray-300 dark:hover:border-gray-600' }}">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

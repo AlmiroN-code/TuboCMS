@@ -54,7 +54,7 @@ class ProfileEditType extends AbstractType
             ])
             ->add('country', ChoiceType::class, [
                 'label' => 'members.country',
-                'required' => false,
+                'required' => true,
                 'placeholder' => 'common.select',
                 'choices' => $this->getCountries(),
             ])

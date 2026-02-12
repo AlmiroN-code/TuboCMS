@@ -4,7 +4,7 @@
 
 /* CSS переменные для тем */
 :root {
-	--wrap-width: 1460px;
+	--wrap-width: 1420px;
 	--accent-color: #E45257;
 	--sidebar-width: 220px;
 	
@@ -28,7 +28,7 @@
 	--text-primary: #f8fafc;
 	--text-secondary: #cbd5e1;
 	--text-muted: #94a3b8;
-	--border-color: #334155;
+	--border-color: #2A3036;
 	--shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
 	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 }
@@ -134,7 +134,7 @@ body{background-color: var(--bg-primary);}
 .video-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap:6px;
 }
 
 .video-grid .video-card {
@@ -147,8 +147,8 @@ body{background-color: var(--bg-primary);}
 
 .video-card .thumbnail {
     background: var(--bg-tertiary);
-    padding-top: 58.25%;
-    border-radius: 2px;
+    padding-top: 60.25%;
+    border-radius: 3px;
     margin-bottom: 10px;
     overflow: hidden;
     position: relative;

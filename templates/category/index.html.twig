@@ -12,13 +12,13 @@
 {% block meta_keywords %}{{ setting('seo_categories_keywords') ?: parent() }}{% endblock %}
 
 {% block body %}
-{# Рекламный блок в верхней части страницы категорий #}
+<!-- {# Рекламный блок в верхней части страницы категорий #}
 <div class="ad-block mb-2">
     {{ show_ad('categories_top_banner', {
         'page': 'categories',
         'user_id': app.user ? app.user.id : null
     }) }}
-</div>
+</div> -->
 
 <div class="flex gap-2">
     {% include 'partials/_sidebar.html.twig' %}

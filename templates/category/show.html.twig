@@ -32,19 +32,19 @@
 {% endblock %}
 
 {% block body %}
-    {# Рекламный блок в верхней части страницы категории #}
+    <!-- {# Рекламный блок в верхней части страницы категории #}
     <div class="ad-block mb-4">
         {{ show_ad('category_top_banner', {
             'page': 'category_show',
             'category_id': category.id,
             'user_id': app.user ? app.user.id : null
         }) }}
-    </div>
+    </div> -->
 
-    <div class="flex gap-8">
+    <div class="flex gap-2">
         {% include 'partials/_sidebar.html.twig' %}
         
-        <div class="flex-1">
+        <div class="flex-1 p-4">
             <div class="mt-8 mb-8">
                 <h1 class="text-3xl text-gray-900">{{ category.name }}</h1>
                 {% if category.description %}
@@ -130,7 +130,7 @@
             {% endif %}
         </div>
 
-        {# Рекламный сайдбар на странице категории #}
+        <!-- {# Рекламный сайдбар на странице категории #}
         <div class="w-80 flex-shrink-0">
             <div class="ad-block mb-4">
                 {{ show_ad('category_sidebar', {
@@ -139,6 +139,6 @@
                     'user_id': app.user ? app.user.id : null
                 }) }}
             </div>
-        </div>
+        </div> -->
     </div>
 {% endblock %}

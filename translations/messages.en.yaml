@@ -25,6 +25,7 @@ nav:
     community: "Community"
     posts: "Posts"
     popular: "Popular"
+    popular_in: "Popular in %country%"
     trending: "Trending"
 
 # Authentication
@@ -425,6 +426,7 @@ profile:
 # Models section
 models:
     title: "Models"
+    all_models: "All Models"
     meta_description: "Browse our collection of models and performers"
     total_count: "%count% models"
     search: "Search"

@@ -338,6 +338,14 @@ class UserProfileController extends AbstractController
             
             if ($form->isValid()) {
                 $this->addFlash('info', 'Форма валидна');
+            
+            // Если страна была изменена, устанавливаем флаг countryManuallySet
+            $originalCountry = $this->entityManager->getUnitOfWork()->getOriginalEntityData($user)['country'] ?? null;
+            $newCountry = $user->getCountry();
+            if ($originalCountry !== $newCountry && $newCountry !== null) {
+                $user->setCountryManuallySet(true);
+            }
+            
             // Обработка аватара
             $avatarFile = $form->get('avatarFile')->getData();
             if ($avatarFile) {
