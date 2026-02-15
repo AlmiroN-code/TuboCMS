@@ -44,7 +44,7 @@
 		<section class="mb-8">
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.new_videos'|trans }}</h2>
-				<a href="{{ path('app_videos_newest') }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">{{ 'home.view_all'|trans }}</a>
+				<a href="{{ path('app_videos_newest') }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 text-sm dark:hover:text-orange-300">{{ 'home.view_all'|trans }}</a>
 			</div>
 			<div class="video-grid">
 				{% for video in new_videos %}
@@ -59,7 +59,7 @@
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.recently_watched'|trans }}</h2>
 				{% if app.user %}
-					<a href="{{ path('user_profile_history', {'username': app.user.username}) }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">{{ 'home.view_all'|trans }}</a>
+					<a href="{{ path('user_profile_history', {'username': app.user.username}) }}" class="text-orange-600 text-sm dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">{{ 'home.view_all'|trans }}</a>
 				{% endif %}
 			</div>
 			<div class="video-grid">
@@ -74,7 +74,7 @@
 		<section class="mb-8">
 			<div class="flex justify-between items-center mb-4">
 				<h2 class="text-2xl text-gray-900 dark:text-gray-100">{{ 'home.popular_videos'|trans }}</h2>
-				<a href="{{ path('app_videos_popular') }}" class="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">{{ 'home.view_all'|trans }}</a>
+				<a href="{{ path('app_videos_popular') }}" class="text-orange-600 text-sm dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">{{ 'home.view_all'|trans }}</a>
 			</div>
 			<div class="video-grid">
 				{% for video in popular_videos %}
