@@ -261,6 +261,11 @@ npm run build
 check_success "Ошибка сборки фронтенда"
 log_success "Фронтенд собран"
 
+# Очистка кэша после сборки фронтенда
+log_info "Очищаю кэш после сборки..."
+rm -rf var/cache/prod/*
+log_success "Кэш очищен"
+
 # === 18. Создание схемы БД ===
 log_info "Создаю схему БД через Doctrine..."
 php bin/console doctrine:schema:create --no-interaction 2>&1 || {
@@ -283,7 +288,7 @@ php bin/console app:video:init-profiles --no-interaction 2>/dev/null || log_warn
 
 # === 20. Создание админа ===
 log_info "Создаю супер админа..."
-ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$R9h7cIPz0gi.URNNX3kh2OPST9/PgBsqqqjiJ2eiK4m9wWyW2b7Oi')
+ADMIN_HASH=$(php bin/console security:hash-password "$ADMIN_PASSWORD" --no-interaction 2>/dev/null | grep -oP '(?<=Hash\s{2})\S+' || echo '$2y$13$ZeO8Ob15CODnDSMu1G8aBuMOq8ZpBLiidu0Glz.2cbkISbE3hrdaa')
 
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" << SQLEOF
 INSERT INTO user (
@@ -319,6 +324,10 @@ log_success "Messenger настроен"
 log_info "Прогреваю кэш..."
 rm -rf var/cache/prod/* var/log/*
 mkdir -p var/cache/prod var/log
+
+# Создаём лог-файлы
+touch var/log/prod.log var/log/dev.log
+check_success "Ошибка создания лог-файлов"
 
 chown -R www-data:www-data var/
 chmod -R 755 var/
