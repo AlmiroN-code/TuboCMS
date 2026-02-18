@@ -246,6 +246,9 @@ log_success ".env.local создан"
 
 # === 16. Composer зависимости ===
 log_info "Устанавливаю Composer зависимости..."
+# Сначала обновляем composer.lock если нужно
+composer update --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || true
+# Затем устанавливаем зависимости
 composer install --no-dev --optimize-autoloader --no-interaction
 check_success "Ошибка установки Composer"
 log_success "Composer установлен"
