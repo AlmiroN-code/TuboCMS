@@ -71,8 +71,18 @@ Encore
 // Дополнительные оптимизации для production
 if (Encore.isProduction()) {
     Encore
-        // Минификация JS
+        // Минификация JS с сохранением Alpine.js
         .enableIntegrityHashes(true)
+        .configureTerserPlugin((options) => {
+            options.terserOptions = {
+                compress: {
+                    drop_console: false, // Оставляем console для отладки Alpine
+                },
+                mangle: {
+                    reserved: ['Alpine'], // Не минифицируем имя Alpine
+                },
+            };
+        })
     ;
 }
 
@@ -90,7 +100,5 @@ if (!Encore.isProduction()) {
             };
         });
 }
-
-module.exports = Encore.getWebpackConfig();
 
 module.exports = Encore.getWebpackConfig();

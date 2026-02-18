@@ -44,18 +44,20 @@ import './js/interactions.js';
 // Make htmx globally available
 window.htmx = htmx;
 
-// Make Alpine globally available and defer start
+// Make Alpine globally available
 window.Alpine = Alpine;
-window.Alpine.plugin = Alpine.plugin;
 
-// Defer Alpine start until DOM is fully loaded
-document.addEventListener('alpine:init', () => {
-    console.log('Alpine:init event fired');
+// Start Alpine after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    Alpine.start();
+    console.log('Alpine.js started');
 });
 
-// Start Alpine
-Alpine.start();
-console.log('Alpine.js started');
+// Re-initialize Alpine after Turbo navigation
+document.addEventListener('turbo:load', () => {
+    // Alpine автоматически обрабатывает новые элементы
+    console.log('Turbo loaded - Alpine active');
+});
 
 // Initialize Turbo
 console.log('Turbo initialized');
