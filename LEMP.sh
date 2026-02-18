@@ -230,7 +230,7 @@ APP_DEBUG=0
 
 DATABASE_URL="mysql://$DB_USER:$DB_PASS@127.0.0.1:3306/$DB_NAME?serverVersion=10.11.0-MariaDB&charset=utf8mb4"
 
-MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
+MESSENGER_TRANSPORT_DSN=doctrine://default
 
 REDIS_URL=redis://localhost:6379
 CACHE_ADAPTER=cache.adapter.redis
